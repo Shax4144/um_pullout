@@ -14,37 +14,37 @@ import { ChevronDown } from "lucide-react";
 const moduleItems = [
   {
     label: "Inventory MRP",
-    to: "/workspace/inventory-mrp",
+    to: "/inventory-mrp",
     icon: ChevronDown,
   },
   {
     label: "Receiving",
-    to: "/workspace/receiving",
+    to: "/receiving",
     icon: ChevronDown,
   },
   {
     label: "Miscellaneous Receipt",
-    to: "/workspace/misc-receipt",
+    to: "/misc-receipt",
     icon: ChevronDown,
   },
   {
     label: "Miscellaneous Issue",
-    to: "/workspace/misc-issue",
+    to: "/misc-issue",
     icon: ChevronDown,
   },
   {
     label: "Move Order",
-    to: "/workspace/move-order",
+    to: "/move-order",
     icon: ChevronDown,
   },
   {
     label: "Transfer In",
-    to: "/workspace/transfer-in",
+    to: "/transfer-in",
     icon: ChevronDown,
   },
   {
     label: "Transfer Out",
-    to: "/workspace/transfer-out",
+    to: "/transfer-out",
     icon: ChevronDown,
   },
 ];

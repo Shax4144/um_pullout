@@ -9,6 +9,7 @@ const Landing = lazy(() => import("./Landing"));
 const Dashboard = lazy(() => import("./routes/modules/dashboard/Dashboard"));
 
 import masterlistConfig from "./config/masterlist-routes.config";
+import userManagementConfig from "./config/user-management-routes.config";
 import modulesConfig from "./config/modules-routes.config";
 import { Toaster } from "@/components/ui/toast";
 
@@ -24,13 +25,18 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute />}>
               <Route index element={<Dashboard />} />
             </Route>
-            <Route exact path="/workspace" element={<ProtectedRoute />}>
+            <Route exact element={<ProtectedRoute />}>
               {modulesConfig.map(({ path, component: Component }) => (
                 <Route key={path} exact path={path} element={<Component />} />
               ))}
             </Route>
-            <Route exact path="/masterlist" element={<ProtectedRoute />}>
+            <Route exact element={<ProtectedRoute />}>
               {masterlistConfig.map(({ path, component: Component }) => (
+                <Route key={path} exact path={path} element={<Component />} />
+              ))}
+            </Route>
+            <Route exact element={<ProtectedRoute />}>
+              {userManagementConfig.map(({ path, component: Component }) => (
                 <Route key={path} exact path={path} element={<Component />} />
               ))}
             </Route>

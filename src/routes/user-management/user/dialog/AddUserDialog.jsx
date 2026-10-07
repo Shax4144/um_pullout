@@ -40,7 +40,7 @@ const initialForm = {
   username: "",
 };
 
-const CreateUserDialog = ({
+const AddUserDialog = ({
   open,
   onClose,
   onConfirm,
@@ -366,7 +366,7 @@ const CreateUserDialog = ({
       </div>
 
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="text-sm font-semibold">
           {title}
         </h3>
 
@@ -406,7 +406,7 @@ const CreateUserDialog = ({
         {/* ==========================================================
             HEADER
         ========================================================== */}
-        <DialogHeader className="shrink-0 border-b bg-background px-6 py-5">
+        <DialogHeader className="shrink-0 border-b px-6 py-5">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
             {dialogContent.title}
           </DialogTitle>
@@ -435,7 +435,7 @@ const CreateUserDialog = ({
                 description="Basic identity information associated with the employee."
               />
 
-              <div className="rounded-xl border bg-muted/20 p-4">
+              <div className="rounded-xl border border-input-border bg-muted/20 p-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* ID Prefix */}
                   <div className="space-y-1.5">
@@ -650,7 +650,7 @@ const CreateUserDialog = ({
                 description="Assign the user's One Charging and organizational structure."
               />
 
-              <div className="rounded-xl border bg-muted/20 p-4">
+              <div className="rounded-xl border border-input-border bg-muted/20 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <IdCard className="h-4 w-4 text-muted-foreground" />
 
@@ -684,7 +684,6 @@ const CreateUserDialog = ({
           className="
             shrink-0
             border-t
-            bg-background
             px-6
             py-4
             sm:justify-between
@@ -745,4 +744,4 @@ const CreateUserDialog = ({
   );
 };
 
-export default CreateUserDialog;
+export default AddUserDialog;

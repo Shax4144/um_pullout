@@ -308,7 +308,7 @@ const UserManagementTable = ({
       ============================================================ */}
 
       <div className="min-h-0 flex-1 overflow-auto">
-        <Table containerClassName="overflow-visible">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map(
               (headerGroup) => (

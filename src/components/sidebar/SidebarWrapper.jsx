@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import SidebarMasterlistDropdown from "../sidebar/dropdown/SidebarMasterlistDropdown";
+import SidebarUserManagementDropdown from "../sidebar/dropdown/SidebarUserManagementDropdown";
 import SidebarModulesDropdown from "../sidebar/dropdown/SidebarModulesDropdown";
 import DarkmodeToggle from "../DarkmodeToggle";
 
@@ -74,6 +75,7 @@ const SidebarWrapper = () => {
               onClick={() => navigate("/dashboard")}
               isActive={pathname === "/dashboard"}
               tooltip="Dashboard"
+              className="cursor-pointer"
             >
               <LayoutDashboard />
               <span>Dashboard</span>
@@ -86,6 +88,9 @@ const SidebarWrapper = () => {
 
         {/* Masterlist */}
         <SidebarMasterlistDropdown />
+
+        {/* User Management */}
+        <SidebarUserManagementDropdown />
       </SidebarContent>
 
       {/* =========================================================

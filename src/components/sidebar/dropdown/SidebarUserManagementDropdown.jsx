@@ -11,47 +11,32 @@ import {
 
 import { UserRoundCog, ShieldUser } from "lucide-react";
 
-const masterlistItems = [
+const userManagementItems = [
   {
-    label: "Category",
-    to: "/categories",
+    label: "User Accounts",
+    to: "/user-accounts",
     icon: UserRoundCog,
   },
   {
-    label: "Items",
-    to: "/items",
-    icon: UserRoundCog,
-  },
-  {
-    label: "UOM",
-    to: "/uom",
-    icon: UserRoundCog,
-  },
-  {
-    label: "Account Titles",
-    to: "/account-titles",
-    icon: UserRoundCog,
-  },
-  {
-    label: "One Charging",
-    to: "/one-charging",
-    icon: UserRoundCog,
+    label: "Roles",
+    to: "/roles",
+    icon: ShieldUser,
   },
 ];
 
-const SidebarMasterlistDropdown = () => {
+const SidebarUserManagementDropdown = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="cursor-default text-[12px] font-semibold hover:text-accent-foreground">
-        Masterlist
+        User Management
       </SidebarGroupLabel>
 
       <SidebarGroupContent>
         <SidebarMenu className="pl-4">
-          {masterlistItems.map(({ label, to, icon: Icon }) => (
+          {userManagementItems.map(({ label, to, icon: Icon }) => (
             <SidebarMenuItem key={label}>
               <SidebarMenuButton
                 isActive={pathname === to}
@@ -70,4 +55,4 @@ const SidebarMasterlistDropdown = () => {
   );
 };
 
-export default SidebarMasterlistDropdown;
+export default SidebarUserManagementDropdown;

@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import CreateUserDialog from "../user/dialog/CreateUserDialog";
+import AddRoleDialog from "../roles/dialog/AddRoleDialog";
 import Confirm from "../../../components/Confirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
@@ -30,9 +30,9 @@ import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
 
-import UserTable from "./UserTable";
+import RolesTable from "./RolesTable";
 
-const UserAccount = () => {
+const Roles = () => {
   // ================================================================
   // TABLE STATE
   // ================================================================
@@ -191,19 +191,13 @@ const UserAccount = () => {
       active: {
         label: "Active",
         description:
-          "Manage active system users and their roles.",
-      },
-
-      pending: {
-        label: "Pending",
-        description:
-          "Review and complete pending user accounts.",
+          "Manage active system roles.",
       },
 
       archived: {
         label: "Archived",
         description:
-          "View and restore archived user accounts.",
+          "View and restore archived roles.",
       },
     };
 
@@ -640,7 +634,7 @@ const UserAccount = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">
-              User Accounts
+              Roles
             </h1>
 
             <Badge
@@ -678,7 +672,7 @@ const UserAccount = () => {
           "
         >
           <Plus className="h-4 w-4" />
-          Create User
+          Add Role
         </Button>
       </div>
 
@@ -691,7 +685,7 @@ const UserAccount = () => {
           flex-1
         "
       >
-        <UserTable
+        <RolesTable
           data={tableData}
           isFetching={tableIsFetching}
           isError={tableIsError}
@@ -714,7 +708,7 @@ const UserAccount = () => {
       {/* ============================================================
           CREATE / EDIT / PENDING DIALOG
       ============================================================ */}
-      <CreateUserDialog
+      <AddRoleDialog
         open={openCreate}
         onClose={handleCloseCreate}
         onConfirm={handleCreateOrUpdate}
@@ -745,4 +739,4 @@ const UserAccount = () => {
   );
 };
 
-export default UserAccount;
+export default Roles;
