@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import queryString from "query-string";
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT_1,
+  baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT,
   prepareHeaders: (headers) => {
     headers.set("Accept", "application/json");
     headers.set("Authorization", `Bearer ${localStorage.getItem("token")}`);
@@ -34,7 +34,8 @@ const baseQueryWithAuthCheck = async (args, api, extraOptions) => {
 export const baseApi = createApi({
   reducerPath: "baseApi",
   tagTypes: [
-    
+    "Users",
+    "Roles",
   ],
   baseQuery: baseQueryWithAuthCheck,
   endpoints: () => ({}),

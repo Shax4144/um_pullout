@@ -6,7 +6,7 @@ import { setupListeners } from "@reduxjs/toolkit/query"
 
 import { baseApi } from "../api/baseApi"
 // import { authApi } from "../api/authApi"
-// import { oneChargingBaseApi } from "../features/dropdown/one-charging-option"
+import { oneChargingApi } from "../api/one-charging/one-charging-api"
 
 
 export const store = configureStore({
@@ -16,13 +16,13 @@ export const store = configureStore({
 
     [baseApi.reducerPath]: baseApi.reducer,
     // [authApi.reducerPath]: authApi.reducer, 
-		// [oneChargingBaseApi.reducerPath]: oneChargingBaseApi.reducer,
+		[oneChargingApi.reducerPath]: oneChargingApi.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(baseApi.middleware)
       // .concat(authApi.middleware)
-      // .concat(oneChargingBaseApi.middleware)
+      .concat(oneChargingApi.middleware)
       
 })
 

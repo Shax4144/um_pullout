@@ -56,7 +56,7 @@ const SidebarModulesDropdown = () => {
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="cursor-default text-[12px] font-semibold hover:text-accent-foreground">
-        Workspace
+        Inventory
       </SidebarGroupLabel>
 
       <SidebarGroupContent>

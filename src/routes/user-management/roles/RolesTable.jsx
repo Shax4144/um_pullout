@@ -56,7 +56,7 @@ const RolesTable = ({
 
           return (
             <div className="min-w-0">
-              <p className="truncate font-medium text-foreground">
+              <p className="truncate font-medium text-foreground capitalize">
                 {roleName || "—"}
               </p>
             </div>
@@ -72,11 +72,34 @@ const RolesTable = ({
         header: "Permissions",
         cell: ({ row }) => {
           const permissions = row.getValue("permissions");
-
+      
+          if (!Array.isArray(permissions) || permissions.length === 0) {
+            return (
+              <span className="text-sm text-muted-foreground">
+                —
+              </span>
+            );
+          }
+      
           return (
-            <span className="text-sm text-muted-foreground">
-              {permissions || "—"}
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {permissions.map((value) => (
+                <Badge
+                  key={value}
+                  variant="outline"
+                  className="
+                    rounded-md
+                    px-2
+                    py-0.5
+                    text-xs
+                    font-medium
+                    capitalize
+                  "
+                >
+                  {value}
+                </Badge>
+              ))}
+            </div>
           );
         },
       },
@@ -196,7 +219,7 @@ const RolesTable = ({
                 ================================================== */}
                 {status === "pending" ? (
                   <DropdownMenuItem
-                    onSelect={() => onCreate(row.original)}
+                    onClick={() => onCreate(row.original)}
                     className="
                       cursor-pointer
                       gap-2
@@ -247,7 +270,7 @@ const RolesTable = ({
                   ================================================== */
                   <>
                     <DropdownMenuItem
-                      onSelect={() => onEdit(row.original)}
+                      onClick={() => onEdit(row.original)}
                       className="
                         cursor-pointer
                         gap-2
@@ -266,7 +289,7 @@ const RolesTable = ({
 
                     <DropdownMenuItem
                       variant="destructive"
-                      onSelect={() => onArchive(row.original)}
+                      onClick={() => onArchive(row.original)}
                       className="
                         cursor-pointer
                         gap-2

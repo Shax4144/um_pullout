@@ -446,7 +446,7 @@ const UserManagementTable = ({
                     last:border-0
                   "
                 >
-                  {row.getVisibleCells().map(
+                  {row.getAllCells().map(
                     (cell) => (
                       <TableCell
                         key={cell.id}

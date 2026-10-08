@@ -23,9 +23,9 @@ import {
   UserRound,
 } from "lucide-react";
 
-// import OneChargingDropdown from "../../../../components/dropdown/OneChargingDropdown";
-// import RolesDropdown from "../../../../components/dropdown/RolesDropdown";
-// import { useFetchRolesQuery } from "../../../../features/roles/roles.api";
+import OneChargingDropdown from "../../../../components/dropdowns/OneChargingDropdown";
+import RolesDropdown from "../../../../components/dropdowns/RolesDropdown";
+import { useFetchRolesQuery } from "../../../../api/roles/roles.api";
 import { useSelectedRow } from "../../../../context/SelectedRowProvider";
 import { toast } from "../../../../components/ui/toast";
 
@@ -104,21 +104,21 @@ const AddUserDialog = ({
   // FETCH ROLES
   // --------------------------------------------------------------
 
-  // const {
-  //   data: rolesResponse,
-  //   isFetching: isRolesFetching,
-  // } = useFetchRolesQuery(
-  //   {
-  //     pagination: "none",
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  //   {
-  //     skip: !open,
-  //   },
-  // );
+  const {
+    data: rolesResponse,
+    isFetching: isRolesFetching,
+  } = useFetchRolesQuery(
+    {
+      pagination: "none",
+      refetchOnMountOrArgChange: true,
+    },
+    {
+      skip: !open,
+    },
+  );
 
   const rolesData =
-    // rolesResponse?.data ??
+    rolesResponse?.data ??
     [];
 
   // --------------------------------------------------------------
@@ -625,7 +625,7 @@ const AddUserDialog = ({
                     Role <RequiredMark />
                   </Label>
 
-                  {/* <RolesDropdown
+                  <RolesDropdown
                     rolesData={rolesData}
                     value={selectedRole}
                     onChange={setSelectedRole}
@@ -633,7 +633,7 @@ const AddUserDialog = ({
                     isLoading={
                       isLoading || isRolesFetching
                     }
-                  />*/}
+                  />
                 </div>
               </div>
             </section>
@@ -666,12 +666,12 @@ const AddUserDialog = ({
                   </div>
                 </div>
 
-                {/* <OneChargingDropdown
+                <OneChargingDropdown
                   value={selectedCharging?.code ?? ""}
                   onChange={setSelectedCharging}
                   open={open}
                   isLoading={isLoading}
-                />*/}
+                />
               </div>
             </section>
           </div>

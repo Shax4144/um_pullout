@@ -81,22 +81,6 @@ const PERMISSION_OPTIONS = [
     dotClass: "bg-sky-500",
   },
   {
-    value: "checklist",
-    label: "Checklist",
-    description: "View and manage checklists.",
-    badgeClass:
-      "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-300",
-    dotClass: "bg-violet-500",
-  },
-  {
-    value: "checklist-build",
-    label: "Checklist Builder",
-    description: "Create and modify checklist templates.",
-    badgeClass:
-      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
-    dotClass: "bg-amber-500",
-  },
-  {
     value: "masterlist",
     label: "Masterlist",
     description: "Manage masterlist records.",
@@ -113,9 +97,9 @@ const PERMISSION_OPTIONS = [
     dotClass: "bg-rose-500",
   },
   {
-    value: "reports",
-    label: "Reports",
-    description: "View and generate system reports.",
+    value: "inventory",
+    label: "Inventory",
+    description: "Monitor inventory",
     badgeClass:
       "border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300",
     dotClass: "bg-cyan-500",
@@ -522,7 +506,6 @@ const AddRoleDialog = ({
                 {/* --------------------------------------------------
                     MULTI SELECT
                 -------------------------------------------------- */}
-
                 <Popover>
                   <PopoverTrigger
                     render={
@@ -531,22 +514,21 @@ const AddRoleDialog = ({
                         variant="outline"
                         disabled={isLoading}
                         className="
-                            h-10
-                            min-h-10
-                            w-full
-                            justify-between
-                            gap-2
-                            overflow-hidden
-                            px-3
-                            text-left
-                          "
+                          h-auto
+                          min-h-10
+                          w-full
+                          justify-between
+                          gap-2
+                          px-3
+                          text-left
+                        "
                       />
                     }
                   >
-                    <div className="flex min-w-0 flex-1 items-center overflow-hidden">
+                    <div className="flex min-w-0 flex-1 items-center">
                       {selectedPermissions.length > 0 ? (
-                        <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-                          {selectedPermissions.slice(0, 2).map((value) => {
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          {selectedPermissions.map((value) => {
                             const permission = getPermission(value);
 
                             if (!permission) {
@@ -558,45 +540,30 @@ const AddRoleDialog = ({
                                 key={value}
                                 variant="outline"
                                 className={`
-                                      shrink-0
-                                      rounded-md
-                                      px-2
-                                      py-0.5
-                                      text-xs
-                                      font-medium
-                                      ${permission.badgeClass}
-                                    `}
+                                  shrink-0
+                                  rounded-md
+                                  px-2
+                                  py-0.5
+                                  text-xs
+                                  font-medium
+                                  ${permission.badgeClass}
+                                `}
                               >
                                 <span
                                   aria-hidden="true"
                                   className={`
-                                        mr-1.5
-                                        h-1.5
-                                        w-1.5
-                                        rounded-full
-                                        ${permission.dotClass}
-                                      `}
+                                    mr-1.5
+                                    h-1.5
+                                    w-1.5
+                                    rounded-full
+                                    ${permission.dotClass}
+                                  `}
                                 />
 
                                 {permission.label}
                               </Badge>
                             );
                           })}
-
-                          {selectedPermissions.length > 2 && (
-                            <Badge
-                              variant="secondary"
-                              className="
-                                  shrink-0
-                                  rounded-md
-                                  px-2
-                                  py-0.5
-                                  text-xs
-                                "
-                            >
-                              +{selectedPermissions.length - 2}
-                            </Badge>
-                          )}
                         </div>
                       ) : (
                         <span className="truncate text-sm text-muted-foreground">
@@ -607,13 +574,13 @@ const AddRoleDialog = ({
 
                     <ChevronDown
                       className="
-                          h-4
-                          w-4
-                          shrink-0
-                          text-muted-foreground
-                          transition-transform
-                          group-data-[popup-open]:rotate-180
-                        "
+                        h-4
+                        w-4
+                        shrink-0
+                        text-muted-foreground
+                        transition-transform
+                        group-data-[popup-open]:rotate-180
+                      "
                     />
                   </PopoverTrigger>
 
@@ -736,97 +703,6 @@ const AddRoleDialog = ({
                     </div>
                   </PopoverContent>
                 </Popover>
-
-                {/* --------------------------------------------------
-                    SELECTED PERMISSIONS
-                -------------------------------------------------- */}
-
-                {selectedPermissions.length > 0 && (
-                  <div
-                    className="
-                      rounded-xl
-                      border
-                      bg-muted/20
-                      p-3
-                    "
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Selected permissions
-                      </p>
-
-                      <span className="text-xs tabular-nums text-muted-foreground">
-                        {selectedPermissions.length}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {selectedPermissions.map((value) => {
-                        const permission = getPermission(value);
-
-                        if (!permission) {
-                          return null;
-                        }
-
-                        return (
-                          <Badge
-                            key={value}
-                            variant="outline"
-                            className={`
-                                group
-                                rounded-md
-                                px-2
-                                py-1
-                                text-xs
-                                font-medium
-                                ${permission.badgeClass}
-                              `}
-                          >
-                            <span
-                              aria-hidden="true"
-                              className={`
-                                  mr-1.5
-                                  h-1.5
-                                  w-1.5
-                                  shrink-0
-                                  rounded-full
-                                  ${permission.dotClass}
-                                `}
-                            />
-
-                            {permission.label}
-
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePermission(value)}
-                              disabled={isLoading}
-                              aria-label={`Remove ${permission.label} permission`}
-                              className="
-                                  ml-1
-                                  inline-flex
-                                  h-4
-                                  w-4
-                                  cursor-pointer
-                                  items-center
-                                  justify-center
-                                  rounded-sm
-                                  opacity-60
-                                  transition-opacity
-                                  hover:opacity-100
-                                  focus-visible:outline-none
-                                  focus-visible:ring-1
-                                  focus-visible:ring-ring
-                                  disabled:pointer-events-none
-                                "
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
 
                 {!selectedPermissions.length && (
                   <p className="text-xs text-muted-foreground">

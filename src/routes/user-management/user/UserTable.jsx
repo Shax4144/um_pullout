@@ -265,7 +265,7 @@ const UserTable = ({
                 ================================================== */}
                 {status === "pending" ? (
                   <DropdownMenuItem
-                    onSelect={() => onCreate(row.original)}
+                    onClick={() => onCreate(row.original)}
                     className="
                       cursor-pointer
                       gap-2
@@ -290,7 +290,7 @@ const UserTable = ({
                      ARCHIVED
                   ================================================== */
                   <DropdownMenuItem
-                    onSelect={() => onRestore(row.original)}
+                    onClick={() => onRestore(row.original)}
                     className="
                       cursor-pointer
                       gap-2
@@ -316,7 +316,7 @@ const UserTable = ({
                   ================================================== */
                   <>
                     <DropdownMenuItem
-                      onSelect={() => onEdit(row.original)}
+                      onClick={() => onEdit(row.original)}
                       className="
                         cursor-pointer
                         gap-2
@@ -335,7 +335,7 @@ const UserTable = ({
 
                     <DropdownMenuItem
                       variant="destructive"
-                      onSelect={() => onArchive(row.original)}
+                      onClick={() => onArchive(row.original)}
                       className="
                         cursor-pointer
                         gap-2

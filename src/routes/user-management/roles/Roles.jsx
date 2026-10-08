@@ -21,12 +21,12 @@ import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
-// import {
-//   useArchiveUserAccountMutation,
-//   useFetchUserAccountsQuery,
-//   usePostUserAccountMutation,
-//   useUpdateUserAccountMutation,
-// } from "../../../features/user-accounts/users.api";
+import {
+  useArchiveRoleMutation,
+  useFetchRolesQuery,
+  usePostRoleMutation,
+  useUpdateRoleMutation,
+} from "../../../api/roles/roles.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
 
@@ -44,11 +44,11 @@ const Roles = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   // sample 
-  const [isMutationLoading, setIsMutationLoading] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
+  // const [isMutationLoading, setIsMutationLoading] = useState(false);
+  // const [isCreating, setIsCreating] = useState(false);
+  // const [isUpdating, setIsUpdating] = useState(false);
+  // const [isArchiving, setIsArchiving] = useState(false);
+  // const [isRestoring, setIsRestoring] = useState(false);
   
 
   const isPending = status === "pending";
@@ -75,22 +75,22 @@ const Roles = () => {
   // FETCH ACTIVE / ARCHIVED USERS
   // ================================================================
 
-  // const {
-  //   data: userAccountsData,
-  //   isFetching: isFetchingUsers,
-  //   isError: isUsersError,
-  //   error: usersError,
-  // } = useFetchUserAccountsQuery(
-  //   {
-  //     status: isArchived ? 0 : 1,
-  //     page,
-  //     per_page: pageSize,
-  //     search: debouncedSearch || undefined,
-  //   },
-  //   {
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  // );
+  const {
+    data: rolesData,
+    isFetching: isFetchingRoles,
+    isError: isRolesError,
+    error: rolesError,
+  } = useFetchRolesQuery(
+    {
+      status: isArchived ? 0 : 1,
+      page,
+      per_page: pageSize,
+      search: debouncedSearch || undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   // ================================================================
   // FETCH PENDING REQUESTS
@@ -116,10 +116,12 @@ const Roles = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = [];
-  const tableIsFetching = false
-  const tableIsError = false;
-  const tableError = null;
+  const tableData = useMemo(() => {
+    return rolesData;
+  });
+  const tableIsFetching = isFetchingRoles
+  const tableIsError = isRolesError;
+  const tableError = rolesError;
   // const tableData = useMemo(() => {
   //   return isPending
   //     ? pendingRequestsData
@@ -146,25 +148,25 @@ const Roles = () => {
   // MUTATIONS
   // ================================================================
 
-  // const [
-  //   createUserAccount,
-  //   { isLoading: isCreating },
-  // ] = usePostUserAccountMutation();
+  const [
+    createRole,
+    { isLoading: isCreating },
+  ] = usePostRoleMutation();
 
-  // const [
-  //   updateUserAccount,
-  //   { isLoading: isUpdating },
-  // ] = useUpdateUserAccountMutation();
+  const [
+    updateRole,
+    { isLoading: isUpdating },
+  ] = useUpdateRoleMutation();
 
-  // const [
-  //   archiveUserAccount,
-  //   { isLoading: isArchiving },
-  // ] = useArchiveUserAccountMutation();
+  const [
+    archiveRole,
+    { isLoading: isArchiving },
+  ] = useArchiveRoleMutation();
 
-  // const isMutationLoading =
-  //   isCreating ||
-  //   isUpdating ||
-  //   isArchiving;
+  const isMutationLoading =
+    isCreating ||
+    isUpdating ||
+    isArchiving;
 
   // ================================================================
   // DIALOG STATE
@@ -226,12 +228,12 @@ const Roles = () => {
   // ================================================================
 
   const handleOpenCreatePending = useCallback(
-    (user) => {
+    (role) => {
       if (isMutationLoading) {
         return;
       }
 
-      setSelectedRow(user);
+      setSelectedRow(role);
       setMode("pending");
       setOpenCreate(true);
     },
@@ -246,12 +248,12 @@ const Roles = () => {
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (user) => {
+    (role) => {
       if (isMutationLoading) {
         return;
       }
 
-      setSelectedRow(user);
+      setSelectedRow(role);
       setMode("edit");
       setOpenCreate(true);
     },
@@ -266,12 +268,12 @@ const Roles = () => {
   // ================================================================
 
   const handleOpenArchive = useCallback(
-    (user) => {
+    (role) => {
       if (isMutationLoading) {
         return;
       }
 
-      setSelectedRow(user);
+      setSelectedRow(role);
       setOpenArchive(true);
     },
     [
@@ -373,10 +375,10 @@ const Roles = () => {
       try {
         if (selectedRow && mode === "edit") {
           const response =
-            // await updateUserAccount({
-            //   id: selectedRow.id,
-            //   ...userData,
-            // }).unwrap();
+            await updateRole({
+              id: selectedRow.id,
+              ...userData,
+            }).unwrap();
 
           toast.add({
             type: "success",
@@ -386,7 +388,7 @@ const Roles = () => {
           });
         } else {
           const response =
-            // await createUserAccount(userData).unwrap();
+            await createRole(userData).unwrap();
 
           toast.add({
             type: "success",
@@ -423,8 +425,8 @@ const Roles = () => {
       isUpdating,
       selectedRow,
       mode,
-      // updateUserAccount,
-      // createUserAccount,
+      updateRole,
+      createRole,
       clearSelectedRow,
     ],
   );
@@ -457,9 +459,9 @@ const Roles = () => {
 
       try {
         const response =
-          // await archiveUserAccount(
-          //   selectedRow.id,
-          // ).unwrap();
+          await archiveRole(
+            selectedRow.id,
+          ).unwrap();
 
           toast.add({
             type: "success",
@@ -491,7 +493,7 @@ const Roles = () => {
     [
       selectedRow,
       isArchiving,
-      // archiveUserAccount,
+      archiveRole,
       clearSelectedRow,
     ],
   );
@@ -530,9 +532,9 @@ const Roles = () => {
          * replace this call with that mutation instead.
          */
         const response =
-          // await archiveUserAccount(
-          //   selectedRow.id,
-          // ).unwrap();
+          await archiveRole(
+            selectedRow.id,
+          ).unwrap();
 
         toast.add({
           type: "success",
@@ -564,7 +566,7 @@ const Roles = () => {
     [
       selectedRow,
       isArchiving,
-      // archiveUserAccount,
+      archiveRole,
       clearSelectedRow,
     ],
   );

@@ -114,7 +114,7 @@ const SidebarWrapper = () => {
                   p-2
                   text-left
                   transition-colors
-                  hover:bg-sidebar-accent
+                  hover:bg-sidebar-hover
                   data-[state=open]:bg-sidebar-accent
                 "
               />
@@ -192,7 +192,7 @@ const SidebarWrapper = () => {
               </div>
 
               {/* Divider */}
-              <div className="my-1 h-px bg-border" />
+              {/* <div className="my-1 h-px bg-border" />*/}
 
               {/* =================================================
                   APPEARANCE
@@ -206,7 +206,7 @@ const SidebarWrapper = () => {
                   px-3
                   py-3
                   transition-colors
-                  hover:bg-accent
+                  hover:bg-sidebar-hover
                 "
               >
                 <div className="flex items-center gap-3">
@@ -273,6 +273,7 @@ const SidebarWrapper = () => {
                   px-3
                   font-bold
                   hover:text-white
+                  hover:bg-sidebar-hover
                 "
               >
                 <LogOut />

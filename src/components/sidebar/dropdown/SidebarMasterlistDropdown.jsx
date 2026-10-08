@@ -33,7 +33,7 @@ const masterlistItems = [
     icon: UserRoundCog,
   },
   {
-    label: "One Charging",
+    label: "One RDF Charging",
     to: "/one-charging",
     icon: UserRoundCog,
   },

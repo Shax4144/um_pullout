@@ -21,12 +21,12 @@ import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
-// import {
-//   useArchiveUserAccountMutation,
-//   useFetchUserAccountsQuery,
-//   usePostUserAccountMutation,
-//   useUpdateUserAccountMutation,
-// } from "../../../features/user-accounts/users.api";
+import {
+  useFetchUserAccountsQuery,
+  usePostUserAccountMutation,
+  useUpdateUserAccountMutation,
+  useArchiveUserAccountMutation,
+} from "../../../api/user-accounts/user-account.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
 
@@ -44,11 +44,11 @@ const UserAccount = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   // sample 
-  const [isMutationLoading, setIsMutationLoading] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
+  // const [isMutationLoading, setIsMutationLoading] = useState(false);
+  // const [isCreating, setIsCreating] = useState(false);
+  // const [isUpdating, setIsUpdating] = useState(false);
+  // const [isArchiving, setIsArchiving] = useState(false);
+  // const [isRestoring, setIsRestoring] = useState(false);
   
 
   const isPending = status === "pending";
@@ -75,22 +75,22 @@ const UserAccount = () => {
   // FETCH ACTIVE / ARCHIVED USERS
   // ================================================================
 
-  // const {
-  //   data: userAccountsData,
-  //   isFetching: isFetchingUsers,
-  //   isError: isUsersError,
-  //   error: usersError,
-  // } = useFetchUserAccountsQuery(
-  //   {
-  //     status: isArchived ? 0 : 1,
-  //     page,
-  //     per_page: pageSize,
-  //     search: debouncedSearch || undefined,
-  //   },
-  //   {
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  // );
+  const {
+    data: userAccountsData,
+    isFetching: isFetchingUsers,
+    isError: isUsersError,
+    error: usersError,
+  } = useFetchUserAccountsQuery(
+    {
+      status: isArchived ? 0 : 1,
+      page,
+      per_page: pageSize,
+      search: debouncedSearch || undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   // ================================================================
   // FETCH PENDING REQUESTS
@@ -116,10 +116,14 @@ const UserAccount = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = [];
-  const tableIsFetching = false
-  const tableIsError = false;
-  const tableError = null;
+  const tableData = useMemo(() => {
+    return userAccountsData
+  });
+  
+  const tableIsFetching = isFetchingUsers
+  const tableIsError = isUsersError;
+  const tableError = usersError;
+
   // const tableData = useMemo(() => {
   //   return isPending
   //     ? pendingRequestsData
@@ -146,25 +150,25 @@ const UserAccount = () => {
   // MUTATIONS
   // ================================================================
 
-  // const [
-  //   createUserAccount,
-  //   { isLoading: isCreating },
-  // ] = usePostUserAccountMutation();
+  const [
+    createUserAccount,
+    { isLoading: isCreating },
+  ] = usePostUserAccountMutation();
 
-  // const [
-  //   updateUserAccount,
-  //   { isLoading: isUpdating },
-  // ] = useUpdateUserAccountMutation();
+  const [
+    updateUserAccount,
+    { isLoading: isUpdating },
+  ] = useUpdateUserAccountMutation();
 
-  // const [
-  //   archiveUserAccount,
-  //   { isLoading: isArchiving },
-  // ] = useArchiveUserAccountMutation();
+  const [
+    archiveUserAccount,
+    { isLoading: isArchiving },
+  ] = useArchiveUserAccountMutation();
 
-  // const isMutationLoading =
-  //   isCreating ||
-  //   isUpdating ||
-  //   isArchiving;
+  const isMutationLoading =
+    isCreating ||
+    isUpdating ||
+    isArchiving;
 
   // ================================================================
   // DIALOG STATE
@@ -379,10 +383,10 @@ const UserAccount = () => {
       try {
         if (selectedRow && mode === "edit") {
           const response =
-            // await updateUserAccount({
-            //   id: selectedRow.id,
-            //   ...userData,
-            // }).unwrap();
+            await updateUserAccount({
+              id: selectedRow.id,
+              ...userData,
+            }).unwrap();
 
           toast.add({
             type: "success",
@@ -392,7 +396,7 @@ const UserAccount = () => {
           });
         } else {
           const response =
-            // await createUserAccount(userData).unwrap();
+            await createUserAccount(userData).unwrap();
 
           toast.add({
             type: "success",
@@ -429,8 +433,8 @@ const UserAccount = () => {
       isUpdating,
       selectedRow,
       mode,
-      // updateUserAccount,
-      // createUserAccount,
+      updateUserAccount,
+      createUserAccount,
       clearSelectedRow,
     ],
   );
@@ -463,9 +467,9 @@ const UserAccount = () => {
 
       try {
         const response =
-          // await archiveUserAccount(
-          //   selectedRow.id,
-          // ).unwrap();
+          await archiveUserAccount(
+            selectedRow.id,
+          ).unwrap();
 
           toast.add({
             type: "success",
@@ -497,7 +501,7 @@ const UserAccount = () => {
     [
       selectedRow,
       isArchiving,
-      // archiveUserAccount,
+      archiveUserAccount,
       clearSelectedRow,
     ],
   );
@@ -536,9 +540,9 @@ const UserAccount = () => {
          * replace this call with that mutation instead.
          */
         const response =
-          // await archiveUserAccount(
-          //   selectedRow.id,
-          // ).unwrap();
+          await archiveUserAccount(
+            selectedRow.id,
+          ).unwrap();
 
         toast.add({
           type: "success",
