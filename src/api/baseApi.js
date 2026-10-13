@@ -5,7 +5,7 @@ const rawBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT,
   prepareHeaders: (headers) => {
     headers.set("Accept", "application/json");
-    headers.set("Authorization", `Bearer ${localStorage.getItem("token")}`);
+    headers.set("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
     return headers;
   },
   paramsSerializer: (params) => {

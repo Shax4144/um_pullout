@@ -8,16 +8,35 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default:
+          "bg-primary/12 text-primary dark:bg-primary/20 dark:text-primary",
+      
         secondary:
-          "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground",
+      
+        success:
+          "border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/15 dark:text-emerald-300",
+      
+        warning:
+          "border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/15 dark:text-amber-300",
+      
+        info:
+          "border border-sky-500/20 bg-sky-500/10 text-sky-700 dark:border-sky-400/20 dark:bg-sky-400/15 dark:text-sky-300",
+      
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "border border-destructive/20 bg-destructive/10 text-destructive dark:bg-destructive/20",
+      
+        archived:
+          "border border-border bg-muted/60 text-muted-foreground dark:bg-muted/40",
+      
         outline:
-          "border-border bg-input/20 text-foreground dark:bg-input/30 [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+          "border border-border bg-muted/10 text-foreground",
+      
         ghost:
-          "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-transparent text-muted-foreground",
+      
+        link:
+          "bg-transparent text-primary underline-offset-4 hover:underline",
       },
     },
     defaultVariants: {

@@ -19,7 +19,7 @@ import {
 import { useMemo } from "react";
 
 import StatusToggle from "../../../components/StatusToggle";
-import UserManagementTable from "../../../components/tables/UserManagementTable";
+import TableWrapper from "../../../components/tables/TableWrapper";
 
 const UserTable = ({
   data,
@@ -51,7 +51,7 @@ const UserTable = ({
           const employeeId = row.getValue("employee_id");
 
           return (
-            <span className="font-mono text-xs font-medium text-muted-foreground">
+            <span className="font-mono text-xs font-medium text-foreground">
               {employeeId || "—"}
             </span>
           );
@@ -101,7 +101,7 @@ const UserTable = ({
           const username = row.getValue("username");
 
           return (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground">
               {username || "—"}
             </span>
           );
@@ -117,7 +117,9 @@ const UserTable = ({
         cell: ({ row }) => {
           const role = row.getValue("role");
 
-          return role ? (
+          const roleName = typeof role === "string" ? role : role?.name;
+
+          return roleName ? (
             <Badge
               variant="outline"
               className="
@@ -129,7 +131,7 @@ const UserTable = ({
                 capitalize
               "
             >
-              {role}
+              {roleName}
             </Badge>
           ) : (
             <Badge
@@ -141,7 +143,7 @@ const UserTable = ({
                 py-0.5
                 text-xs
                 font-normal
-                text-muted-foreground
+                text-foreground
               "
             >
               Not Assigned
@@ -183,7 +185,7 @@ const UserTable = ({
 
           return (
             <Badge
-              variant="outline"
+              variant={showArchived ? "archived" : showPending ? "warning" : "success"}
               className={`
                 gap-1.5
                 rounded-md
@@ -191,7 +193,6 @@ const UserTable = ({
                 py-0.5
                 text-xs
                 font-medium
-                ${statusConfig.className}
               `}
             >
               <span
@@ -216,13 +217,13 @@ const UserTable = ({
       {
         id: "actions",
         header: () => (
-          <div className="text-right">
+          <div className="flex justify-center">
             Actions
           </div>
         ),
 
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -367,7 +368,7 @@ const UserTable = ({
   );
 
   return (
-    <UserManagementTable
+    <TableWrapper
       columns={columns}
       data={data?.data || []}
       paginationData={data}

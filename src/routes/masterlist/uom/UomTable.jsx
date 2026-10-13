@@ -1,8 +1,147 @@
-const UomTable = () => {
+import { useMemo } from "react";
+import {
+  ArchiveRestore,
+  ArchiveX,
+  MoreHorizontal,
+  Pencil,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import StatusToggle from "../../../components/StatusToggle";
+import TableWrapper from "../../../components/tables/TableWrapper";
+
+const UomTable = ({
+  data,
+  isFetching,
+  isError,
+  error,
+  status,
+  onStatusChange,
+  onEdit,
+  onArchive,
+  onRestore,
+  page,
+  onPageChange,
+  pageSize,
+  onPageSizeChange,
+  search,
+  onSearchChange,
+}) => {
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "code",
+        header: "Code",
+        cell: ({ row }) => (
+          <span className="font-mono text-xs font-medium text-muted-foreground">
+            {row.getValue("code") || "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <p className="truncate font-medium text-foreground">
+            {row.getValue("name") || "—"}
+          </p>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const uom = row.original;
+          const isArchived = status === "archived";
+
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Actions for ${uom.name}`}
+                      className="h-8 w-8 cursor-pointer rounded-md"
+                    />
+                  }
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-40 rounded-xl p-1.5">
+                  {isArchived ? (
+                    <DropdownMenuItem
+                      onClick={() => onRestore(uom)}
+                      className="cursor-pointer gap-2 rounded-lg"
+                    >
+                      <ArchiveRestore className="h-4 w-4" />
+                      Restore
+                    </DropdownMenuItem>
+                  ) : (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => onEdit(uom)}
+                        className="cursor-pointer gap-2 rounded-lg"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => onArchive(uom)}
+                        className="cursor-pointer gap-2 rounded-lg"
+                      >
+                        <ArchiveX className="h-4 w-4" />
+                        Archive
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    [onArchive, onEdit, onRestore, status],
+  );
+
   return (
-    <div>
-      HELLO WORLD - Uom Table
-    </div>
+    <TableWrapper
+      columns={columns}
+      data={data?.data ?? []}
+      paginationData={data}
+      isFetching={isFetching}
+      isError={isError}
+      error={error}
+      searchKey="name"
+      searchValue={search}
+      onSearchChange={onSearchChange}
+      page={page}
+      onPageChange={onPageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      filterSlot={
+        <StatusToggle
+          value={status}
+          onChange={onStatusChange}
+          options={["active", "archived"]}
+        />
+      }
+    />
   );
 };
 

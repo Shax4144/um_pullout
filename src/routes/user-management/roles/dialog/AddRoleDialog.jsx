@@ -448,7 +448,6 @@ const AddRoleDialog = ({
                   </SelectTrigger>
 
                   <SelectContent
-                    alignItemWithTrigger={false}
                     side="bottom"
                     sideOffset={4}
                     className="rounded-xl"

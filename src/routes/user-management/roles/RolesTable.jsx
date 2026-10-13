@@ -19,7 +19,7 @@ import {
 import { useMemo } from "react";
 
 import StatusToggle from "../../../components/StatusToggle";
-import UserManagementTable from "../../../components/tables/UserManagementTable";
+import TableWrapper from "../../../components/tables/TableWrapper";
 
 const RolesTable = ({
   data,
@@ -321,7 +321,7 @@ const RolesTable = ({
   );
 
   return (
-    <UserManagementTable
+    <TableWrapper
       columns={columns}
       data={data?.data || []}
       paginationData={data}

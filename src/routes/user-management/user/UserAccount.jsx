@@ -642,7 +642,7 @@ const UserAccount = () => {
       >
         {/* Title */}
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">
               User Accounts
             </h1>
@@ -659,7 +659,7 @@ const UserAccount = () => {
             >
               {statusMeta.label}
             </Badge>
-          </div>
+          </div>*/}
 
           <p className="mt-1 text-sm text-muted-foreground">
             {statusMeta.description}

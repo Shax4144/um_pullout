@@ -16,8 +16,13 @@ const Layout = () => {
           {/* <Navbar />*/}
 
           {/* content container */}
-          <main className="custom-scrollbar min-h-0 flex-1 overflow-y-auto m-2 lg:p-8 lg:pb-safe pb-safe bg-background rounded-xl">
-            <Outlet />
+          <main className="m-1.5 min-h-0 flex-1 flex-col overflow-hidden pb-safe bg-background rounded-xl lg:p-4 lg:pb-safe">
+            {/* navbar */}
+            <Navbar />
+
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
+              <Outlet />
+            </div>
           </main>
         </div>
       </SidebarProvider>

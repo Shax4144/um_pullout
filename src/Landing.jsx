@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { authenticate } from "./app/auth/auth.slice";
+import { setUserDetails } from "./app/users/users.slice";
+import { useLoginMutation } from "./api/login/authApi";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,23 +11,32 @@ import { Label } from "@/components/ui/label";
 import mis_logo from "@/assets/MIS_logo.png";
 import { toast } from "@/components/ui/toast";
 
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
 const Landing = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState(null);
-
-  //temporary dummy credential
-  const TEMP_USERNAME = "cjdaroy";
-  const TEMP_PASSWORD = "1";
 
   const [credential, setCredential] = useState({
     username: "",
     password: "",
   });
 
+  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState(null);
+
+  const getDestination = (user) => {
+    const permissions = user?.permissions ?? []
+
+    if (permissions.includes("Masterlist")) {
+      return "/user-accounts"
+    }
+
+    return "/access-denied"
+  }
+  
   const handleChange = (field) => (e) => {
     setCredential((prev) => ({
       ...prev,
@@ -40,45 +51,24 @@ const Landing = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoginError("");
-    setIsLoggingIn(true);
-
-    // try {
-    //   console.log("Login Submitted", credential);
-
-    //   // Add your login logic here
-    //   //
-    //   // Example:
-    //   // const response = await dispatch(login(credential)).unwrap();
-    //   // navigate("/dashboard");
-    // } catch (error) {
-    //   console.error("Login failed:", error);
-    // } finally {
-    //   setIsLoggingIn(false);
-    // }
     try {
-      // Temporary login validation
-      const isValid =
-        credential.username === TEMP_USERNAME &&
-        credential.password === TEMP_PASSWORD;
+      console.log("Login Submitted", credential);
+      const response = await login(credential).unwrap();
+      const { access_token, user } = response
 
-      if (!isValid) {
-        setLoginError("Invalid username or password.");
+      localStorage.setItem("access_token", access_token)
+      localStorage.setItem("user", JSON.stringify(user))
 
-        toast.add({
-          type: "error",
-          title: "Login failed",
-          description: loginError,
-        });
+      dispatch(setUserDetails(user))
+      dispatch(authenticate())
 
-        return;
-      }
-      console.log("Temporary login successful:", credential.username);
+      navigate(getDestination(user))
+
       toast.add({
         type: "success",
-        title: "Login successful!",
-      });
-      navigate("/dashboard");
+        title: "Login Successful",
+        description: response?.data?.message || "",
+      })
     } catch (error) {
       console.error("Login failed:", error);
       setLoginError("Something went wrong while signing in.");
@@ -87,8 +77,6 @@ const Landing = () => {
         title: "Login failed",
         description: error?.message || "There was an error logging in.",
       });
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 

@@ -156,7 +156,8 @@ const StatusToggle = ({
 										shadow-sm
 									`
                   : `
-										text-muted-foreground
+                    text-muted
+                    dark:text-muted-foreground
 										hover:text-chart-2
 									`
               }

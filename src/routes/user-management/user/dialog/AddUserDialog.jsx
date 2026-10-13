@@ -596,7 +596,7 @@ const AddUserDialog = ({
                       value={generatedUsername}
                       readOnly
                       disabled={isAccountLocked}
-                      className="bg-muted/50 pr-10 font-mono text-sm"
+                      className="font-mono"
                     />
 
                     {generatedUsername && (

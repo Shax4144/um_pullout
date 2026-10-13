@@ -65,7 +65,7 @@ const DarkmodeToggle = () => {
   };
 
   return (
-    <div className="relative z-10000 flex items-center rounded-xl border">
+    <div className="relative z-10000 flex items-center rounded-xl">
       <Switch
         data-dark-mode-switch
         checked={isDarkMode}

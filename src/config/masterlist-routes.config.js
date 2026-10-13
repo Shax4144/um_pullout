@@ -1,6 +1,16 @@
 import { lazy } from "react"
 
 const masterlistConfig = [
+  {
+		path: "one-charging",
+     component: lazy(() => import("../routes/masterlist/one-charging/OneCharging")),
+		// permissions: ["Masterlist"]
+  },
+  {
+		path: "account-titles",
+     component: lazy(() => import("../routes/masterlist/account-title/AccountTitle")),
+		// permissions: ["Masterlist"]
+  },
 	{
 		path: "categories",
 		component: lazy(
@@ -19,15 +29,9 @@ const masterlistConfig = [
 		// permissions: ["Masterlist"]
   },
   {
-		path: "account-titles",
-     component: lazy(() => import("../routes/masterlist/account-title/AccountTitle")),
-		// permissions: ["Masterlist"]
+    path: "warehouse",
+    component: lazy(() => import("../routes/masterlist/warehouse/Warehouse")),
   },
-  {
-		path: "one-charging",
-     component: lazy(() => import("../routes/masterlist/one-charging/OneCharging")),
-		// permissions: ["Masterlist"]
-	},
 ]
 
 export default masterlistConfig

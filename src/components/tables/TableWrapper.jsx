@@ -50,7 +50,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const features = tableFeatures({});
 
-const UserManagementTable = ({
+const TableWrapper = ({
   columns,
   data,
   paginationData,
@@ -329,7 +329,7 @@ const UserManagementTable = ({
                           z-10
                           whitespace-nowrap
                           border-b
-                          bg-muted/95
+                          bg-muted
                           px-4
                           py-2.5
                           text-xs
@@ -421,7 +421,7 @@ const UserManagementTable = ({
                             className="
                               h-4
                               w-full
-                              max-w-[180px]
+                              max-w-45
                             "
                           />
                         </TableCell>
@@ -441,7 +441,8 @@ const UserManagementTable = ({
                   className="
                     border-b
                     transition-colors
-                    hover:bg-muted/50
+                    hover:bg-muted/10
+                    dark:hover:bg-muted/60
                     data-[state=selected]:bg-muted
                     last:border-0
                   "
@@ -628,15 +629,14 @@ const UserManagementTable = ({
               }}
             >
               <SelectTrigger
-                className="h-8 w-[68px]"
+                className="h-8 w-17"
                 aria-label="Rows per page"
               >
                 <SelectValue />
               </SelectTrigger>
 
               <SelectContent
-                position="popper"
-                className="w-[68px] min-w-0"
+                className="w-17 min-w-0"
               >
                 {[10, 20, 50].map(
                   (size) => (
@@ -881,4 +881,4 @@ const UserManagementTable = ({
   );
 };
 
-export default UserManagementTable;
+export default TableWrapper;
