@@ -26,7 +26,7 @@ import {
   usePostItemMutation,
   useUpdateItemMutation,
   useArchiveItemMutation,
-} from "../../../api/modules/items.api"
+} from "../../../api/masterlist/items.api"
 
 import ItemTable from "./ItemTable";
 
@@ -695,7 +695,6 @@ const Item = () => {
           onEdit={handleOpenEdit}
           onArchive={handleOpenArchive}
           onRestore={handleOpenRestore}
-          onCreate={handleOpenCreatePending}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -714,6 +713,7 @@ const Item = () => {
         onConfirm={handleCreateOrUpdate}
         isLoading={isCreating || isUpdating}
         mode={mode}
+        selectedRow={selectedRow}
       />
 
       {/* ============================================================

@@ -1,48 +1,51 @@
 import { baseApi } from "../baseApi" 
 
-const BASE_ENDPOINT = "api/items"
+const BASE_ENDPOINT = "api/uoms"
 
-export const itemsApi = baseApi
+export const UomsApi = baseApi
+  .enhanceEndpoints({
+    addTagTypes: ["UnitOfMeasures"]
+  })
   .injectEndpoints({
     endpoints: (builder) => ({
-      fetchItems: builder.query({
+      fetchUoms: builder.query({
         query: (params) => ({
           url: BASE_ENDPOINT,
           method: "GET",
           params,
         }),
-        providesTags: ["Items"],
+        providesTags: ["UnitOfMeasures"],
       }),
-      postItem: builder.mutation({
+      postUom: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
           method: "POST",
           body,
         }),
-        invalidatesTags: ["Items"],
+        invalidatesTags: ["UnitOfMeasures"],
       }),
-      updateItem: builder.mutation({
+      updateUom: builder.mutation({
         query: ({ id, ...body }) => ({
           url: `${BASE_ENDPOINT}/${id}`,
           method: "PUT",
           body,
         }),
-        invalidatesTags: ["Items"],
+        invalidatesTags: ["UnitOfMeasures"],
       }),
-      archiveItem: builder.mutation({
+      archiveUom: builder.mutation({
         query: (id) => ({
           url: `${BASE_ENDPOINT}/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: ["Items"],
+        invalidatesTags: ["UnitOfMeasures"],
       }),
     })
   })
 
 export const {
-  useFetchItemsQuery,
-  useLazyFetchItemsQuery,
-  usePostItemMutation,
-  useUpdateItemMutation,
-  useArchiveItemMutation,
-} = itemsApi
+  useFetchUomsQuery,
+  useLazyFetchUomsQuery,
+  usePostUomMutation,
+  useUpdateUomMutation,
+  useArchiveUomMutation,
+} = UomsApi

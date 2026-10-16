@@ -26,7 +26,7 @@ import {
   usePostUserAccountMutation,
   useUpdateUserAccountMutation,
   useArchiveUserAccountMutation,
-} from "../../../api/user-accounts/user-account.api";
+} from "../../../api/user-management/user-accounts/user-account.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
 

@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,29 +43,29 @@ const UomTable = ({
         accessorKey: "code",
         header: "Code",
         cell: ({ row }) => (
-          <span className="font-mono text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" className="font-mono text-sm font-medium">
             {row.getValue("code") || "—"}
-          </span>
+          </Badge>
         ),
       },
       {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <p className="truncate font-medium text-foreground">
+          <p className="truncate text-sm font-medium text-foreground">
             {row.getValue("name") || "—"}
           </p>
         ),
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Actions</div>,
+        header: () => <div className="text-center">Actions</div>,
         cell: ({ row }) => {
           const uom = row.original;
           const isArchived = status === "archived";
 
           return (
-            <div className="flex justify-end">
+            <div className="flex justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={

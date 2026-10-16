@@ -12,7 +12,7 @@ const badgeVariants = cva(
           "bg-primary/12 text-primary dark:bg-primary/20 dark:text-primary",
       
         secondary:
-          "bg-secondary text-secondary-foreground",
+          "bg-teal-700 dark:bg-secondary/50 text-secondary-foreground border border-teal-200",
       
         success:
           "border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/15 dark:text-emerald-300",
@@ -27,7 +27,7 @@ const badgeVariants = cva(
           "border border-destructive/20 bg-destructive/10 text-destructive dark:bg-destructive/20",
       
         archived:
-          "border border-border bg-muted/60 text-muted-foreground dark:bg-muted/40",
+          "border border-border bg-muted/10 text-muted/80 dark:bg-muted/40",
       
         outline:
           "border border-border bg-muted/10 text-foreground",

@@ -23,19 +23,19 @@ const AddUomDialog = ({
   onClose,
   onConfirm,
   isLoading,
-  item,
+  selectedRow,
 }) => {
-  const isEditMode = Boolean(item?.id);
+  const isEditMode = Boolean(selectedRow?.id);
   const [formData, setFormData] = useState(EMPTY_ITEM);
 
   useEffect(() => {
     if (!open) return;
 
     setFormData({
-      code: item?.code ?? "",
-      name: item?.name ?? "",
+      symbol: selectedRow?.symbol ?? "",
+      name: selectedRow?.name ?? "",
     });
-  }, [item, open]);
+  }, [selectedRow, open]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -51,7 +51,7 @@ const AddUomDialog = ({
 
     onConfirm({
       ...formData,
-      code: formData.code.trim(),
+      symbol: formData.symbol.trim(),
       name: formData.name.trim(),
     });
   };
@@ -67,25 +67,25 @@ const AddUomDialog = ({
 
             <div>
               <DialogTitle>
-                {isEditMode ? "Edit UOM" : "Add UOM"}
+                {isEditMode ? "Edit Unit Of Measurement" : "Add Unit Of Measurement"}
               </DialogTitle>
 
               <DialogDescription>
                 {isEditMode
-                  ? "Update the UOM details."
-                  : "Add a new UOM to inventory."}
+                  ? "Update the Unit Of Measurement details."
+                  : "Add a new Unit Of Measurement to inventory."}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <form id="item-form" onSubmit={handleSubmit} className="grid gap-4 py-2 m-2">
+        <form id="uom-form" onSubmit={handleSubmit} className="grid gap-4 py-2 m-2">
           <div className="grid gap-2">
-            <Label htmlFor="uom_code">Code</Label>
+            <Label htmlFor="symbol">Symbol</Label>
             <Input
-              id="code"
-              name="code"
-              value={formData.code}
+              id="symbol"
+              name="symbol"
+              value={formData.symbol}
               onChange={handleChange}
               disabled={isLoading}
               required
@@ -113,10 +113,12 @@ const AddUomDialog = ({
           </Button>
 
           <Button
+            type="submit"
+            form="uom-form"
             disabled={isLoading}
           >
             <Save className="mr-1 size-4" />
-            {isLoading ? "Saving..." : isEditMode ? "Save changes" : "Add UOM"}
+            {isLoading ? "Saving..." : isEditMode ? "Save changes" : "Add Unit Of Measurement"}
           </Button>
         </DialogFooter>
       </DialogContent>

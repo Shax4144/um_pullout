@@ -33,10 +33,6 @@ const baseQueryWithAuthCheck = async (args, api, extraOptions) => {
 
 export const baseApi = createApi({
   reducerPath: "baseApi",
-  tagTypes: [
-    "Users",
-    "Roles",
-  ],
   baseQuery: baseQueryWithAuthCheck,
   endpoints: () => ({}),
 });

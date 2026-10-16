@@ -16,7 +16,7 @@ const Layout = () => {
           {/* <Navbar />*/}
 
           {/* content container */}
-          <main className="m-1.5 min-h-0 flex-1 flex-col overflow-hidden pb-safe bg-background rounded-xl lg:p-4 lg:pb-safe">
+          <main className="flex m-1.5 min-h-0 flex-1 flex-col overflow-hidden pb-safe bg-background rounded-xl lg:p-4 lg:pb-safe">
             {/* navbar */}
             <Navbar />
 

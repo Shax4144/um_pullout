@@ -34,7 +34,7 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
           className={cn(
             "flex w-full h-12 items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-semibold text-sidebar-foreground/70 transition-[color,background-color] duration-200 ease-out motion-safe:transition-transform motion-safe:hover:translate-x-0.5 hover:bg-sidebar-hover hover:text-sidebar-accent-foreground",
             isGroupActive &&
-              "bg-sidebar-accent/60 text-sidebar-accent-foreground",
+              "bg-sidebar-accent/30 text-sidebar-accent-foreground",
           )}
         >
           <UserCog className="size-4" />

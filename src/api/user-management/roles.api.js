@@ -3,6 +3,9 @@ import { baseApi } from "../baseApi"
 const BASE_ENDPOINT = "api/roles"
 
 export const rolesApi = baseApi
+  .enhanceEndpoints({
+    addTagTypes: ["Roles"]
+  })
   .injectEndpoints({
     endpoints: (builder) => ({
       fetchRoles: builder.query({

@@ -25,7 +25,7 @@ import {
 
 import OneChargingDropdown from "../../../../components/dropdowns/OneChargingDropdown";
 import RolesDropdown from "../../../../components/dropdowns/RolesDropdown";
-import { useFetchRolesQuery } from "../../../../api/roles/roles.api";
+import { useFetchRolesQuery } from "../../../../api/user-management/roles.api";
 import { useSelectedRow } from "../../../../context/SelectedRowProvider";
 import { toast } from "../../../../components/ui/toast";
 
@@ -40,13 +40,7 @@ const initialForm = {
   username: "",
 };
 
-const AddUserDialog = ({
-  open,
-  onClose,
-  onConfirm,
-  isLoading,
-  mode,
-}) => {
+const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedCharging, setSelectedCharging] = useState(null);
   const [formData, setFormData] = useState(initialForm);
@@ -57,14 +51,11 @@ const AddUserDialog = ({
   const isPendingMode = mode === "pending";
   const isCreateMode = mode === "create";
 
-  const isIdentityLocked =
-    isLoading || isEditMode || isPendingMode;
+  const isIdentityLocked = isLoading || isEditMode || isPendingMode;
 
-  const isPositionLocked =
-    isLoading || isEditMode;
+  const isPositionLocked = isLoading || isEditMode;
 
-  const isAccountLocked =
-    isLoading || isEditMode || isPendingMode;
+  const isAccountLocked = isLoading || isEditMode || isPendingMode;
 
   // --------------------------------------------------------------
   // MODE TEXT
@@ -84,8 +75,7 @@ const AddUserDialog = ({
     if (isPendingMode) {
       return {
         title: "Complete User Setup",
-        description:
-          "Finish the account setup for this pending user.",
+        description: "Finish the account setup for this pending user.",
         action: "Create User",
         loadingAction: "Creating...",
       };
@@ -104,22 +94,18 @@ const AddUserDialog = ({
   // FETCH ROLES
   // --------------------------------------------------------------
 
-  const {
-    data: rolesResponse,
-    isFetching: isRolesFetching,
-  } = useFetchRolesQuery(
-    {
-      pagination: "none",
-      refetchOnMountOrArgChange: true,
-    },
-    {
-      skip: !open,
-    },
-  );
+  const { data: rolesResponse, isFetching: isRolesFetching } =
+    useFetchRolesQuery(
+      {
+        pagination: "none",
+        refetchOnMountOrArgChange: true,
+      },
+      {
+        skip: !open,
+      },
+    );
 
-  const rolesData =
-    rolesResponse?.data ??
-    [];
+  const rolesData = rolesResponse?.data ?? [];
 
   // --------------------------------------------------------------
   // INITIALIZE / RESET FORM
@@ -192,12 +178,7 @@ const AddUserDialog = ({
     }
 
     return `${prefix}-${number}`;
-  }, [
-    isCreateMode,
-    formData.idPrefix,
-    formData.idNumber,
-    formData.username,
-  ]);
+  }, [isCreateMode, formData.idPrefix, formData.idNumber, formData.username]);
 
   // --------------------------------------------------------------
   // HANDLERS
@@ -208,10 +189,7 @@ const AddUserDialog = ({
 
     setFormData((prev) => ({
       ...prev,
-      [field]:
-        field === "idPrefix"
-          ? value.toUpperCase()
-          : value,
+      [field]: field === "idPrefix" ? value.toUpperCase() : value,
     }));
   };
 
@@ -235,7 +213,8 @@ const AddUserDialog = ({
       toast.add({
         type: "warning",
         title: "One Charging required",
-        description: "Please select a One Charging assignment before continuing.",
+        description:
+          "Please select a One Charging assignment before continuing.",
       });
       return;
     }
@@ -276,9 +255,7 @@ const AddUserDialog = ({
       return;
     }
 
-    const matchedRole = rolesData.find(
-      (role) => role.name === selectedRole,
-    );
+    const matchedRole = rolesData.find((role) => role.name === selectedRole);
 
     const username = generatedUsername;
 
@@ -297,28 +274,20 @@ const AddUserDialog = ({
       company_code: selectedCharging.company_code,
       company_name: selectedCharging.company_name,
 
-      business_unit_code:
-        selectedCharging.business_unit_code,
-      business_unit_name:
-        selectedCharging.business_unit_name,
+      business_unit_code: selectedCharging.business_unit_code,
+      business_unit_name: selectedCharging.business_unit_name,
 
-      department_code:
-        selectedCharging.department_code,
-      department_name:
-        selectedCharging.department_name,
+      department_code: selectedCharging.department_code,
+      department_name: selectedCharging.department_name,
 
       unit_code: selectedCharging.unit_code,
       unit_name: selectedCharging.unit_name,
 
-      sub_unit_code:
-        selectedCharging.sub_unit_code,
-      sub_unit_name:
-        selectedCharging.sub_unit_name,
+      sub_unit_code: selectedCharging.sub_unit_code,
+      sub_unit_name: selectedCharging.sub_unit_name,
 
-      location_code:
-        selectedCharging.location_code,
-      location_name:
-        selectedCharging.location_name,
+      location_code: selectedCharging.location_code,
+      location_name: selectedCharging.location_name,
 
       username,
 
@@ -335,19 +304,12 @@ const AddUserDialog = ({
   // --------------------------------------------------------------
 
   const RequiredMark = () => (
-    <span
-      className="ml-0.5 text-destructive"
-      aria-hidden="true"
-    >
+    <span className="ml-0.5 text-destructive" aria-hidden="true">
       *
     </span>
   );
 
-  const SectionHeader = ({
-    icon: Icon,
-    title,
-    description,
-  }) => (
+  const SectionHeader = ({ icon: Icon, title, description }) => (
     <div className="flex items-start gap-3">
       <div
         className="
@@ -366,9 +328,7 @@ const AddUserDialog = ({
       </div>
 
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold">
-          {title}
-        </h3>
+        <h3 className="text-sm font-semibold">{title}</h3>
 
         <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
           {description}
@@ -392,16 +352,16 @@ const AddUserDialog = ({
     >
       <DialogContent
         className="
-          flex
-          max-h-[80vh]
-          w-[calc(100%-2rem)]
-          max-w-3xl
-          flex-col
-          gap-0
-          overflow-hidden
-          rounded-2xl
-          p-0
-        "
+            flex
+            max-h-[85dvh]
+            w-[calc(100%-2rem)]
+            max-w-4xl
+            flex-col
+            gap-0
+            overflow-hidden
+            rounded-2xl
+            p-0
+          "
       >
         {/* ==========================================================
             HEADER
@@ -474,8 +434,8 @@ const AddUserDialog = ({
                 </div>
 
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Employee ID fields are locked when editing or
-                  completing a pending account.
+                  Employee ID fields are locked when editing or completing a
+                  pending account.
                 </p>
               </div>
 
@@ -516,9 +476,7 @@ const AddUserDialog = ({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="middle-name">
-                    Middle Name
-                  </Label>
+                  <Label htmlFor="middle-name">Middle Name</Label>
 
                   <Input
                     id="middle-name"
@@ -531,9 +489,7 @@ const AddUserDialog = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="suffix">
-                    Suffix
-                  </Label>
+                  <Label htmlFor="suffix">Suffix</Label>
 
                   <Input
                     id="suffix"
@@ -564,8 +520,7 @@ const AddUserDialog = ({
 
                 {isEditMode && (
                   <p className="text-xs text-muted-foreground">
-                    Position cannot be changed while editing this
-                    account.
+                    Position cannot be changed while editing this account.
                   </p>
                 )}
               </div>
@@ -586,9 +541,7 @@ const AddUserDialog = ({
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Username */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="username">
-                    Username
-                  </Label>
+                  <Label htmlFor="username">Username</Label>
 
                   <div className="relative">
                     <Input
@@ -630,9 +583,7 @@ const AddUserDialog = ({
                     value={selectedRole}
                     onChange={setSelectedRole}
                     open={open}
-                    isLoading={
-                      isLoading || isRolesFetching
-                    }
+                    isLoading={isLoading || isRolesFetching}
                   />
                 </div>
               </div>
@@ -655,13 +606,10 @@ const AddUserDialog = ({
                   <IdCard className="h-4 w-4 text-muted-foreground" />
 
                   <div>
-                    <p className="text-sm font-medium">
-                      One Charging
-                    </p>
+                    <p className="text-sm font-medium">One Charging</p>
 
                     <p className="text-xs text-muted-foreground">
-                      Select the organizational assignment for
-                      this user.
+                      Select the organizational assignment for this user.
                     </p>
                   </div>
                 </div>
@@ -690,11 +638,10 @@ const AddUserDialog = ({
           "
         >
           <div className="hidden text-xs text-muted-foreground sm:block">
-            <span className="text-destructive">*</span>{" "}
-            Required fields
+            <span className="text-destructive">*</span> Required fields
           </div>
 
-          <div className="flex w-full gap-2 sm:w-auto">
+          <div className="flex w-full gap-4 sm:w-auto">
             <Button
               type="button"
               variant="outline"
@@ -704,8 +651,9 @@ const AddUserDialog = ({
               className="
                 flex-1
                 cursor-pointer
-                font-medium
+                font-semibold
                 sm:flex-none
+                sm:min-w-32
               "
             >
               Cancel

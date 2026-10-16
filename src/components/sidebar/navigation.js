@@ -65,7 +65,7 @@ export const masterlistItems = [
   },
   {
     label: "Warehouse",
-    to: "warehouse",
+    to: "/warehouse",
     icon: Warehouse,
   }
 ];

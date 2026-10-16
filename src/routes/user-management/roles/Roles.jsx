@@ -26,7 +26,7 @@ import {
   useFetchRolesQuery,
   usePostRoleMutation,
   useUpdateRoleMutation,
-} from "../../../api/roles/roles.api";
+} from "../../../api/user-management/roles.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
 
@@ -634,7 +634,7 @@ const Roles = () => {
       >
         {/* Title */}
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">
               Roles
             </h1>
@@ -651,7 +651,7 @@ const Roles = () => {
             >
               {statusMeta.label}
             </Badge>
-          </div>
+          </div>*/}
 
           <p className="mt-1 text-sm text-muted-foreground">
             {statusMeta.description}

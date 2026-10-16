@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,66 +41,39 @@ const WarehouseTable = ({
     () => [
       {
         accessorKey: "code",
-        header: "Item Code",
+        header: "Code",
         cell: ({ row }) => (
-          <span className="font-mono text-xs font-medium text-muted-foreground">
-            {row.getValue("item_code") || "—"}
-          </span>
+          <Badge variant="secondary" className="font-mono text-sm font-medium">
+            {row.getValue("code") || "—"}
+          </Badge>
         ),
       },
       {
         accessorKey: "name",
-        header: "Item Name",
+        header: "Name",
         cell: ({ row }) => (
-          <p className="truncate font-medium text-foreground">
-            {row.getValue("item_name") || "—"}
+          <p className="truncate text-sm font-medium text-foreground">
+            {row.getValue("name") || "—"}
           </p>
         ),
       },
       {
-        accessorKey: "category",
-        header: "Category",
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.getValue("category") || "—"}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "uom",
-        header: "UOM",
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.getValue("uom") || "—"}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "warehouse",
-        header: "Warehouse",
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.getValue("warehouse") || "—"}
-          </span>
-        ),
-      },
-      {
         id: "actions",
-        header: () => <div className="text-right">Actions</div>,
+        header: () => <div className="text-center">Actions</div>,
         cell: ({ row }) => {
-          const item = row.original;
+          const warehouse = row.original;
           const isArchived = status === "archived";
 
           return (
-            <div className="flex justify-end">
+            <div className="flex justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Actions for ${item.item_name}`}
-                      className="h-8 w-8 cursor-pointer rounded-md"
+                      aria-label={`Actions for ${warehouse.name}`}
+                      className="h-8 w-8 cursor-pointer rounded-md hover:bg-muted/20"
                     />
                   }
                 >
@@ -108,7 +83,7 @@ const WarehouseTable = ({
                 <DropdownMenuContent align="end" className="w-40 rounded-xl p-1.5">
                   {isArchived ? (
                     <DropdownMenuItem
-                      onClick={() => onRestore(item)}
+                      onClick={() => onRestore(warehouse)}
                       className="cursor-pointer gap-2 rounded-lg"
                     >
                       <ArchiveRestore className="h-4 w-4" />
@@ -117,7 +92,7 @@ const WarehouseTable = ({
                   ) : (
                     <>
                       <DropdownMenuItem
-                        onClick={() => onEdit(item)}
+                        onClick={() => onEdit(warehouse)}
                         className="cursor-pointer gap-2 rounded-lg"
                       >
                         <Pencil className="h-4 w-4" />
@@ -128,7 +103,7 @@ const WarehouseTable = ({
 
                       <DropdownMenuItem
                         variant="destructive"
-                        onClick={() => onArchive(item)}
+                        onClick={() => onArchive(warehouse)}
                         className="cursor-pointer gap-2 rounded-lg"
                       >
                         <ArchiveX className="h-4 w-4" />

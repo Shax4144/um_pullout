@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/command";
 
 import { cn } from "@/lib/utils";
-import { useFetchOneChargingQuery } from "../../api/one-charging/one-charging-api";
+import { useFetchOneChargingQuery } from "../../api/masterlist/one-charging-api";
 
 const OneChargingDropdown = ({ value, onChange, open, isLoading }) => {
   const [comboOpen, setComboOpen] = useState(false);

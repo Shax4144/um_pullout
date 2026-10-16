@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import CategoriesDropdown from "@/components/dropdowns/CategoriesDropdown";
+import { useLazyFetchCategoriesQuery } from "../../../../api/masterlist/categories.api"
+
 const EMPTY_ITEM = {
   code: "",
   name: "",
@@ -26,22 +29,46 @@ const AddItemDialog = ({
   onClose,
   onConfirm,
   isLoading,
-  item,
+  selectedRow,
 }) => {
-  const isEditMode = Boolean(item?.id);
+  const isEditMode = Boolean(selectedRow?.id);
   const [formData, setFormData] = useState(EMPTY_ITEM);
 
+  // =======================================
+  // CATEGORY DROPDOWN
+  // =======================================
+  const [
+    fetchCategories,
+    {
+      data: categoriesData,
+      isFetching: isFetchingCategories,
+      isError: isCategoriesError,
+    },
+  ] = useLazyFetchCategoriesQuery();
+
+  useEffect(() => {
+    if (open) {
+      fetchCategories({
+        status: 1,
+        page: 0,
+      });
+    }
+  }, [open, fetchCategories]);
+
+  // =======================================
+  // prefill on edit
+  // =======================================
   useEffect(() => {
     if (!open) return;
 
     setFormData({
-      code: item?.code ?? "",
-      name: item?.name ?? "",
-      category: item?.category ?? "",
-      uom: item?.uom ?? "",
-      warehouse: item?.warehouse ?? "",
+      code: selectedRow?.code ?? "",
+      name: selectedRow?.name ?? "",
+      category: selectedRow?.category ?? "",
+      uom: selectedRow?.uom ?? "",
+      warehouse: selectedRow?.warehouse ?? "",
     });
-  }, [item, open]);
+  }, [selectedRow, open]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -107,7 +134,7 @@ const AddItemDialog = ({
             <Input
               id="name"
               name="name"
-              value={formData.item_name}
+              value={formData.name}
               onChange={handleChange}
               disabled={isLoading}
               required
@@ -118,13 +145,19 @@ const AddItemDialog = ({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                name="category"
+              <CategoriesDropdown
+                categoriesData={categoriesData?.data ?? []}
                 value={formData.category}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
+                onChange={(value) =>
+                  setFormData((current) => ({
+                    ...current,
+                    category: value,
+                  }))
+                }
+                open={open}
+                isLoading={
+                  isLoading || isFetchingCategories
+                }
               />
             </div>
 
@@ -161,6 +194,8 @@ const AddItemDialog = ({
           </Button>
 
           <Button
+            type="submit"
+            form="item-form"
             disabled={isLoading}
           >
             <Save className="mr-1 size-4" />

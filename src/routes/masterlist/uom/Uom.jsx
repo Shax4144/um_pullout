@@ -26,7 +26,7 @@ import {
   usePostUomMutation,
   useUpdateUomMutation,
   useArchiveUomMutation,
-} from "../../../api/modules/uom.api"
+} from "../../../api/masterlist/uom.api"
 
 import UomTable from "./UomTable";
 
@@ -170,26 +170,6 @@ const Uom = () => {
     clearSelectedRow,
     isMutationLoading,
   ]);
-
-  // ================================================================
-  // CREATE PENDING USER
-  // ================================================================
-
-  const handleOpenCreatePending = useCallback(
-    (role) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(role);
-      setMode("pending");
-      setOpenCreate(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
 
   // ================================================================
   // EDIT USER
@@ -645,7 +625,6 @@ const Uom = () => {
           onEdit={handleOpenEdit}
           onArchive={handleOpenArchive}
           onRestore={handleOpenRestore}
-          onCreate={handleOpenCreatePending}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -664,6 +643,7 @@ const Uom = () => {
         onConfirm={handleCreateOrUpdate}
         isLoading={isCreating || isUpdating}
         mode={mode}
+        selectedRow={selectedRow}
       />
 
       {/* ============================================================

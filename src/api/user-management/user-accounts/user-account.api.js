@@ -1,8 +1,11 @@
-import { baseApi } from "../baseApi";
+import { baseApi } from "../../baseApi";
 
 const BASE_ENDPOINT = "api/users";
 
 export const usersApi = baseApi
+  .enhanceEndpoints({
+    addTagTypes: ["Users"]
+  })
   .injectEndpoints({
     endpoints: (builder) => ({
       fetchUserAccounts: builder.query({

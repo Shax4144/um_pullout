@@ -2,7 +2,9 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import {
+  useMemo,
+} from "react";
 
 import {
   Table,
@@ -201,7 +203,7 @@ const TableWrapper = ({
       className="
         flex
         max-h-[calc(100vh-250px)]
-        min-h-0
+        min-h-[calc(100vh-160px)]
         flex-col
         overflow-hidden
         rounded-xl
@@ -308,7 +310,7 @@ const TableWrapper = ({
       ============================================================ */}
 
       <div className="min-h-0 flex-1 overflow-auto">
-        <Table>
+        <Table containerClassName="overflow-visible">
           <TableHeader>
             {table.getHeaderGroups().map(
               (headerGroup) => (
@@ -316,7 +318,6 @@ const TableWrapper = ({
                   key={headerGroup.id}
                   className="
                     border-b
-                    hover:bg-transparent
                   "
                 >
                   {headerGroup.headers.map(
@@ -406,7 +407,7 @@ const TableWrapper = ({
                  INITIAL LOADING
               ==================================================== */
 
-              Array.from({ length: 7 }).map(
+              Array.from({ length: 5 }).map(
                 (_, rowIndex) => (
                   <TableRow
                     key={`skeleton-${rowIndex}`}
@@ -444,7 +445,6 @@ const TableWrapper = ({
                     hover:bg-muted/10
                     dark:hover:bg-muted/60
                     data-[state=selected]:bg-muted
-                    last:border-0
                   "
                 >
                   {row.getAllCells().map(
