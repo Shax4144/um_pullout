@@ -395,7 +395,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
                 description="Basic identity information associated with the employee."
               />
 
-              <div className="rounded-xl border border-input-border bg-muted/20 p-4">
+              <div className="rounded-xl border p-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* ID Prefix */}
                   <div className="space-y-1.5">

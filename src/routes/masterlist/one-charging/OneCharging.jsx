@@ -160,10 +160,10 @@ const OneCharging = () => {
 
       toast.add({
         type: "success",
-        title: "Account titles synced",
+        title: "One charging synced",
         description:
           response?.message ??
-          "Account titles have been synchronized successfully."
+          "One charging have been synchronized successfully."
       })
 
       setOpenConfirmSync(false);
@@ -171,15 +171,15 @@ const OneCharging = () => {
       const message =
         error?.data?.message ??
         error?.data?.errors?.[0]?.detail ??
-        "An error occured while synchronizing account titles. Please try again later."
+        "An error occured while synchronizing one charging. Please try again later."
 
       toast.add({
         type: "error",
-        title: "Unable to sync account titles",
+        title: "Unable to sync one charging",
         description: message,
       });
 
-      console.error("Failed to sync account titles:", error);
+      console.error("Failed to sync one charging:", error);
     }
   }, [isMutationLoading, syncOneCharging]);
 

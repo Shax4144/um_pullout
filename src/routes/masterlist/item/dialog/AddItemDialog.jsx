@@ -14,14 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import CategoriesDropdown from "@/components/dropdowns/CategoriesDropdown";
-import { useLazyFetchCategoriesQuery } from "../../../../api/masterlist/categories.api"
+import { useLazyFetchCategoriesQuery } from "../../../../api/masterlist/categories.api";
+import { useLazyFetchUomsQuery } from "../../../../api/masterlist/uom.api";
+import { useLazyFetchWarehousesQuery } from "../../../../api/masterlist/warehouses.api";
+import Dropdown from "@/components/Dropdown";
 
 const EMPTY_ITEM = {
   code: "",
   name: "",
-  category: "",
-  uom: "",
-  warehouse: "",
+  category_id: "",
+  uom_id: "",
+  warehouse_id: "",
 };
 
 const AddItemDialog = ({
@@ -50,10 +53,49 @@ const AddItemDialog = ({
     if (open) {
       fetchCategories({
         status: 1,
-        page: 0,
+        page: "none",
       });
     }
   }, [open, fetchCategories]);
+
+  // =======================================
+  // UOM DROPDOWN
+  // =======================================
+  const [
+    fetchUOMs,
+    { data: uomsData, isFetching: isFetchingUOMs, isError: isUOMsError },
+  ] = useLazyFetchUomsQuery();
+
+  useEffect(() => {
+    if (open) {
+      fetchUOMs({
+        status: 1,
+        page: "none",
+      });
+    }
+  }, [open, fetchUOMs]);
+
+  // =======================================
+  // UOM DROPDOWN
+  // =======================================
+  const [
+    fetchWarehouses,
+    {
+      data: warehousesData,
+      isFetching: isFetchingWarehouses,
+      isError: isWarehouses,
+      Error,
+    },
+  ] = useLazyFetchWarehousesQuery();
+
+  useEffect(() => {
+    if (open) {
+      fetchWarehouses({
+        status: 1,
+        page: "none",
+      });
+    }
+  }, [open, fetchWarehouses]);
 
   // =======================================
   // prefill on edit
@@ -64,9 +106,13 @@ const AddItemDialog = ({
     setFormData({
       code: selectedRow?.code ?? "",
       name: selectedRow?.name ?? "",
-      category: selectedRow?.category ?? "",
-      uom: selectedRow?.uom ?? "",
-      warehouse: selectedRow?.warehouse ?? "",
+      category_id:
+        selectedRow?.category_id != null ? String(selectedRow.category_id) : "",
+      uom_id: selectedRow?.uom_id != null ? String(selectedRow.uom_id) : "",
+      warehouse_id:
+        selectedRow?.warehouse_id != null
+          ? String(selectedRow.warehouse_id)
+          : "",
     });
   }, [selectedRow, open]);
 
@@ -86,9 +132,9 @@ const AddItemDialog = ({
       ...formData,
       code: formData.code.trim(),
       name: formData.name.trim(),
-      category: formData.category.trim(),
-      uom: formData.uom.trim(),
-      warehouse: formData.warehouse.trim(),
+      category_id: Number(formData.category_id),
+      uom_id: Number(formData.uom_id),
+      warehouse_id: Number(formData.warehouse_id),
     });
   };
 
@@ -102,9 +148,7 @@ const AddItemDialog = ({
             </div>
 
             <div>
-              <DialogTitle>
-                {isEditMode ? "Edit Item" : "Add Item"}
-              </DialogTitle>
+              <DialogTitle>{isEditMode ? "Edit Item" : "Add Item"}</DialogTitle>
 
               <DialogDescription>
                 {isEditMode
@@ -115,7 +159,11 @@ const AddItemDialog = ({
           </div>
         </DialogHeader>
 
-        <form id="item-form" onSubmit={handleSubmit} className="grid gap-4 py-2">
+        <form
+          id="item-form"
+          onSubmit={handleSubmit}
+          className="grid gap-4 py-2"
+        >
           <div className="grid gap-2">
             <Label htmlFor="code">Code</Label>
             <Input
@@ -145,45 +193,61 @@ const AddItemDialog = ({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
-              <CategoriesDropdown
-                categoriesData={categoriesData?.data ?? []}
-                value={formData.category}
+              <Dropdown
+                data={categoriesData?.data ?? []}
+                value={formData.category_id}
                 onChange={(value) =>
                   setFormData((current) => ({
                     ...current,
-                    category: value,
+                    category_id: value,
                   }))
                 }
                 open={open}
-                isLoading={
-                  isLoading || isFetchingCategories
-                }
+                isLoading={isLoading || isFetchingCategories}
+                placeholder="Select Category"
               />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="uom">UOM</Label>
-              <Input
-                id="uom"
-                name="uom"
-                value={formData.uom}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-                placeholder="e.g. Piece"
+              <Dropdown
+                data={uomsData?.data ?? []}
+                value={formData.uom_id}
+                onChange={(value) =>
+                  setFormData((current) => ({
+                    ...current,
+                    uom_id: value,
+                  }))
+                }
+                open={open}
+                isLoading={isLoading || isFetchingUOMs}
+                placeholder="Select Unit of Measure"
               />
             </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="warehouse">Warehouse</Label>
-            <Input
+            {/* <Input
               id="warehouse"
               name="warehouse"
               value={formData.warehouse}
               onChange={handleChange}
               disabled={isLoading}
               required
+            />*/}
+            <Dropdown
+              data={warehousesData?.data ?? []}
+              value={formData.warehouse_id}
+              onChange={(value) =>
+                setFormData((current) => ({
+                  ...current,
+                  warehouse_id: value,
+                }))
+              }
+              open={open}
+              isLoading={isLoading || isFetchingWarehouses}
+              placeholder="Select Warehouse"
             />
           </div>
         </form>
@@ -196,7 +260,12 @@ const AddItemDialog = ({
           <Button
             type="submit"
             form="item-form"
-            disabled={isLoading}
+            disabled={
+              isLoading ||
+              !formData.category_id ||
+              !formData.uom_id ||
+              !formData.warehouse_id
+            }
           >
             <Save className="mr-1 size-4" />
             {isLoading ? "Saving..." : isEditMode ? "Save changes" : "Add item"}

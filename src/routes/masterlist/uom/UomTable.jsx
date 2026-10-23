@@ -40,11 +40,11 @@ const UomTable = ({
   const columns = useMemo(
     () => [
       {
-        accessorKey: "code",
-        header: "Code",
+        accessorKey: "symbol",
+        header: "Symbol",
         cell: ({ row }) => (
           <Badge variant="secondary" className="font-mono text-sm font-medium">
-            {row.getValue("code") || "—"}
+            {row.getValue("symbol") || "—"}
           </Badge>
         ),
       },

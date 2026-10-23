@@ -311,9 +311,9 @@ const Warehouse = () => {
 
           toast.add({
             type: "success",
-            title: "User updated",
+            title: "Warehouse updated",
             description: response?.message ??
-              "The user account has been updated successfully.",
+              "The warehouse has been updated successfully.",
           });
         } else {
           const response =
@@ -322,9 +322,9 @@ const Warehouse = () => {
           console.log("payload", categoryData);
           toast.add({
             type: "success",
-            title: "User created",
+            title: "Warehouse created",
             description: response?.message ??
-              "The user account has been created successfully.",
+              "The warehouse has been created successfully.",
           });
         }
 
@@ -336,16 +336,16 @@ const Warehouse = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while processing the user account.";
+          "An error occurred while processing the warehouse.";
 
         toast.add({
           type: "error",
-          title: "Unable to save user",
+          title: "Unable to save warehouse",
           description: message,
         });
 
         console.error(
-          "Failed to create/update user:",
+          "Failed to create/update warehouse:",
           error,
         );
       }
@@ -395,9 +395,9 @@ const Warehouse = () => {
 
           toast.add({
             type: "success",
-            title: "User archived",
+            title: "Warehouse archived",
             description: response?.message ??
-              "The user account has been archived successfully.",
+              "The warehouse has been archived successfully.",
           });
 
         setOpenArchive(false);
@@ -406,16 +406,16 @@ const Warehouse = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the user account.";
+          "An error occurred while archiving the warehouse.";
 
         toast.add({
           type: "error",
-          title: "Unable to archive user",
+          title: "Unable to archive warehouse",
           description: message,
         });
 
         console.error(
-          "Failed to archive user:",
+          "Failed to archive warehouse:",
           error,
         );
       }

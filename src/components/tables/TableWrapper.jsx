@@ -309,7 +309,7 @@ const TableWrapper = ({
           TABLE
       ============================================================ */}
 
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div className="relative min-h-0 flex-1 overflow-auto">
         <Table containerClassName="overflow-visible">
           <TableHeader>
             {table.getHeaderGroups().map(
@@ -337,7 +337,6 @@ const TableWrapper = ({
                           font-semibold
                           uppercase
                           tracking-wide
-                          text-white
                           backdrop-blur
                         "
                       >
@@ -360,41 +359,21 @@ const TableWrapper = ({
             ====================================================== */}
 
             {isError ? (
-              <TableRow>
+              <TableRow className="border-none">
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="h-60 px-4"
+                  className="h-[400px] p-0"
                 >
-                  <div
-                    className="
-                      flex
-                      flex-col
-                      items-center
-                      justify-center
-                      gap-3
-                      text-center
-                    "
-                  >
-                    <div
-                      className="
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-full
-                        bg-destructive/10
-                        text-destructive
-                      "
-                    >
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                       <AlertCircle className="h-5 w-5" />
                     </div>
-
+              
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         Unable to load records
                       </p>
-
+              
                       <p className="mt-1 text-sm text-muted-foreground">
                         {errorMessage}
                       </p>
@@ -444,7 +423,7 @@ const TableWrapper = ({
                     transition-colors
                     hover:bg-muted/10
                     dark:hover:bg-muted/60
-                    data-[state=selected]:bg-muted
+                    data-[state=selected]:bg-muted/10
                   "
                 >
                   {row.getAllCells().map(
@@ -474,65 +453,30 @@ const TableWrapper = ({
               <TableRow>
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="h-60 px-4"
+                  className="h-[400px] p-0"
                 >
-                  <div
-                    className="
-                      flex
-                      flex-col
-                      items-center
-                      justify-center
-                      gap-3
-                      text-center
-                    "
-                  >
-                    <div
-                      className="
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-full
-                        bg-muted
-                        text-muted-foreground
-                      "
-                    >
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       {searchValue ? (
                         <SearchX className="h-5 w-5" />
                       ) : (
                         <Search className="h-5 w-5" />
                       )}
                     </div>
-
+              
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {searchValue
                           ? "No matching records"
                           : "No records found"}
                       </p>
-
+              
                       <p className="mt-1 text-sm text-muted-foreground">
                         {searchValue
                           ? "Try adjusting your search or filters."
                           : "There are currently no records to display."}
                       </p>
                     </div>
-
-                    {searchValue && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClearSearch}
-                        className="
-                          mt-1
-                          cursor-pointer
-                        "
-                      >
-                        Clear search
-                      </Button>
-                    )}
                   </div>
                 </TableCell>
               </TableRow>

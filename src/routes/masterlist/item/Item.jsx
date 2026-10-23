@@ -380,9 +380,9 @@ const Item = () => {
 
           toast.add({
             type: "success",
-            title: "User updated",
+            title: "Item updated",
             description: response?.message ??
-              "The user account has been updated successfully.",
+              "The item has been updated successfully.",
           });
         } else {
           const response =
@@ -390,9 +390,9 @@ const Item = () => {
 
           toast.add({
             type: "success",
-            title: "User created",
+            title: "Item created",
             description: response?.message ??
-              "The user account has been created successfully.",
+              "The item has been created successfully.",
           });
         }
 
@@ -463,9 +463,9 @@ const Item = () => {
 
           toast.add({
             type: "success",
-            title: "User archived",
+            title: "Item archived",
             description: response?.message ??
-              "The user account has been archived successfully.",
+              "The item has been archived successfully.",
           });
 
         setOpenArchive(false);
@@ -474,16 +474,16 @@ const Item = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the user account.";
+          "An error occurred while archiving the item.";
 
         toast.add({
           type: "error",
-          title: "Unable to archive user",
+          title: "Unable to archive item",
           description: message,
         });
 
         console.error(
-          "Failed to archive user:",
+          "Failed to archive item:",
           error,
         );
       }
@@ -536,9 +536,9 @@ const Item = () => {
 
         toast.add({
           type: "success",
-          title: "User restored",
+          title: "Item restored",
           description: response?.message ??
-            "The user account has been restored successfully.",
+            "The item has been restored successfully.",
         });
 
         setOpenRestore(false);
@@ -547,16 +547,16 @@ const Item = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the user account.";
+          "An error occurred while restoring the item.";
 
         toast.add({
           type: "error",
-          title: "Unable to restore user",
+          title: "Unable to restore item",
           description: message,
         });
 
         console.error(
-          "Failed to restore user:",
+          "Failed to restore item:",
           error,
         );
       }

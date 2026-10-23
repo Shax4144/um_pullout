@@ -37,7 +37,7 @@ const SidebarCollapsibleGroup = ({
           className={cn(
             "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[12px] font-semibold text-sidebar-foreground/70 transition-[background-color,color] hover:bg-sidebar-hover hover:text-sidebar-accent-foreground",
             isGroupActive &&
-              "bg-sidebar-accent/95 text-sidebar-accent-foreground",
+              "bg-sidebar-primary text-sidebar-accent-foreground",
           )}
         >
           <GroupIcon className="size-6" />

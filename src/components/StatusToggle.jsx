@@ -163,9 +163,9 @@ const StatusToggle = ({
 										shadow-sm
 									`
                   : `
-                    text-muted
+                    text-foreground
                     dark:text-muted-foreground
-										hover:text-chart-2
+										hover:text-primary
 									`
               }
 						`}

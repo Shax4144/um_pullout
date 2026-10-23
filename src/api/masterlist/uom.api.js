@@ -1,6 +1,6 @@
 import { baseApi } from "../baseApi" 
 
-const BASE_ENDPOINT = "api/uoms"
+const BASE_ENDPOINT = "api/units-of-measurement"
 
 export const UomsApi = baseApi
   .enhanceEndpoints({

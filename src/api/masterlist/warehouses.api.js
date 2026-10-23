@@ -44,7 +44,7 @@ export const warehousesApi = baseApi
 
 export const {
   useFetchWarehousesQuery,
-  useLazyFetchCategoriesQuery,
+  useLazyFetchWarehousesQuery,
   usePostWarehouseMutation,
   useUpdateWarehouseMutation,
   useArchiveWarehouseMutation,

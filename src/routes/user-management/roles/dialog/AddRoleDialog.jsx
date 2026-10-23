@@ -349,7 +349,7 @@ const AddRoleDialog = ({
           "
         >
           <div className="flex items-start gap-3">
-            <div
+            {/* <div
               className="
                 flex
                 h-10
@@ -363,7 +363,7 @@ const AddRoleDialog = ({
               "
             >
               <ShieldCheck className="h-5 w-5" />
-            </div>
+            </div>*/}
 
             <div className="min-w-0">
               <DialogTitle
@@ -418,10 +418,11 @@ const AddRoleDialog = ({
                     items-center
                     justify-center
                     rounded-lg
-                    bg-muted
+                    bg-primary/10
+                    text-primary
                   "
                 >
-                  <LockKeyhole className="h-4 w-4 text-muted-foreground" />
+                  <LockKeyhole className="h-4 w-4" />
                 </div>
 
                 <div>
@@ -486,10 +487,11 @@ const AddRoleDialog = ({
                     items-center
                     justify-center
                     rounded-lg
-                    bg-muted
+                    bg-primary/10
+                    text-primary
                   "
                 >
-                  <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                  <ShieldCheck className="h-4 w-4" />
                 </div>
 
                 <div className="min-w-0">

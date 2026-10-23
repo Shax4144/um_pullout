@@ -310,9 +310,9 @@ const Category = () => {
 
           toast.add({
             type: "success",
-            title: "User updated",
+            title: "Category updated",
             description: response?.message ??
-              "The user account has been updated successfully.",
+              "The category has been updated successfully.",
           });
         } else {
           const response =
@@ -321,9 +321,9 @@ const Category = () => {
           console.log("payload", categoryData);
           toast.add({
             type: "success",
-            title: "User created",
+            title: "Category created",
             description: response?.message ??
-              "The user account has been created successfully.",
+              "The category has been created successfully.",
           });
         }
 
@@ -335,16 +335,16 @@ const Category = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while processing the user account.";
+          "An error occurred while processing the category.";
 
         toast.add({
           type: "error",
-          title: "Unable to save user",
+          title: "Unable to save category",
           description: message,
         });
 
         console.error(
-          "Failed to create/update user:",
+          "Failed to create/update category:",
           error,
         );
       }
@@ -394,9 +394,9 @@ const Category = () => {
 
           toast.add({
             type: "success",
-            title: "User archived",
+            title: "Category archived",
             description: response?.message ??
-              "The user account has been archived successfully.",
+              "The category has been archived successfully.",
           });
 
         setOpenArchive(false);
@@ -405,16 +405,16 @@ const Category = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the user account.";
+          "An error occurred while archiving the category.";
 
         toast.add({
           type: "error",
-          title: "Unable to archive user",
+          title: "Unable to archive category",
           description: message,
         });
 
         console.error(
-          "Failed to archive user:",
+          "Failed to archive category:",
           error,
         );
       }
@@ -467,9 +467,9 @@ const Category = () => {
 
         toast.add({
           type: "success",
-          title: "User restored",
+          title: "Category restored",
           description: response?.message ??
-            "The user account has been restored successfully.",
+            "The category has been restored successfully.",
         });
 
         setOpenRestore(false);
@@ -478,16 +478,16 @@ const Category = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the user account.";
+          "An error occurred while restoring the category.";
 
         toast.add({
           type: "error",
-          title: "Unable to restore user",
+          title: "Unable to restore category",
           description: message,
         });
 
         console.error(
-          "Failed to restore user:",
+          "Failed to restore category:",
           error,
         );
       }

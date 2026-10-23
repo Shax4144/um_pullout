@@ -141,13 +141,13 @@ const Uom = () => {
       active: {
         label: "Active",
         description:
-          "Manage available inventory items.",
+          "Manage the unit of measure.",
       },
 
       archived: {
         label: "Archived",
         description:
-          "View and restore archived inventory items.",
+          "View and restore archived units of measure.",
       },
     };
 
@@ -310,9 +310,9 @@ const Uom = () => {
 
           toast.add({
             type: "success",
-            title: "User updated",
+            title: "Unit of Measure updated",
             description: response?.message ??
-              "The user account has been updated successfully.",
+              "The unit of measure has been updated successfully.",
           });
         } else {
           const response =
@@ -320,9 +320,9 @@ const Uom = () => {
 
           toast.add({
             type: "success",
-            title: "User created",
+            title: "Unit of Measure created",
             description: response?.message ??
-              "The user account has been created successfully.",
+              "The unit of measure has been created successfully.",
           });
         }
 
@@ -334,16 +334,16 @@ const Uom = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while processing the user account.";
+          "An error occurred while processing the unit of measure.";
 
         toast.add({
           type: "error",
-          title: "Unable to save user",
+          title: "Unable to save unit of measure",
           description: message,
         });
 
         console.error(
-          "Failed to create/update user:",
+          "Failed to create/update unit of measure:",
           error,
         );
       }
@@ -393,9 +393,9 @@ const Uom = () => {
 
           toast.add({
             type: "success",
-            title: "User archived",
+            title: "Unit of Measure archived",
             description: response?.message ??
-              "The user account has been archived successfully.",
+              "The unit of measure has been archived successfully.",
           });
 
         setOpenArchive(false);
@@ -404,16 +404,16 @@ const Uom = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the user account.";
+          "An error occurred while archiving the unit of measure.";
 
         toast.add({
           type: "error",
-          title: "Unable to archive user",
+          title: "Unable to archive unit of measure",
           description: message,
         });
 
         console.error(
-          "Failed to archive user:",
+          "Failed to archive unit of measure:",
           error,
         );
       }
@@ -466,9 +466,9 @@ const Uom = () => {
 
         toast.add({
           type: "success",
-          title: "User restored",
+          title: "Unit of Measure restored",
           description: response?.message ??
-            "The user account has been restored successfully.",
+            "The unit of measure has been restored successfully.",
         });
 
         setOpenRestore(false);
@@ -477,16 +477,16 @@ const Uom = () => {
         const message =
           error?.data?.message ??
           error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the user account.";
+          "An error occurred while restoring the unit of measure.";
 
         toast.add({
           type: "error",
-          title: "Unable to restore user",
+          title: "Unable to restore unit of measure",
           description: message,
         });
 
         console.error(
-          "Failed to restore user:",
+          "Failed to restore unit of measure:",
           error,
         );
       }

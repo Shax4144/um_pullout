@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator"
 
 import {
   Popover,
@@ -104,7 +105,7 @@ const SidebarWrapper = () => {
           CONTENT
       ========================================================= */}
       <SidebarContent>
-        <SidebarMenu className="pl-2">
+        <SidebarMenu className="pl-2 pr-1">
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => {
@@ -165,7 +166,7 @@ const SidebarWrapper = () => {
                   text-left
                   transition-colors
                   hover:bg-sidebar-hover
-                  !data-[state=open]:bg-sidebar-hover
+                  !data-[state=open]:bg-sidebar-accent
                 "
               />
             }
@@ -213,9 +214,6 @@ const SidebarWrapper = () => {
             className="
               w-70
               rounded-xl
-              border
-              border-cyan-700
-              bg-popover
               p-2
               shadow-xl
             "
@@ -308,13 +306,13 @@ const SidebarWrapper = () => {
               </Button>*/}
 
               {/* Divider */}
-              <div className="my-1 h-px bg-cyan-700" />
+              <Separator />
 
               {/* =================================================
                   LOGOUT
               ================================================= */}
               <Button
-                variant="ghost"
+                variant="destructive"
                 onClick={handleLogout}
                 className="
                   h-10
@@ -323,8 +321,6 @@ const SidebarWrapper = () => {
                   rounded-lg
                   px-3
                   font-bold
-                  hover:text-red-400
-                  hover:bg-red-900/60
                 "
               >
                 <LogOut />

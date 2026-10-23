@@ -32,12 +32,12 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
       <SidebarGroup className="py-1">
         <CollapsibleTrigger
           className={cn(
-            "flex w-full h-12 items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-semibold text-sidebar-foreground/70 transition-[color,background-color] duration-200 ease-out motion-safe:transition-transform motion-safe:hover:translate-x-0.5 hover:bg-sidebar-hover hover:text-sidebar-accent-foreground",
+            "flex w-full h-12 items-center gap-2 rounded-md px-2 py-2 text-left text-md duration-200 ease-out motion-safe:transition-transform motion-safe:hover:translate-x-1 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             isGroupActive &&
-              "bg-sidebar-accent/30 text-sidebar-accent-foreground",
+              "bg-primary text-sidebar-foreground",
           )}
         >
-          <UserCog className="size-4" />
+          <UserCog className="size-6" />
 
           <span className="flex-1">User Management</span>
 
@@ -61,10 +61,11 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
             data-[starting-style]:opacity-0
             data-[ending-style]:h-0
             data-[ending-style]:opacity-0
+            mt-0.5
           "
         >
           <SidebarGroupContent>
-            <SidebarMenu className="mt-1 pl-4 gap-1">
+            <SidebarMenu className="mt-1 pl-5 pr-1 gap-2">
               {userManagementItems.map(({ label, to, icon: Icon }) => (
                 <SidebarMenuItem
                   key={to}
@@ -74,7 +75,7 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
                     isActive={pathname === to}
                     onClick={() => navigate(to)}
                     tooltip={label}
-                    className="w-full cursor-pointer data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                    className="cursor-pointer"
                   >
                     <Icon />
                     <span>{label}</span>

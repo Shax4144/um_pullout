@@ -1,10 +1,5 @@
 import { useMemo } from "react";
-import {
-  ArchiveRestore,
-  ArchiveX,
-  MoreHorizontal,
-  Pencil,
-} from "lucide-react";
+import { ArchiveRestore, ArchiveX, MoreHorizontal, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +57,7 @@ const ItemTable = ({
         header: "Category",
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {row.getValue("category") || "—"}
+            {row.original.category?.name || "—"}
           </span>
         ),
       },
@@ -71,7 +66,7 @@ const ItemTable = ({
         header: "UOM",
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {row.getValue("uom") || "—"}
+            {row.original.uom?.name || "—"}
           </span>
         ),
       },
@@ -80,7 +75,7 @@ const ItemTable = ({
         header: "Warehouse",
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {row.getValue("warehouse") || "—"}
+            {row.original.warehouse?.name || "—"}
           </span>
         ),
       },
@@ -107,7 +102,10 @@ const ItemTable = ({
                   <MoreHorizontal className="h-4 w-4" />
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-40 rounded-xl p-1.5">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-40 rounded-xl p-1.5"
+                >
                   {isArchived ? (
                     <DropdownMenuItem
                       onClick={() => onRestore(item)}
