@@ -4,7 +4,7 @@ import { CloudSync, CloudCheck, CloudAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import Confirm from "../../../components/Confirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
@@ -327,11 +327,16 @@ const AccountTitle = () => {
       {/* ============================================================
           RESTORE CONFIRMATION
       ============================================================ */}
-      <Confirm
+      <ActionConfirm
         open={openConfirmSync}
         onClose={handleCloseSync}
         onConfirm={handleConfirmSync}
         isLoading={isSyncing}
+
+        title="Sync Account Titles"
+        icon={CloudSync}
+        actionLabel="Sync"
+        loadingLabel="Syncing..."
       />
     </div>
   );

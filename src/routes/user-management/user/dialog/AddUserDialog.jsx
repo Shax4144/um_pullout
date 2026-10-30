@@ -25,7 +25,10 @@ import {
 
 import OneChargingDropdown from "../../../../components/dropdowns/OneChargingDropdown";
 import RolesDropdown from "../../../../components/dropdowns/RolesDropdown";
+import Dropdown from "../../../../components/Dropdown";
+
 import { useFetchRolesQuery } from "../../../../api/user-management/roles.api";
+import { useLazyFetchWarehousesQuery } from "../../../../api/masterlist/warehouses.api";
 import { useSelectedRow } from "../../../../context/SelectedRowProvider";
 import { toast } from "../../../../components/ui/toast";
 
@@ -42,6 +45,7 @@ const initialForm = {
 
 const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
   const [selectedRole, setSelectedRole] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedCharging, setSelectedCharging] = useState(null);
   const [formData, setFormData] = useState(initialForm);
 
@@ -108,6 +112,28 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
   const rolesData = rolesResponse?.data ?? [];
 
   // --------------------------------------------------------------
+  // FETCH WAREHOUSES
+  // --------------------------------------------------------------
+  const [
+    fetchWarehouses,
+    {
+      data: warehousesResponse,
+      isFetching: isWarehousesFetching,
+      isError: isWarehousesError,
+    },
+  ] = useLazyFetchWarehousesQuery();
+
+  const warehousesData = warehousesResponse?.data ?? [];
+
+  useEffect(() => {
+    if (!open) return;
+
+    fetchWarehouses({
+      status: 1,
+      pagination: 'none',
+    });
+  }, [open, fetchWarehouses]);
+  // --------------------------------------------------------------
   // INITIALIZE / RESET FORM
   // --------------------------------------------------------------
 
@@ -134,8 +160,11 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
             : (selectedRow.username ?? ""),
       });
 
-      setSelectedRole(selectedRow.role ?? "");
+      setSelectedRole(selectedRow.role?.name ?? "");
 
+      setSelectedWarehouse(
+        String(selectedRow.warehouse_id ?? selectedRow.warehouse?.id ?? ""),
+      );
       setSelectedCharging({
         code: selectedRow.charging_code,
         name: selectedRow.charging_name,
@@ -158,6 +187,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
 
     setFormData(initialForm);
     setSelectedRole("");
+    setSelectedWarehouse("");
     setSelectedCharging(null);
   }, [open, selectedRow]);
 
@@ -206,6 +236,16 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
         title: "Role required",
         description: "Please select a role before continuing.",
       });
+      return;
+    }
+
+    if (!selectedWarehouse) {
+      toast.add({
+        type: "warning",
+        title: "Warehouse required",
+        description: "Please select a warehouse before continuing.",
+      });
+    
       return;
     }
 
@@ -260,7 +300,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
     const username = generatedUsername;
 
     const payload = {
-      employee_id: `${formData.idPrefix.trim()} - ${formData.idNumber.trim()}`,
+      employee_id: `${formData.idPrefix.trim()}-${formData.idNumber.trim()}`,
 
       first_name: formData.firstName.trim(),
       last_name: formData.lastName.trim(),
@@ -294,6 +334,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
       password: selectedRow?.username ?? "",
 
       role_id: matchedRole?.id,
+      warehouse_id: Number(selectedWarehouse),
     };
 
     onConfirm(payload);
@@ -579,12 +620,46 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
                   </Label>
 
                   <RolesDropdown
-                    rolesData={rolesData}
+                    rolesData={rolesData ?? []}
                     value={selectedRole}
                     onChange={setSelectedRole}
                     open={open}
                     isLoading={isLoading || isRolesFetching}
                   />
+                </div>
+
+                {/* Warehouse */}
+                <div className="space-y-1.5">
+                  <Label>
+                    Warehouse <RequiredMark />
+                  </Label>
+
+                  <Dropdown
+                    data={warehousesData}
+                    value={selectedWarehouse}
+                    onChange={setSelectedWarehouse}
+                    placeholder="Select warehouse"
+                    disabled={
+                      isLoading || isAccountLocked || isWarehousesFetching
+                    }
+                  />
+
+                  {isWarehousesError && (
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-destructive">
+                        Unable to load warehouses.
+                      </p>
+
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        onClick={() => fetchWarehouses({ status: 1, pagination: 'none' })}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -601,7 +676,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
                 description="Assign the user's One Charging and organizational structure."
               />
 
-              <div className="rounded-xl border border-input-border bg-muted/20 p-4">
+              <div className="rounded-xl border bg-muted/20 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <IdCard className="h-4 w-4 text-muted-foreground" />
 

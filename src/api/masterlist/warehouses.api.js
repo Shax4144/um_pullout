@@ -16,6 +16,13 @@ export const warehousesApi = baseApi
         }),
         providesTags: ["Warehouses"],
       }),
+      fetchWarehouseById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["Warehouses"],
+      }),
       postWarehouse: builder.mutation({
         query: (categoryData) => ({
           url: BASE_ENDPOINT,
@@ -45,6 +52,7 @@ export const warehousesApi = baseApi
 export const {
   useFetchWarehousesQuery,
   useLazyFetchWarehousesQuery,
+  useLazyFetchWarehouseByIdQuery,
   usePostWarehouseMutation,
   useUpdateWarehouseMutation,
   useArchiveWarehouseMutation,

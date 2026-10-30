@@ -4,7 +4,7 @@ const BASE_ENDPOINT = "api/misc-receipts"
 
 export const miscReceiptApi = baseApi
   .enhanceEndpoints({
-    addTagTypes: ["Misc-Receipt"]
+    addTagTypes: ["Misc-Receipts"]
   })
   .injectEndpoints({
     endpoints: (builder) => ({
@@ -14,15 +14,14 @@ export const miscReceiptApi = baseApi
           method: "GET",
           params,
         }),
-        providesTags: ["Misc-Receipt"],
+        providesTags: ["Misc-Receipts"],
       }),
-      fetchReceipt: builder.query({
-        query: (params) => ({
-          url: BASE_ENDPOINT,
+      fetchMiscReceiptById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
           method: "GET",
-          params,
         }),
-        providesTags: ["Misc-Receipt"],
+        providesTags: ["Misc-Receipts"],
       }),
       postMiscReceipt: builder.mutation({
         query: (body) => ({
@@ -30,7 +29,7 @@ export const miscReceiptApi = baseApi
           method: "POST",
           body,
         }),
-        invalidatesTags: ["Misc-Receipt"],
+        invalidatesTags: ["Misc-Receipts"],
       }),
       updateMiscReceipt: builder.mutation({
         query: ({ id, ...body }) => ({
@@ -38,22 +37,21 @@ export const miscReceiptApi = baseApi
           method: "PUT",
           body,
         }),
-        invalidatesTags: ["Misc-Receipt"],
+        invalidatesTags: ["Misc-Receipts"],
       }),
       archiveMiscReceipt: builder.mutation({
         query: (id) => ({
           url: `${BASE_ENDPOINT}/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: ["Misc-Receipt"],
+        invalidatesTags: ["Misc-Receipts"],
       }),
     })
   })
 
 export const {
   useFetchMiscReceiptsQuery,
-  useFetchReceiptQuery,
-  useLazyFetchReceiptQuery,
+  useLazyFetchMiscReceiptByIdQuery,
   usePostMiscReceiptMutation,
   useUpdateMiscReceiptMutation,
   useArchiveMiscReceiptMutation,

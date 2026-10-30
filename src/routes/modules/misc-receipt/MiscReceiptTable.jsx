@@ -15,8 +15,7 @@ const MiscReceiptTable = ({
   status,
   onStatusChange,
   onEdit,
-  onArchive,
-  onRestore,
+  onAction,
   page,
   onPageChange,
   pageSize,
@@ -29,11 +28,14 @@ const MiscReceiptTable = ({
       {
         id: "stock-id",
         accessorFn: (row) => row.stock?.id ?? null,
-        header: "ID",
+        header: () => <div className="text-center">ID</div>,
         cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.id || "—"}
-          </span>
+          <div className="text-center"> 
+            <span className="text-sm text-muted-foreground">
+              {row.original.id || "—"}
+            </span>
+          </div>
+          
         ),
       },
       // {
@@ -49,26 +51,32 @@ const MiscReceiptTable = ({
       {
         id: "number_of_items",
         accessorFn: (row) => row.stock?.inventories?.length ?? 0,
-        header: "No. of Items",
+        header: () => <div className="text-center">No. of Items</div>,
         cell: ({ row }) => (
-          <Badge variant="secondary" className="font-mono text-sm font-medium">
-            <Package className="[&>svg]:size-5.5" />
-            {row.original.miscellaneous_inventory?.length ?? 0}
-          </Badge>
+          <div className="text-center">
+            <Badge variant="secondary" className="font-mono text-sm font-medium">
+              <Package className="[&>svg]:size-5.5" />
+              {row.original.miscellaneous_inventory?.length ?? 0}
+            </Badge>
+          </div>
+          
         ),
       },
       {
         accessorKey: "transaction_date",
-        header: "Transction Date",
+        header: () => <div className="text-center">Transaction Date</div>,
         cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.transaction_date || "—"}
-          </span>
+          <div className="text-center">
+            <span className="text-sm text-muted-foreground">
+              {row.original.transaction_date || "—"}
+            </span>
+          </div>
+          
         ),
       },
       {
         accessorKey: "description",
-        header: "Description Type",
+        header:  () => <div className="text-center">Transaction Type</div>,
         cell: ({ row }) => {
           const description = row.original.description;
 
@@ -80,9 +88,12 @@ const MiscReceiptTable = ({
             : "—";
 
           return (
-            <span className="text-sm text-muted-foreground">
-              {formattedDescription}
-            </span>
+            <div className="text-center">
+              <span className="text-sm text-muted-foreground">
+                {formattedDescription}
+              </span>
+            </div>
+           
           );
         },
       },
@@ -173,7 +184,7 @@ const MiscReceiptTable = ({
       {
         id: "remarks",
         accessorFn: (row) => row.stock?.remarks ?? "",
-        header: "Remarks",
+        header: () => <div className="text-center">Remarks</div>,
         cell: ({ row }) => (
           <span
             className="block max-w-48 truncate text-sm text-muted-foreground"

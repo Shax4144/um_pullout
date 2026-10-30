@@ -28,8 +28,7 @@ const WarehouseTable = ({
   status,
   onStatusChange,
   onEdit,
-  onArchive,
-  onRestore,
+  onAction,
   page,
   onPageChange,
   pageSize,
@@ -83,7 +82,7 @@ const WarehouseTable = ({
                 <DropdownMenuContent align="end" className="w-40 rounded-xl p-1.5">
                   {isArchived ? (
                     <DropdownMenuItem
-                      onClick={() => onRestore(warehouse)}
+                      onClick={() => onAction(warehouse, "restore")}
                       className="cursor-pointer gap-2 rounded-lg"
                     >
                       <ArchiveRestore className="h-4 w-4" />
@@ -103,7 +102,7 @@ const WarehouseTable = ({
 
                       <DropdownMenuItem
                         variant="destructive"
-                        onClick={() => onArchive(warehouse)}
+                        onClick={() => onAction(warehouse, "archive")}
                         className="cursor-pointer gap-2 rounded-lg"
                       >
                         <ArchiveX className="h-4 w-4" />
@@ -118,7 +117,7 @@ const WarehouseTable = ({
         },
       },
     ],
-    [onArchive, onEdit, onRestore, status],
+    [onAction, onEdit, status],
   );
 
   return (

@@ -15,14 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import AddItemDialog from "./dialog/AddItemDialog";
-import Confirm from "../../../components/Confirm";
-import DeleteConfirm from "../../../components/DeleteConfirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 import {
   useFetchItemsQuery,
+  useLazyFetchItemByIdQuery,
   usePostItemMutation,
   useUpdateItemMutation,
   useArchiveItemMutation,
@@ -41,14 +41,9 @@ const Item = () => {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  // sample 
-  // const [isMutationLoading, setIsMutationLoading] = useState(false);
-  // const [isCreating, setIsCreating] = useState(false);
-  // const [isUpdating, setIsUpdating] = useState(false);
-  // const [isArchiving, setIsArchiving] = useState(false);
-  // const [isRestoring, setIsRestoring] = useState(false);
+  const [actionType, setActionType] = useState("archive");
+  const [openAction, setOpenAction] = useState(false);
   
-
   const isPending = status === "pending";
   const isArchived = status === "archived";
 
@@ -70,7 +65,7 @@ const Item = () => {
   }, [search]);
 
   // ================================================================
-  // FETCH ACTIVE / ARCHIVED USERS
+  // FETCH ITEMS
   // ================================================================
 
   const {
@@ -88,28 +83,16 @@ const Item = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
+    );
 
   // ================================================================
-  // FETCH PENDING REQUESTS
+  // FETCH ITEM BY ID
   // ================================================================
 
-  // const {
-  //   data: pendingRequestsData,
-  //   isFetching: isFetchingPending,
-  //   isError: isPendingError,
-  //   error: pendingError,
-  // } = useFetchPendingRequestsQuery(
-  //   {
-  //     page,
-  //     per_page: pageSize,
-  //     search: debouncedSearch || undefined,
-  //   },
-  //   {
-  //     skip: !isPending,
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  // );
+  const [
+    fetchItemById,
+    { isFetching: isFetchingItemDetails },
+  ] = useLazyFetchItemByIdQuery();
 
   // ================================================================
   // DERIVED TABLE DATA
@@ -120,27 +103,6 @@ const Item = () => {
   const tableIsFetching = isFetchingRoles
   const tableIsError = isRolesError;
   const tableError = rolesError;
-  // const tableData = useMemo(() => {
-  //   return isPending
-  //     ? pendingRequestsData
-  //     : userAccountsData;
-  // }, [
-  //   isPending,
-  //   pendingRequestsData,
-  //   userAccountsData,
-  // ]);
-
-  // const tableIsFetching = isPending
-  //   ? isFetchingPending
-  //   : isFetchingUsers;
-
-  // const tableIsError = isPending
-  //   ? isPendingError
-  //   : isUsersError;
-
-  // const tableError = isPending
-  //   ? pendingError
-  //   : usersError;
 
   // ================================================================
   // MUTATIONS
@@ -171,8 +133,6 @@ const Item = () => {
   // ================================================================
 
   const [openCreate, setOpenCreate] = useState(false);
-  const [openArchive, setOpenArchive] = useState(false);
-  const [openRestore, setOpenRestore] = useState(false);
 
   const [mode, setMode] = useState("create");
 
@@ -222,82 +182,67 @@ const Item = () => {
   ]);
 
   // ================================================================
-  // CREATE PENDING USER
-  // ================================================================
-
-  const handleOpenCreatePending = useCallback(
-    (role) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(role);
-      setMode("pending");
-      setOpenCreate(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
-
-  // ================================================================
-  // EDIT USER
+  // EDIT ITEM
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (role) => {
-      if (isMutationLoading) {
+    async (item) => {
+      if (isMutationLoading || isFetchingItemDetails) {
         return;
       }
 
-      setSelectedRow(role);
-      setMode("edit");
-      setOpenCreate(true);
+      try {
+        const response = await fetchItemById(item.id).unwrap();
+
+        const itemDetails = response?.data ?? response;
+        
+        setSelectedRow(itemDetails);
+        setMode("edit");
+        setOpenCreate(true);
+        
+      } catch (error){
+        const message =
+          error?.data?.message ??
+          "Unable to retrieve the user account details.";
+  
+        toast.add({
+          type: "error",
+          title: "Unable to load item",
+          description: message,
+        });
+  
+        console.error("Failed to fetch item:", error);
+      }
     },
     [
       setSelectedRow,
+      fetchItemById,
+      isFetchingItemDetails,
       isMutationLoading,
     ],
   );
 
   // ================================================================
-  // ARCHIVE
+  // CONFIRM ACTION
   // ================================================================
-
-  const handleOpenArchive = useCallback(
-    (role) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(role);
-      setOpenArchive(true);
+  
+  const handleOpenAction = useCallback(
+    (item, actionType) => {
+      if (isMutationLoading) return;
+  
+      setSelectedRow(item);
+      setActionType(actionType);
+      setOpenAction(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [isMutationLoading, setSelectedRow],
   );
 
-  // ================================================================
-  // RESTORE
-  // ================================================================
-
-  const handleOpenRestore = useCallback(
-    (user) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(user);
-      setOpenRestore(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
+  const handleCloseAction = useCallback(() => {
+    if (isArchiving) return;
+  
+    setOpenAction(false);
+    clearSelectedRow();
+  }, [isArchiving, clearSelectedRow]);
 
   // ================================================================
   // STATUS CHANGE
@@ -430,144 +375,49 @@ const Item = () => {
   );
 
   // ================================================================
-  // CLOSE ARCHIVE
+  // ACTION MUTATION
   // ================================================================
-
-  const handleCloseArchive = useCallback(() => {
-    if (isArchiving) {
-      return;
+  
+  const handleConfirmAction = useCallback(async () => {
+    if (!selectedRow || isArchiving) return;
+  
+    const isRestore = actionType === "restore";
+    const actionLabel = isRestore ? "restored" : "archived";
+  
+    try {
+      const response = await archiveItem(selectedRow.id).unwrap();
+  
+      toast.add({
+        type: "success",
+        title: `Item ${actionLabel}`,
+        description:
+          response?.message ??
+          `The item has been ${actionLabel} successfully.`,
+      });
+  
+      setOpenAction(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        `An error occurred while ${isRestore ? "restoring" : "archiving"} the item.`;
+  
+      toast.add({
+        type: "error",
+        title: `Unable to ${isRestore ? "restore" : "archive"} item`,
+        description: message,
+      });
+  
+      console.error(`Failed to ${isRestore ? "restore" : "archive"} item:`, error);
     }
-
-    setOpenArchive(false);
-    clearSelectedRow();
   }, [
+    selectedRow,
     isArchiving,
+    actionType,
+    archiveItem,
     clearSelectedRow,
   ]);
-
-  // ================================================================
-  // ARCHIVE USER
-  // ================================================================
-
-  const handleConfirmArchive = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        const response =
-          await archiveItem(
-            selectedRow.id,
-          ).unwrap();
-
-          toast.add({
-            type: "success",
-            title: "Item archived",
-            description: response?.message ??
-              "The item has been archived successfully.",
-          });
-
-        setOpenArchive(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the item.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to archive item",
-          description: message,
-        });
-
-        console.error(
-          "Failed to archive item:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveItem,
-      clearSelectedRow,
-    ],
-  );
-
-  // ================================================================
-  // CLOSE RESTORE
-  // ================================================================
-
-  const handleCloseRestore = useCallback(() => {
-    if (isArchiving) {
-      return;
-    }
-
-    setOpenRestore(false);
-    clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
-
-  // ================================================================
-  // RESTORE USER
-  // ================================================================
-
-  const handleConfirmRestore = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        /*
-         * Preserved your existing archive mutation here.
-         *
-         * If your backend has a dedicated restore mutation,
-         * replace this call with that mutation instead.
-         */
-        const response =
-          await archiveItem(
-            selectedRow.id,
-          ).unwrap();
-
-        toast.add({
-          type: "success",
-          title: "Item restored",
-          description: response?.message ??
-            "The item has been restored successfully.",
-        });
-
-        setOpenRestore(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the item.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to restore item",
-          description: message,
-        });
-
-        console.error(
-          "Failed to restore item:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveItem,
-      clearSelectedRow,
-    ],
-  );
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -693,8 +543,7 @@ const Item = () => {
           status={status}
           onStatusChange={handleStatusChange}
           onEdit={handleOpenEdit}
-          onArchive={handleOpenArchive}
-          onRestore={handleOpenRestore}
+          onAction={handleOpenAction}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -717,22 +566,13 @@ const Item = () => {
       />
 
       {/* ============================================================
-          ARCHIVE CONFIRMATION
-      ============================================================ */}
-      <DeleteConfirm
-        open={openArchive}
-        onClose={handleCloseArchive}
-        onConfirm={handleConfirmArchive}
-        isLoading={isArchiving}
-      />
-
-      {/* ============================================================
           RESTORE CONFIRMATION
       ============================================================ */}
-      <Confirm
-        open={openRestore}
-        onClose={handleCloseRestore}
-        onConfirm={handleConfirmRestore}
+      <ActionConfirm
+        actionType={actionType}
+        open={openAction}
+        onClose={handleCloseAction}
+        onConfirm={handleConfirmAction}
         isLoading={isArchiving}
       />
     </div>

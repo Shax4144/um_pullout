@@ -426,7 +426,7 @@ const AddRoleDialog = ({
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold">Role Name</h3>
+                  <h3 className="text-sm font-semibold">Role Name <RequiredMark /> </h3>
 
                   <p className="text-xs text-muted-foreground">
                     Select the role that best describes this access level.
@@ -435,10 +435,6 @@ const AddRoleDialog = ({
               </div>
 
               <div className="space-y-1.5">
-                <Label>
-                  Role <RequiredMark />
-                </Label>
-
                 <Select
                   value={selectedRole}
                   onValueChange={handleRoleChange}
@@ -495,7 +491,7 @@ const AddRoleDialog = ({
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold">Permissions</h3>
+                  <h3 className="text-sm font-semibold">Permissions <RequiredMark /> </h3>
 
                   <p className="text-xs text-muted-foreground">
                     Select one or more permissions for this role.

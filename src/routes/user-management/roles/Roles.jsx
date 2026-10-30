@@ -9,23 +9,25 @@ import {
   ArchiveRestore,
   Plus,
   Users,
+  ArchiveX,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import AddRoleDialog from "../roles/dialog/AddRoleDialog";
-import Confirm from "../../../components/Confirm";
+import Confirm from "../../../components/ActionConfirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 import {
-  useArchiveRoleMutation,
   useFetchRolesQuery,
+  useLazyFetchRoleByIdQuery,
   usePostRoleMutation,
   useUpdateRoleMutation,
+  useArchiveRoleMutation
 } from "../../../api/user-management/roles.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
@@ -90,7 +92,16 @@ const Roles = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
+    );
+
+  // ================================================================
+  // FETCH ROLE BY ID
+  // ================================================================
+
+  const [
+    fetchRoleById,
+    { isFetching: isFetchingRoleDetails },
+  ] = useLazyFetchRoleByIdQuery();
 
   // ================================================================
   // FETCH PENDING REQUESTS
@@ -207,7 +218,7 @@ const Roles = () => {
   }, [status]);
 
   // ================================================================
-  // CREATE
+  // CREATE ROLE
   // ================================================================
 
   const handleOpenCreate = useCallback(() => {
@@ -224,42 +235,42 @@ const Roles = () => {
   ]);
 
   // ================================================================
-  // CREATE PENDING USER
-  // ================================================================
-
-  const handleOpenCreatePending = useCallback(
-    (role) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(role);
-      setMode("pending");
-      setOpenCreate(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
-
-  // ================================================================
-  // EDIT USER
+  // EDIT ROLE
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (role) => {
-      if (isMutationLoading) {
+  async (role) => {
+      if (isMutationLoading || isFetchingRoleDetails) {
         return;
       }
 
-      setSelectedRow(role);
-      setMode("edit");
-      setOpenCreate(true);
+      try {
+        const response = await fetchRoleById(role.id).unwrap();
+
+        const roleDetails = response?.data ?? response;
+
+        setSelectedRow(roleDetails);
+        setMode("edit");
+        setOpenCreate(true);
+        
+      } catch (error) {
+        const message = error?.data?.message
+          ?? "Unable to retrieve the role details."
+
+        toast.add({
+          type: "error",
+          title: "Unable to load user",
+          description: message,
+        });
+        console.error("Failed to fetch role:", error);
+      }
+      
     },
     [
       setSelectedRow,
       isMutationLoading,
+      isFetchingRoleDetails,
+      fetchRoleById
     ],
   );
 
@@ -697,7 +708,6 @@ const Roles = () => {
           onEdit={handleOpenEdit}
           onArchive={handleOpenArchive}
           onRestore={handleOpenRestore}
-          onCreate={handleOpenCreatePending}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -726,6 +736,12 @@ const Roles = () => {
         onClose={handleCloseArchive}
         onConfirm={handleConfirmArchive}
         isLoading={isArchiving}
+        title="Archive this role?"
+        description="This role will be moved to the archived list. You can restore it later if needed."
+        actionLabel="Archive Role"
+        loadingLabel="Archiving..."
+        icon={ArchiveX}
+        iconType="archive"
       />
 
       {/* ============================================================

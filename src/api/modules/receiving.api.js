@@ -16,6 +16,13 @@ export const receivingApi = baseApi
         }),
         providesTags: ["Receiving"],
       }),
+      fetchReceivingById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["Receiving"],
+      }),
       postReceiving: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
@@ -45,6 +52,7 @@ export const receivingApi = baseApi
 export const {
   useFetchReceivingQuery,
   useLazyFetchReceivingQuery,
+  useLazyFetchReceivingByIdQuery,
   usePostReceivingMutation,
   useUpdateReceivingMutation,
   useArchiveReceivingMutation,

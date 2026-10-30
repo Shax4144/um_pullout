@@ -1,38 +1,29 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  ArchiveRestore,
-  Plus,
-  Users,
-} from "lucide-react";
+import { ArchiveRestore, Plus, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import MiscReceiptDialog from "./dialog/MiscReceiptDialog";
-import Confirm from "../../../components/Confirm";
-import DeleteConfirm from "../../../components/DeleteConfirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import { toast } from "@/components/ui/toast";
 
 import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 import {
   useFetchMiscReceiptsQuery,
+  useLazyFetchMiscReceiptByIdQuery,
   usePostMiscReceiptMutation,
   useUpdateMiscReceiptMutation,
   useArchiveMiscReceiptMutation,
-} from "../../../api/modules/misc-receipt.api"
+} from "../../../api/modules/misc-receipt.api";
 
-import { useLazyFetchReceivingQuery } from "../../../api/modules/receiving.api"
+// import { useLazyFetchReceivingQuery } from "../../../api/modules/receiving.api"
 
 import MiscReceiptTable from "./MiscReceiptTable";
 
-const MiscReceipt= () => {
+const MiscReceipt = () => {
   // ================================================================
   // TABLE STATE
   // ================================================================
@@ -43,6 +34,8 @@ const MiscReceipt= () => {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [actionType, setActionType] = useState("archive");
+  const [openAction, setOpenAction] = useState(false);
 
   const isPending = status === "pending";
   const isArchived = status === "archived";
@@ -88,33 +81,41 @@ const MiscReceipt= () => {
   // ================================================================
   // FETCH MISC RECEIPTS
   // ================================================================
-  // 
+
   const [
-    fetchBatchNumber,
-    {
-      isFetching: isFetchingBatchNumber,
-    },
-  ] = useLazyFetchReceivingQuery();
+    fetchMiscReceiptById,
+    { isFetching: isFetchingMiscReceiptDetails }
+  ] = useLazyFetchMiscReceiptByIdQuery();
 
+  // ================================================================
+  // FETCH MISC RECEIPTS WITH BATCH NUMBER LOOK UP
+  // ================================================================
+  //
+  // const [
+  //   fetchBatchNumber,
+  //   {
+  //     isFetching: isFetchingBatchNumber,
+  //   },
+  // ] = useLazyFetchReceivingQuery();
 
-  const handleBatchLookup = useCallback(
-    async (batchNo) => {
-      const normalizedBatchNo = batchNo.trim();
-  
-      if (!normalizedBatchNo) {
-        throw new Error("Please enter a batch number.");
-      }
-  
-      // Fetch the receiving record using the entered batch number.
-      const response = await fetchBatchNumber({
-        search: normalizedBatchNo,
-        pagination: "none",
-      }).unwrap();
-  
-      return response;
-    },
-    [fetchBatchNumber],
-  );
+  // const handleBatchLookup = useCallback(
+  //   async (batchNo) => {
+  //     const normalizedBatchNo = batchNo.trim();
+
+  //     if (!normalizedBatchNo) {
+  //       throw new Error("Please enter a batch number.");
+  //     }
+
+  //     // Fetch the receiving record using the entered batch number.
+  //     const response = await fetchBatchNumber({
+  //       search: normalizedBatchNo,
+  //       pagination: "none",
+  //     }).unwrap();
+
+  //     return response;
+  //   },
+  //   [fetchBatchNumber],
+  // );
 
   // ================================================================
   // DERIVED TABLE DATA
@@ -122,49 +123,34 @@ const MiscReceipt= () => {
   const tableData = useMemo(() => {
     return miscReceiptsData;
   });
-  const tableIsFetching = isFetchingMiscReceipts
+  const tableIsFetching = isFetchingMiscReceipts;
   const tableIsError = isMiscReceiptsError;
   const tableError = miscReceiptsError;
-  
+
   // ================================================================
   // MUTATIONS
   // ================================================================
 
-  const [
-    createMiscReceipt,
-    { isLoading: isCreating },
-  ] = usePostMiscReceiptMutation();
+  const [createMiscReceipt, { isLoading: isCreating }] =
+    usePostMiscReceiptMutation();
 
-  const [
-    updateMiscReceipt,
-    { isLoading: isUpdating },
-  ] = useUpdateMiscReceiptMutation();
+  const [updateMiscReceipt, { isLoading: isUpdating }] =
+    useUpdateMiscReceiptMutation();
 
-  const [
-    archiveMiscReceipt,
-    { isLoading: isArchiving },
-  ] = useArchiveMiscReceiptMutation();
+  const [archiveMiscReceipt, { isLoading: isArchiving }] =
+    useArchiveMiscReceiptMutation();
 
-  const isMutationLoading =
-    isCreating ||
-    isUpdating ||
-    isArchiving;
+  const isMutationLoading = isCreating || isUpdating || isArchiving;
 
   // ================================================================
   // DIALOG STATE
   // ================================================================
 
   const [openCreate, setOpenCreate] = useState(false);
-  const [openArchive, setOpenArchive] = useState(false);
-  const [openRestore, setOpenRestore] = useState(false);
 
   const [mode, setMode] = useState("create");
 
-  const {
-    selectedRow,
-    setSelectedRow,
-    clearSelectedRow,
-  } = useSelectedRow();
+  const { selectedRow, setSelectedRow, clearSelectedRow } = useSelectedRow();
 
   // ================================================================
   // STATUS
@@ -175,13 +161,12 @@ const MiscReceipt= () => {
       active: {
         label: "Active",
         description:
-           "Manage receiving records and track received items.",
+          "Manage miscellaneous receipts and record additional items received beyond the expected delivery quantity.",
       },
 
       archived: {
         label: "Archived",
-        description:
-          "View and restore archived receiving records.",
+        description: "View and restore archived miscellaneous receipts.",
       },
     };
 
@@ -189,7 +174,7 @@ const MiscReceipt= () => {
   }, [status]);
 
   // ================================================================
-  // CREATE
+  // OPEN CREATE
   // ================================================================
 
   const handleOpenCreate = useCallback(() => {
@@ -200,69 +185,68 @@ const MiscReceipt= () => {
     clearSelectedRow();
     setMode("create");
     setOpenCreate(true);
-  }, [
-    clearSelectedRow,
-    isMutationLoading,
-  ]);
+  }, [clearSelectedRow, isMutationLoading]);
 
   // ================================================================
-  // EDIT USER
+  // EDIT RECEIPT
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (role) => {
-      if (isMutationLoading) {
+    async (receipt) => {
+      if (isMutationLoading || isFetchingMiscReceiptDetails) {
         return;
       }
+      try {
+        const response = await fetchMiscReceiptById(receipt.id).unwrap();
 
-      setSelectedRow(role);
-      setMode("edit");
-      setOpenCreate(true);
+        const miscReceiptDetails = response?.data ?? response;
+        setSelectedRow(miscReceiptDetails);
+        setMode("edit");
+        setOpenCreate(true);
+      } catch(error) {
+        const message =
+          error?.data?.message
+          ?? "Unable to retreive miscellaneous receipt details."
+
+        toast.add({
+          type: "error",
+          title: "Unable to load miscellaneous receipt",
+          description: message,
+        });
+
+        console.error("Failed to fetch miscellaneous receipt", error);
+      }
     },
     [
-      setSelectedRow,
       isMutationLoading,
+      isFetchingMiscReceiptDetails,
+      fetchMiscReceiptById,
+      setSelectedRow,
     ],
   );
 
   // ================================================================
-  // ARCHIVE
+  // CONFIRM ACTION
   // ================================================================
 
-  const handleOpenArchive = useCallback(
-    (role) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(role);
-      setOpenArchive(true);
+  const handleOpenAction = useCallback(
+    (item, actionType) => {
+      if (isMutationLoading) return;
+  
+      setSelectedRow(item);
+      setActionType(actionType);
+      setOpenAction(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [isMutationLoading, setSelectedRow],
   );
 
-  // ================================================================
-  // RESTORE
-  // ================================================================
-
-  const handleOpenRestore = useCallback(
-    (user) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(user);
-      setOpenRestore(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
-
+  const handleCloseAction = useCallback(() => {
+    if (isArchiving) return;
+  
+    setOpenAction(false);
+    clearSelectedRow();
+  }, [isArchiving, clearSelectedRow]);
+  
   // ================================================================
   // STATUS CHANGE
   // ================================================================
@@ -299,12 +283,9 @@ const MiscReceipt= () => {
   // SEARCH CHANGE
   // ================================================================
 
-  const handleSearchChange = useCallback(
-    (value) => {
-      setSearch(value);
-    },
-    [],
-  );
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value);
+  }, []);
 
   // ================================================================
   // CLOSE CREATE / EDIT DIALOG
@@ -318,11 +299,7 @@ const MiscReceipt= () => {
     setOpenCreate(false);
     setMode("create");
     clearSelectedRow();
-  }, [
-    isCreating,
-    isUpdating,
-    clearSelectedRow,
-  ]);
+  }, [isCreating, isUpdating, clearSelectedRow]);
 
   // ================================================================
   // CREATE / UPDATE
@@ -336,26 +313,26 @@ const MiscReceipt= () => {
 
       try {
         if (selectedRow && mode === "edit") {
-          const response =
-            await updateMiscReceipt({
-              id: selectedRow.id,
-              ...userData,
-            }).unwrap();
+          const response = await updateMiscReceipt({
+            id: selectedRow.id,
+            ...userData,
+          }).unwrap();
 
           toast.add({
             type: "success",
             title: "Miscellaneous receipt updated",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The miscellaneous receipt has been updated successfully.",
           });
         } else {
-          const response =
-            await createMiscReceipt(userData).unwrap();
+          const response = await createMiscReceipt(userData).unwrap();
 
           toast.add({
             type: "success",
             title: "Miscellaneous receipt created",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The miscellaneous receipt has been created successfully.",
           });
         }
@@ -376,10 +353,7 @@ const MiscReceipt= () => {
           description: message,
         });
 
-        console.error(
-          "Failed to create/update miscellaneous receipt:",
-          error,
-        );
+        console.error("Failed to create/update miscellaneous receipt:", error);
       }
     },
     [
@@ -394,144 +368,49 @@ const MiscReceipt= () => {
   );
 
   // ================================================================
-  // CLOSE ARCHIVE
+  // ACTION MUTATION
   // ================================================================
-
-  const handleCloseArchive = useCallback(() => {
-    if (isArchiving) {
-      return;
+  
+  const handleConfirmAction = useCallback(async () => {
+    if (!selectedRow || isArchiving) return;
+  
+    const isRestore = actionType === "restore";
+    const actionLabel = isRestore ? "restored" : "archived";
+  
+    try {
+      const response = await archiveMiscReceipt(selectedRow.id).unwrap();
+  
+      toast.add({
+        type: "success",
+        title: `Miscellaneous Receipt ${actionLabel}`,
+        description:
+          response?.message ??
+          `The receipt has been ${actionLabel} successfully.`,
+      });
+  
+      setOpenAction(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        `An error occurred while ${isRestore ? "restoring" : "archiving"} the receipt.`;
+  
+      toast.add({
+        type: "error",
+        title: `Unable to ${isRestore ? "restore" : "archive"} receipt`,
+        description: message,
+      });
+  
+      console.error(`Failed to ${isRestore ? "restore" : "archive"} receipt:`, error);
     }
-
-    setOpenArchive(false);
-    clearSelectedRow();
   }, [
+    selectedRow,
     isArchiving,
+    actionType,
+    archiveMiscReceipt,
     clearSelectedRow,
   ]);
-
-  // ================================================================
-  // ARCHIVE USER
-  // ================================================================
-
-  const handleConfirmArchive = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        const response =
-          await archiveMiscReceipt(
-            selectedRow.id,
-          ).unwrap();
-
-          toast.add({
-            type: "success",
-            title: "Miscellaneous receipt archived",
-            description: response?.message ??
-              "The miscellaneous receipt has been archived successfully.",
-          });
-
-        setOpenArchive(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the miscellaneous receipt.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to archive miscellaneous receipt",
-          description: message,
-        });
-
-        console.error(
-          "Failed to archive miscellaneous receipt:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveMiscReceipt,
-      clearSelectedRow,
-    ],
-  );
-
-  // ================================================================
-  // CLOSE RESTORE
-  // ================================================================
-
-  const handleCloseRestore = useCallback(() => {
-    if (isArchiving) {
-      return;
-    }
-
-    setOpenRestore(false);
-    clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
-
-  // ================================================================
-  // RESTORE USER
-  // ================================================================
-
-  const handleConfirmRestore = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        /*
-         * Preserved your existing archive mutation here.
-         *
-         * If your backend has a dedicated restore mutation,
-         * replace this call with that mutation instead.
-         */
-        const response =
-          await archiveMiscReceipt(
-            selectedRow.id,
-          ).unwrap();
-
-        toast.add({
-          type: "success",
-          title: "Miscellaneous receipt restored",
-          description: response?.message ??
-            "The miscellaneous receipt has been restored successfully.",
-        });
-
-        setOpenRestore(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the miscellaneous receipt.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to restore miscellaneous receipt",
-          description: message,
-        });
-
-        console.error(
-          "Failed to restore miscellaneous receipt:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveMiscReceipt,
-      clearSelectedRow,
-    ],
-  );
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -543,33 +422,22 @@ const MiscReceipt= () => {
   // ================================================================
 
   useEffect(() => {
-    const lastPage =
-      tableData?.last_page;
+    const lastPage = tableData?.last_page;
 
-    if (
-      !lastPage ||
-      tableIsFetching ||
-      page <= 1
-    ) {
+    if (!lastPage || tableIsFetching || page <= 1) {
       return;
     }
 
     if (page > lastPage) {
       setPage(lastPage);
     }
-  }, [
-    tableData?.last_page,
-    tableIsFetching,
-    page,
-  ]);
+  }, [tableData?.last_page, tableIsFetching, page]);
 
   // ================================================================
   // DISPLAY COUNT
   // ================================================================
 
-  const totalRows =
-    tableData?.total ??
-    0;
+  const totalRows = tableData?.total ?? 0;
 
   return (
     <div
@@ -657,8 +525,7 @@ const MiscReceipt= () => {
           status={status}
           onStatusChange={handleStatusChange}
           onEdit={handleOpenEdit}
-          onArchive={handleOpenArchive}
-          onRestore={handleOpenRestore}
+          onAction={handleOpenAction}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -682,22 +549,13 @@ const MiscReceipt= () => {
       />
 
       {/* ============================================================
-          ARCHIVE CONFIRMATION
-      ============================================================ */}
-      <DeleteConfirm
-        open={openArchive}
-        onClose={handleCloseArchive}
-        onConfirm={handleConfirmArchive}
-        isLoading={isArchiving}
-      />
-
-      {/* ============================================================
           RESTORE CONFIRMATION
       ============================================================ */}
-      <Confirm
-        open={openRestore}
-        onClose={handleCloseRestore}
-        onConfirm={handleConfirmRestore}
+      <ActionConfirm
+        actionType={actionType}
+        open={openAction}
+        onClose={handleCloseAction}
+        onConfirm={handleConfirmAction}
         isLoading={isArchiving}
       />
     </div>

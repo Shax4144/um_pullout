@@ -16,6 +16,13 @@ export const UomsApi = baseApi
         }),
         providesTags: ["UnitOfMeasures"],
       }),
+      fetchUomById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["UnitOfMeasures"]
+      }),
       postUom: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
@@ -45,6 +52,7 @@ export const UomsApi = baseApi
 export const {
   useFetchUomsQuery,
   useLazyFetchUomsQuery,
+  useLazyFetchUomByIdQuery,
   usePostUomMutation,
   useUpdateUomMutation,
   useArchiveUomMutation,

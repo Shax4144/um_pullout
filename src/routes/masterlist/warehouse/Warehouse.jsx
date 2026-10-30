@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import AddWarehouseDialog from "./dialog/AddWarehouseDialog";
-import Confirm from "../../../components/Confirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
 
@@ -23,6 +23,7 @@ import { useSelectedRow } from "../../../context/SelectedRowProvider";
 import {
   useFetchWarehousesQuery,
   usePostWarehouseMutation,
+  useLazyFetchWarehouseByIdQuery,
   useUpdateWarehouseMutation,
   useArchiveWarehouseMutation,
 } from "../../../api/masterlist/warehouses.api"
@@ -40,6 +41,8 @@ const Warehouse = () => {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [actionType, setActionType] = useState("archive");
+  const [openAction, setOpenAction] = useState(false);
   
   const isPending = status === "pending";
   const isArchived = status === "archived";
@@ -62,7 +65,7 @@ const Warehouse = () => {
   }, [search]);
 
   // ================================================================
-  // FETCH ACTIVE / ARCHIVED USERS
+  // FETCH WAREHOUSES
   // ================================================================
 
   const {
@@ -80,8 +83,16 @@ const Warehouse = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
+    );
 
+  // ================================================================
+  // FETCH WAREHOUSES
+  // ================================================================
+
+  const [fetchWarehouseById,
+    { isFetching: isFetchingWarehouseDetails}
+  ] = useLazyFetchWarehouseByIdQuery();
+  
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
@@ -177,58 +188,62 @@ const Warehouse = () => {
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (category) => {
-      if (isMutationLoading) {
+    async (warehouse) => {
+      if (isMutationLoading || isFetchingWarehouseDetails) {
         return;
       }
+      try {
+        const response = await fetchWarehouseById(warehouse.id).unwrap();
 
-      setSelectedRow(category);
-      setMode("edit");
-      setOpenCreate(true);
+        const warehouseDetails = response?.data ?? response;
+        setSelectedRow(warehouseDetails);
+        setMode("edit");
+        setOpenCreate(true);
+        
+      } catch (error) {
+        const message = 
+          error?.data?.message
+          ?? "Unable to retrieve warehouse details."
+
+        toast.add({
+          type: "error",
+          title: "Unable to load warehouse",
+          description: message,
+        });
+
+        console.error("Failed to fetch warehouse:", error);
+      }
+      
     },
     [
-      setSelectedRow,
       isMutationLoading,
+      isFetchingWarehouseDetails,
+      fetchWarehouseById,
+      setSelectedRow,
     ],
   );
 
   // ================================================================
-  // ARCHIVE
+  // CONFIRM ACTION
   // ================================================================
-
-  const handleOpenArchive = useCallback(
-    (category) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(category);
-      setOpenArchive(true);
+  
+  const handleOpenAction = useCallback(
+    (warehouse, actionType) => {
+      if (isMutationLoading) return;
+  
+      setSelectedRow(warehouse);
+      setActionType(actionType);
+      setOpenAction(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [isMutationLoading, setSelectedRow],
   );
 
-  // ================================================================
-  // RESTORE
-  // ================================================================
-
-  const handleOpenRestore = useCallback(
-    (category) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(category);
-      setOpenRestore(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
+  const handleCloseAction = useCallback(() => {
+    if (isArchiving) return;
+  
+    setOpenAction(false);
+    clearSelectedRow();
+  }, [isArchiving, clearSelectedRow]);
 
   // ================================================================
   // STATUS CHANGE
@@ -319,7 +334,7 @@ const Warehouse = () => {
           const response =
             await createWarehouse(categoryData).unwrap();
 
-          console.log("payload", categoryData);
+          // console.log("payload", categoryData);
           toast.add({
             type: "success",
             title: "Warehouse created",
@@ -362,144 +377,49 @@ const Warehouse = () => {
   );
 
   // ================================================================
-  // CLOSE ARCHIVE
+  // ACTION MUTATION
   // ================================================================
-
-  const handleCloseArchive = useCallback(() => {
-    if (isArchiving) {
-      return;
+  
+  const handleConfirmAction = useCallback(async () => {
+    if (!selectedRow || isArchiving) return;
+  
+    const isRestore = actionType === "restore";
+    const actionLabel = isRestore ? "restored" : "archived";
+  
+    try {
+      const response = await archiveWarehouse(selectedRow.id).unwrap();
+  
+      toast.add({
+        type: "success",
+        title: `Warehouse ${actionLabel}`,
+        description:
+          response?.message ??
+          `The warehouse has been ${actionLabel} successfully.`,
+      });
+  
+      setOpenAction(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        `An error occurred while ${isRestore ? "restoring" : "archiving"} the warehouse.`;
+  
+      toast.add({
+        type: "error",
+        title: `Unable to ${isRestore ? "restore" : "archive"} warehouse`,
+        description: message,
+      });
+  
+      console.error(`Failed to ${isRestore ? "restore" : "archive"} warehouse:`, error);
     }
-
-    setOpenArchive(false);
-    clearSelectedRow();
   }, [
+    selectedRow,
     isArchiving,
+    actionType,
+    archiveWarehouse,
     clearSelectedRow,
   ]);
-
-  // ================================================================
-  // ARCHIVE USER
-  // ================================================================
-
-  const handleConfirmArchive = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        const response =
-          await archiveWarehouse(
-            selectedRow.id,
-          ).unwrap();
-
-          toast.add({
-            type: "success",
-            title: "Warehouse archived",
-            description: response?.message ??
-              "The warehouse has been archived successfully.",
-          });
-
-        setOpenArchive(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the warehouse.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to archive warehouse",
-          description: message,
-        });
-
-        console.error(
-          "Failed to archive warehouse:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveWarehouse,
-      clearSelectedRow,
-    ],
-  );
-
-  // ================================================================
-  // CLOSE RESTORE
-  // ================================================================
-
-  const handleCloseRestore = useCallback(() => {
-    if (isArchiving) {
-      return;
-    }
-
-    setOpenRestore(false);
-    clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
-
-  // ================================================================
-  // RESTORE USER
-  // ================================================================
-
-  const handleConfirmRestore = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        /*
-         * Preserved your existing archive mutation here.
-         *
-         * If your backend has a dedicated restore mutation,
-         * replace this call with that mutation instead.
-         */
-        const response =
-          await archiveWarehouse(
-            selectedRow.id,
-          ).unwrap();
-
-        toast.add({
-          type: "success",
-          title: "User restored",
-          description: response?.message ??
-            "The user account has been restored successfully.",
-        });
-
-        setOpenRestore(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the user account.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to restore user",
-          description: message,
-        });
-
-        console.error(
-          "Failed to restore user:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveWarehouse,
-      clearSelectedRow,
-    ],
-  );
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -625,8 +545,7 @@ const Warehouse = () => {
           status={status}
           onStatusChange={handleStatusChange}
           onEdit={handleOpenEdit}
-          onArchive={handleOpenArchive}
-          onRestore={handleOpenRestore}
+          onAction={handleOpenAction}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -649,22 +568,13 @@ const Warehouse = () => {
       />
 
       {/* ============================================================
-          ARCHIVE CONFIRMATION
-      ============================================================ */}
-      <DeleteConfirm
-        open={openArchive}
-        onClose={handleCloseArchive}
-        onConfirm={handleConfirmArchive}
-        isLoading={isArchiving}
-      />
-
-      {/* ============================================================
           RESTORE CONFIRMATION
       ============================================================ */}
-      <Confirm
-        open={openRestore}
-        onClose={handleCloseRestore}
-        onConfirm={handleConfirmRestore}
+      <ActionConfirm
+        actionType={actionType}
+        open={openAction}
+        onClose={handleCloseAction}
+        onConfirm={handleConfirmAction}
         isLoading={isArchiving}
       />
     </div>

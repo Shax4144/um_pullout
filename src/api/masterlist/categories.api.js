@@ -1,10 +1,10 @@
-import { baseApi } from "../baseApi" 
+import { baseApi } from "../baseApi";
 
-const BASE_ENDPOINT = "api/categories"
+const BASE_ENDPOINT = "api/categories";
 
 export const categoriesApi = baseApi
   .enhanceEndpoints({
-    addTagTypes: ["Categories"]
+    addTagTypes: ["Categories"],
   })
   .injectEndpoints({
     endpoints: (builder) => ({
@@ -15,6 +15,13 @@ export const categoriesApi = baseApi
           params,
         }),
         providesTags: ["Categories"],
+      }),
+      fetchCategoryById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        provideTags: ["Categories"],
       }),
       postCategory: builder.mutation({
         query: (categoryData) => ({
@@ -39,13 +46,14 @@ export const categoriesApi = baseApi
         }),
         invalidatesTags: ["Categories"],
       }),
-    })
-  })
+    }),
+  });
 
 export const {
   useFetchCategoriesQuery,
   useLazyFetchCategoriesQuery,
+  useLazyFetchCategoryByIdQuery,
   usePostCategoryMutation,
   useUpdateCategoryMutation,
   useArchiveCategoryMutation,
-} = categoriesApi
+} = categoriesApi;

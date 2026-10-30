@@ -22,10 +22,19 @@ import { useFetchOneChargingQuery } from "../../api/masterlist/one-charging-api"
 const OneChargingDropdown = ({ value, onChange, open, isLoading }) => {
   const [comboOpen, setComboOpen] = useState(false);
 
-  const { data: chargingData = [], isFetching } = useFetchOneChargingQuery(
-    { pagination: "none" },
+  const { data: chargingResponse = [], isFetching } = useFetchOneChargingQuery(
+    {
+      status: 1,
+      pagination: "none",
+    },
     { skip: !open },
   );
+
+  const chargingData = Array.isArray(chargingResponse)
+    ? chargingResponse
+    : Array.isArray(chargingResponse?.data)
+      ? chargingResponse.data
+      : [];
 
   const selectedCharge = chargingData.find(
     (charge) => String(charge.code) === String(value),
@@ -47,7 +56,7 @@ const OneChargingDropdown = ({ value, onChange, open, isLoading }) => {
       />
 
       <PopoverContent
-        className="w-(--radix-popover-trigger-width)"
+        className="w-(--anchor-width)"
         sideOffset={4}
         align="start"
       >
@@ -61,46 +70,54 @@ const OneChargingDropdown = ({ value, onChange, open, isLoading }) => {
 
             {!isFetching && (
               <CommandGroup>
-                {chargingData.map((charge) => (
-                  <CommandItem
-                    key={charge.id}
-                    value={[
-                      charge.code,
-                      charge.name,
-                      charge.company_name,
-                      charge.department_name,
-                      charge.location_name,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    onSelect={() => {
-                      onChange(charge);
-                      setComboOpen(false);
-                    }}
-                  >
-                    <Check
+                {chargingData.map((charge) => {
+                  const isSelected = String(value) === String(charge.code);
+                  return (
+                    <CommandItem
+                      key={charge.id}
+                      value={[
+                        charge.code,
+                        charge.name,
+                        charge.company_name,
+                        charge.department_name,
+                        charge.location_name,
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onSelect={() => {
+                        onChange(charge);
+                        setComboOpen(false);
+                      }}
                       className={cn(
-                        "mr-2 h-4 w-4 shrink-0",
-                        String(value) === String(charge.code)
-                          ? "opacity-100 text-teal-400"
-                          : "opacity-0",
+                        "cursor-pointer rounded-md transition-colors",
+                        isSelected &&
+                          "bg-primary/10 text-primary font-medium hover:bg-primary/15",
                       )}
-                    />
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4 shrink-0",
+                          String(value) === String(charge.code)
+                            ? "opacity-100 text-teal-400"
+                            : "opacity-0",
+                        )}
+                      />
 
-                    <div className="flex flex-col">
-                      <span className="font-medium text-white">{charge.name}</span>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{charge.name}</span>
 
-                      <span className="text-xs text-muted-foreground">
-                        {charge.code} • {charge.company_name} •{" "}
-                        {charge.department_name}
-                      </span>
+                        <span className="text-xs text-muted-foreground">
+                          {charge.code} • {charge.company_name} •{" "}
+                          {charge.department_name}
+                        </span>
 
-                      <span className="text-xs text-muted-foreground">
-                        {charge.location_name}
-                      </span>
-                    </div>
-                  </CommandItem>
-                ))}
+                        <span className="text-xs text-muted-foreground">
+                          {charge.location_name}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  );
+                })}
               </CommandGroup>
             )}
           </CommandList>

@@ -51,10 +51,13 @@ const AddItemDialog = ({
 
   useEffect(() => {
     if (open) {
-      fetchCategories({
-        status: 1,
-        page: "none",
-      });
+      fetchCategories(
+        {
+          status: 1,
+          page: "none",
+        },
+        true,
+      );
     }
   }, [open, fetchCategories]);
 
@@ -68,10 +71,13 @@ const AddItemDialog = ({
 
   useEffect(() => {
     if (open) {
-      fetchUOMs({
-        status: 1,
-        page: "none",
-      });
+      fetchUOMs(
+        {
+          status: 1,
+          page: "none",
+        },
+        true,
+      );
     }
   }, [open, fetchUOMs]);
 
@@ -90,10 +96,13 @@ const AddItemDialog = ({
 
   useEffect(() => {
     if (open) {
-      fetchWarehouses({
-        status: 1,
-        page: "none",
-      });
+      fetchWarehouses(
+        {
+          status: 1,
+          page: "none",
+        },
+        true,
+      );
     }
   }, [open, fetchWarehouses]);
 

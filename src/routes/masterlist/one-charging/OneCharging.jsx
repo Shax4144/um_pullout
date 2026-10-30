@@ -13,7 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import Confirm from "../../../components/Confirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
 
@@ -361,11 +361,16 @@ const OneCharging = () => {
       {/* ============================================================
           SYNC CONFIRMATION
       ============================================================ */}
-      <Confirm
+      <ActionConfirm
         open={openConfirmSync}
         onClose={handleCloseSync}
         onConfirm={handleConfirmSync}
         isLoading={isMutationLoading}
+
+        title="Sync One Charging"
+        icon={CloudSync}
+        actionLabel="Sync"
+        loadingLabel="Syncing..."
       />
     </div>
   );

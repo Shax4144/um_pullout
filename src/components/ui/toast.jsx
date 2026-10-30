@@ -1,50 +1,48 @@
-import * as React from "react"
-import { Toast as ToastPrimitive } from "@base-ui/react/toast"
-import { cn } from "cn"
+import * as React from "react";
+import { Toast as ToastPrimitive } from "@base-ui/react/toast";
+import { cn } from "cn";
 
-import { Button } from "@/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, CheckmarkCircle02Icon, InformationCircleIcon, Alert02Icon, MultiplicationSignCircleIcon, Loading03Icon } from "@hugeicons/core-free-icons"
+import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  InformationCircleIcon,
+  Alert02Icon,
+  MultiplicationSignCircleIcon,
+  Loading03Icon,
+} from "@hugeicons/core-free-icons";
 
-const toast = ToastPrimitive.createToastManager()
+const toast = ToastPrimitive.createToastManager();
 
-function ToastProvider({
-  ...props
-}) {
-  return <ToastPrimitive.Provider {...props} />
+function ToastProvider({ ...props }) {
+  return <ToastPrimitive.Provider {...props} />;
 }
 
-function ToastPortal({
-  ...props
-}) {
-  return <ToastPrimitive.Portal data-slot="toast-portal" {...props} />
+function ToastPortal({ ...props }) {
+  return <ToastPrimitive.Portal data-slot="toast-portal" {...props} />;
 }
 
-function ToastViewport({
-  className,
-  ...props
-}) {
+function ToastViewport({ className, ...props }) {
   return (
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
         "pointer-events-none fixed inset-x-4 bottom-4 z-55 mx-auto w-auto max-w-sm outline-none sm:right-4 sm:left-auto sm:mx-0 sm:w-full",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-function Toast({
-  className,
-  ...props
-}) {
+function Toast({ className, ...props }) {
   return (
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "group/toast pointer-events-auto absolute right-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-md border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "group/toast pointer-events-auto absolute right-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-md border shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "bg-popover text-popover-foreground",
         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
         "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
@@ -59,53 +57,44 @@ function Toast({
         "data-expanded:data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
         "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
         "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-function ToastContent({
-  className,
-  ...props
-}) {
+function ToastContent({ className, ...props }) {
   return (
     <ToastPrimitive.Content
       data-slot="toast-content"
       className={cn(
         "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-function ToastTitle({
-  className,
-  ...props
-}) {
+function ToastTitle({ className, ...props }) {
   return (
     <ToastPrimitive.Title
       data-slot="toast-title"
       className={cn("text-sm font-medium", className)}
       {...props}
     />
-  )
+  );
 }
 
-function ToastDescription({
-  className,
-  ...props
-}) {
+function ToastDescription({ className, ...props }) {
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
 function ToastAction({
@@ -120,7 +109,7 @@ function ToastAction({
       className={cn("shrink-0", className)}
       {...props}
     />
-  )
+  );
 }
 
 function ToastClose({
@@ -135,8 +124,8 @@ function ToastClose({
       aria-label="Close toast"
       render={render}
       className={cn(
-        "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-teal-400 hover:bg-muted",
-        className
+        "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:bg-black/5 hover:text-foreground dark:hover:bg-white/10",
+        className,
       )}
       {...props}
     >
@@ -144,81 +133,90 @@ function ToastClose({
         <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} aria-hidden="true" />
       )}
     </ToastPrimitive.Close>
-  )
+  );
 }
 
-function ToastIcon({
-  type
-}) {
-  let icon = null
+function ToastIcon({ type }) {
+  const iconConfig = {
+    success: {
+      icon: CheckmarkCircle02Icon,
+      className: "text-emerald-600 dark:text-emerald-400",
+    },
+    info: {
+      icon: InformationCircleIcon,
+      className: "text-primary",
+    },
+    warning: {
+      icon: Alert02Icon,
+      className: "text-amber-600 dark:text-amber-400",
+    },
+    error: {
+      icon: MultiplicationSignCircleIcon,
+      className: "text-destructive",
+    },
+    loading: {
+      icon: Loading03Icon,
+      className: "animate-spin text-primary",
+    },
+  };
 
-  if (type === "success") {
-    icon = (
-      <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} aria-hidden="true" />
-    )
-  }
+  const config = iconConfig[type];
 
-  if (type === "info") {
-    icon = (
-      <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} aria-hidden="true" />
-    )
-  }
-
-  if (type === "warning") {
-    icon = (
-      <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} aria-hidden="true" />
-    )
-  }
-
-  if (type === "error") {
-    icon = (
-      <HugeiconsIcon icon={MultiplicationSignCircleIcon} strokeWidth={2} className="text-destructive" aria-hidden="true" />
-    )
-  }
-
-  if (type === "loading") {
-    icon = (
-      <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className="animate-spin" aria-hidden="true" />
-    )
-  }
-
-  if (!icon) {
-    return null
-  }
+  if (!config) return null;
 
   return (
     <span
       data-slot="toast-icon"
-      className="shrink-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
+      className={cn(
+        "shrink-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+        config.className,
+      )}
     >
-      {icon}
+      <HugeiconsIcon icon={config.icon} strokeWidth={2} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 function ToastList() {
-  const { toasts } = ToastPrimitive.useToastManager()
+  const { toasts } = ToastPrimitive.useToastManager();
+
+  const typeStyles = {
+    success:
+      "border-emerald-500/30 bg-emerald-100 text-emerald-950 dark:bg-emerald-950/40 dark:text-emerald-100",
+
+    error:
+      "border-destructive/30 bg-red-200 text-red-950 dark:bg-red-950/40 dark:text-red-100",
+
+    warning:
+      "border-amber-500/30 bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100",
+
+    info: "border-primary/30 bg-teal-100 text-teal-950 dark:bg-teal-950/40 dark:text-teal-100",
+
+    loading: "border-primary/30 bg-popover text-popover-foreground",
+  };
 
   return toasts.map((toastItem) => (
-    <Toast key={toastItem.id} toast={toastItem}>
+    <Toast
+      key={toastItem.id}
+      toast={toastItem}
+      className={typeStyles[toastItem.type] ?? ""}
+    >
       <ToastContent>
         <ToastIcon type={toastItem.type} />
+
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <ToastTitle />
           <ToastDescription />
         </div>
+
         <ToastAction />
         <ToastClose />
       </ToastContent>
     </Toast>
-  ))
+  ));
 }
 
-function Toaster({
-  children,
-  toastManager = toast,
-  ...props
-}) {
+function Toaster({ children, toastManager = toast, ...props }) {
   return (
     <ToastProvider toastManager={toastManager} {...props}>
       {children}
@@ -228,11 +226,11 @@ function Toaster({
         </ToastViewport>
       </ToastPortal>
     </ToastProvider>
-  )
+  );
 }
 
-const createToastManager = ToastPrimitive.createToastManager
-const useToastManager = ToastPrimitive.useToastManager
+const createToastManager = ToastPrimitive.createToastManager;
+const useToastManager = ToastPrimitive.useToastManager;
 
 export {
   Toaster,
@@ -248,4 +246,4 @@ export {
   createToastManager,
   toast,
   useToastManager,
-}
+};

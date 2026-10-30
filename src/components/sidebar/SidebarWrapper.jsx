@@ -165,8 +165,10 @@ const SidebarWrapper = () => {
                   p-2
                   text-left
                   transition-colors
-                  hover:bg-sidebar-hover
-                  !data-[state=open]:bg-sidebar-accent
+                  !hover:bg-sidebar-acccent
+                  !hover:text-sidebar-accent-foreground
+                  aria-expanded:bg-primary/30
+                  aria-expanded:text-sidebar-foreground
                 "
               />
             }
@@ -174,32 +176,29 @@ const SidebarWrapper = () => {
             {/* User */}
             <div className="flex min-w-0 items-center gap-3">
               <Avatar className="h-9 w-9 shrink-0">
-                <AvatarFallback className="bg-teal-500/20 text-xs font-semibold text-teal-400">
+                <AvatarFallback className="bg-sidebar-primary/15 text-sm font-semibold text-sidebar-primary">
                   {getInitials(full_name)}
                 </AvatarFallback>
               </Avatar>
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold text-sidebar-foreground">
-                  {getInitials(user.first_name)}. { user.last_name}
+            
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate text-[13px] font-semibold">
+                  {getInitials(user.first_name)}. {user.last_name}
                 </p>
-
-                <p className="truncate text-[11px] text-sidebar-foreground/60">
+            
+                <p className="truncate text-[11px]">
                   {user.role.toUpperCase()}
                 </p>
               </div>
             </div>
-
-            {/* Menu indicator */}
+            
             <MoreVertical
               className="
-                h-4
-                w-4
-                shrink-0
-                text-sidebar-foreground/50
+                h-4 w-4 shrink-0
+                text-sidebar-foreground/60
                 transition-colors
-                group-hover:text-sidebar-foreground
-                group-data-[state=open]:text-sidebar-foreground
+                group-hover:text-sidebar-accent-foreground
+                group-aria-expanded:text-sidebar-primary
               "
             />
           </PopoverTrigger>
@@ -319,6 +318,7 @@ const SidebarWrapper = () => {
                   justify-start
                   gap-3
                   rounded-lg
+                  mt-2
                   px-3
                   font-bold
                 "

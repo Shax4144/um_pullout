@@ -16,6 +16,13 @@ export const rolesApi = baseApi
         }),
         providesTags: ["Roles"],
       }),
+      fetchRoleById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["Roles"],
+      }),
       postRole: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
@@ -45,6 +52,8 @@ export const rolesApi = baseApi
 export const {
   useFetchRolesQuery,
   useLazyFetchRolesQuery,
+  useFetchRoleByIdQuery,
+  useLazyFetchRoleByIdQuery,
   usePostRoleMutation,
   useUpdateRoleMutation,
   useArchiveRoleMutation,

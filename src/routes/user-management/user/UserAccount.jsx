@@ -9,13 +9,14 @@ import {
   ArchiveRestore,
   Plus,
   Users,
+  ArchiveX
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import AddUserDialog from "../user/dialog/AddUserDialog";
-import Confirm from "../../../components/Confirm";
+import Confirm from "../../../components/ActionConfirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
 
@@ -23,6 +24,7 @@ import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 import {
   useFetchUserAccountsQuery,
+  useLazyFetchUserAccountByIdQuery,
   usePostUserAccountMutation,
   useUpdateUserAccountMutation,
   useArchiveUserAccountMutation,
@@ -90,7 +92,16 @@ const UserAccount = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
+    );
+
+  // ================================================================
+  // FETCH USER BY ID
+  // ================================================================
+  
+  const [
+    fetchUserAccountById,
+    { isFetching: isFetchingUserDetails },
+  ] = useLazyFetchUserAccountByIdQuery();
 
   // ================================================================
   // FETCH PENDING REQUESTS
@@ -256,18 +267,42 @@ const UserAccount = () => {
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (user) => {
-      if (isMutationLoading) {
+    async (user) => {
+      if (isMutationLoading || isFetchingUserDetails) {
         return;
       }
-
-      setSelectedRow(user);
-      setMode("edit");
-      setOpenCreate(true);
+  
+      try {
+        // Fetch the complete user account using its ID.
+        const response = await fetchUserAccountById(user.id).unwrap();
+  
+        // Extract the user object from the API response.
+        const userDetails = response?.data ?? response;
+  
+        // Store the complete user details in the selected row context.
+        setSelectedRow(userDetails);
+  
+        setMode("edit");
+        setOpenCreate(true);
+      } catch (error) {
+        const message =
+          error?.data?.message ??
+          "Unable to retrieve the user account details.";
+  
+        toast.add({
+          type: "error",
+          title: "Unable to load user",
+          description: message,
+        });
+  
+        console.error("Failed to fetch user account:", error);
+      }
     },
     [
-      setSelectedRow,
       isMutationLoading,
+      isFetchingUserDetails,
+      fetchUserAccountById,
+      setSelectedRow,
     ],
   );
 
@@ -734,6 +769,12 @@ const UserAccount = () => {
         onClose={handleCloseArchive}
         onConfirm={handleConfirmArchive}
         isLoading={isArchiving}
+        title="Archive this user?"
+        description="This user account will be moved to the archived list. You can restore it later if needed."
+        actionLabel="Archive User"
+        loadingLabel="Archiving..."
+        icon={ArchiveX}
+        iconType="archive"
       />
 
       {/* ============================================================

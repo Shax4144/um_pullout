@@ -18,8 +18,7 @@ const ReceivingTable = ({
   status,
   onStatusChange,
   onEdit,
-  onArchive,
-  onRestore,
+  onAction,
   page,
   onPageChange,
   pageSize,
@@ -32,12 +31,15 @@ const ReceivingTable = ({
       {
         id: "number_of_items",
         accessorFn: (row) => row.inventories?.length ?? 0,
-        header: "No. of Items",
+        header: () => <div className="text-center">No. of Items</div>,
         cell: ({ row }) => (
-          <Badge variant="secondary" className="font-mono text-sm font-medium">
-            <Package className="[&>svg]:size-5.5" />
-            {row.original.inventories?.length ?? 0}
-          </Badge>
+          <div className="text-center">
+            <Badge variant="secondary" className="font-mono text-sm font-medium">
+              <Package className="[&>svg]:size-5.5" />
+              {row.original.inventories?.length ?? 0}
+            </Badge>
+          </div>
+         
         ),
       },
       // {
@@ -51,52 +53,58 @@ const ReceivingTable = ({
       // },
       {
         accessorKey: "supplier_name",
-        header: "Supplier",
+        header: () => <div className="text-center">Supplier</div>,
         cell: ({ row }) => (
-          <p className="truncate text-sm font-medium text-foreground">
-            {row.original.supplier_name || "—"}
-          </p>
+          <div className="text-center">
+            <p className="truncate text-sm font-medium text-foreground">
+              {row.original.supplier_name || "—"}
+            </p>
+          </div>
+          
         ),
       },
       {
         accessorKey: "received_date",
-        header: "Receiving Date",
+        header: () => <div className="text-center">Receiving Date</div>,
         cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.received_date || "—"}
-          </span>
+          <div className="text-center">
+            <span className="text-sm text-muted-foreground">
+              {row.original.received_date || "—"}
+            </span>
+          </div>
+          
         ),
       },
-      {
-        id: "account_title",
-        accessorFn: (row) =>
-          row.inventories
-            ?.map((inventory) => inventory.account_title?.name)
-            .filter(Boolean)
-            .join(", ") ?? "",
-        header: "Account Title",
-        cell: ({ row }) => {
-          const inventories = row.original.inventories ?? [];
+      // {
+      //   id: "account_title",
+      //   accessorFn: (row) =>
+      //     row.inventories
+      //       ?.map((inventory) => inventory.account_title?.name)
+      //       .filter(Boolean)
+      //       .join(", ") ?? "",
+      //   header: "Account Title",
+      //   cell: ({ row }) => {
+      //     const inventories = row.original.inventories ?? [];
 
-          return (
-            <div className="flex max-w-64 flex-col gap-1">
-              {inventories.length ? (
-                inventories.map((inventory) => (
-                  <span
-                    key={inventory.id}
-                    className="truncate text-sm text-muted-foreground"
-                    title={inventory.account_title?.name}
-                  >
-                    {inventory.account_title?.name || "—"}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">—</span>
-              )}
-            </div>
-          );
-        },
-      },
+      //     return (
+      //       <div className="flex max-w-64 flex-col gap-1">
+      //         {inventories.length ? (
+      //           inventories.map((inventory) => (
+      //             <span
+      //               key={inventory.id}
+      //               className="truncate text-sm text-muted-foreground"
+      //               title={inventory.account_title?.name}
+      //             >
+      //               {inventory.account_title?.name || "—"}
+      //             </span>
+      //           ))
+      //         ) : (
+      //           <span className="text-sm text-muted-foreground">—</span>
+      //         )}
+      //       </div>
+      //     );
+      //   },
+      // },
       // {
       //   id: "uom",
       //   header: "UOM",
@@ -141,14 +149,17 @@ const ReceivingTable = ({
       // },
       {
         accessorKey: "remarks",
-        header: "Remarks",
+        header: () => <div className="text-center">Remarks</div>,
         cell: ({ row }) => (
-          <span
-            className="block max-w-48 truncate text-sm text-muted-foreground"
-            title={row.original.remarks || ""}
-          >
-            {row.original.remarks || "—"}
-          </span>
+          <div className="text-center">
+            <span
+              className="block max-w-48 truncate text-sm text-muted-foreground"
+              title={row.original.remarks || ""}
+            >
+              {row.original.remarks || "—"}
+            </span>
+          </div>
+          
         ),
       },
       {
@@ -174,7 +185,7 @@ const ReceivingTable = ({
         },
       }
     ],
-    [onArchive, onEdit, onRestore, status],
+    [onEdit, status],
   );
 
   return (

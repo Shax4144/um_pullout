@@ -64,7 +64,7 @@ const SidebarModulesDropdown = ({ open, onOpenChange }) => {
           "
         >
           <SidebarGroupContent>
-            <SidebarMenu className="mt-1 pl-4 gap-1">
+            <SidebarMenu className="mt-1 pl-4 pr-1 gap-1">
               {moduleItems.map(({ label, to, icon: Icon }) => (
                 <SidebarMenuItem
                   key={to}

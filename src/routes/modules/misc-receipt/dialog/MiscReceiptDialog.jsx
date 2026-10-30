@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Package,
+  FileInput,
   Save,
   Plus,
   Trash2,
@@ -114,7 +114,9 @@ const MiscReceiptDialog = ({
     fetchItems({
       status: 1,
       page: 0,
-    });
+    },
+      true
+    );
   }, [open, fetchItems]);
 
   const masterItems = itemsData?.data ?? [];
@@ -208,7 +210,7 @@ const MiscReceiptDialog = ({
         item_id: item.id ?? item._id ?? item.item_id ?? "",
         item_code: item.code ?? item.item_code ?? "",
         item_name: item.name ?? item.item_name ?? "",
-        uom: item.uom?.name ?? item.uom ?? "",
+        uom: item.uom?.symbol ?? item.uom?.name ?? "",
         uom_id: item.uom_id ?? item.uom?.id ?? item.uom?.uom_id ?? "",
       };
 
@@ -295,12 +297,14 @@ const MiscReceiptDialog = ({
         <DialogHeader>
           <div className="flex items-start gap-3">
             <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Package className="size-5" />
+              <FileInput className="size-5" />
             </div>
 
             <div>
               <DialogTitle>
-                {isEditMode ? "View Miscellaneous Receipt" : "Miscellaneous Receipt"}
+                {isEditMode
+                  ? "View Miscellaneous Receipt"
+                  : "Miscellaneous Receipt"}
               </DialogTitle>
 
               <DialogDescription>
@@ -321,7 +325,9 @@ const MiscReceiptDialog = ({
           ======================================= */}
           <section className="grid gap-4">
             <div>
-              <h3 className="text-sm font-semibold">Miscellaneous Receipt Details</h3>
+              <h3 className="text-sm font-semibold">
+                Miscellaneous Receipt Details
+              </h3>
               <p className="text-sm text-muted-foreground">
                 Enter the receipt information and description type.
               </p>
@@ -449,9 +455,9 @@ const MiscReceiptDialog = ({
                   <TableRow>
                     <TableHead className="min-w-48">Item Code</TableHead>
                     <TableHead className="min-w-40 ">Item Name</TableHead>
-                    <TableHead className="min-w-24 ">UOM</TableHead>
+                    <TableHead className="min-w-24 text-center">UOM</TableHead>
                     <TableHead className="min-w-24 ">Account Title</TableHead>
-                    <TableHead className="min-w-36 ">Quantity</TableHead>
+                    <TableHead className="min-w-36 text-center">Quantity</TableHead>
                     {!isEditMode && (
                       <TableHead className="w-16 text-center">Action</TableHead>
                     )}
@@ -520,6 +526,13 @@ const MiscReceiptDialog = ({
 
                                     <CommandGroup>
                                       {masterItems.map((masterItem) => {
+                                        const id = String(
+                                          masterItem.id ??
+                                            masterItem._id ??
+                                            masterItem.item_id ??
+                                            "",
+                                        );
+
                                         const code =
                                           masterItem.code ??
                                           masterItem.item_code ??
@@ -529,21 +542,37 @@ const MiscReceiptDialog = ({
                                           masterItem.item_name ??
                                           "";
 
+                                        // Disable items selected in other rows, but keep the current row's item selectable.
+                                        const isAlreadySelected =
+                                          formData.items.some(
+                                            (selectedItem, selectedIndex) =>
+                                              selectedIndex !== index &&
+                                              String(selectedItem.item_id) ===
+                                                id,
+                                          );
+
+                                        const isSelected =
+                                          String(item.item_id) === id;
+
                                         return (
                                           <CommandItem
-                                            key={
-                                              masterItem.id ??
-                                              masterItem._id ??
-                                              code
-                                            }
+                                            key={id || code}
                                             value={`${code} ${name}`}
-                                            onSelect={() =>
-                                              selectItem(index, masterItem)
+                                            disabled={isAlreadySelected}
+                                            onSelect={() => {
+                                              if (!isAlreadySelected) {
+                                                selectItem(index, masterItem);
+                                              }
+                                            }}
+                                            className={
+                                              isAlreadySelected
+                                                ? "cursor-not-allowed opacity-40"
+                                                : "cursor-pointer"
                                             }
                                           >
                                             <Check
                                               className={`mr-2 size-4 ${
-                                                item.item_code === code
+                                                isSelected
                                                   ? "opacity-100"
                                                   : "opacity-0"
                                               }`}
@@ -557,6 +586,12 @@ const MiscReceiptDialog = ({
                                                 {name}
                                               </span>
                                             </div>
+
+                                            {isAlreadySelected && (
+                                              <span className="ml-auto text-xs text-muted-foreground">
+                                                Selected
+                                              </span>
+                                            )}
                                           </CommandItem>
                                         );
                                       })}
@@ -573,7 +608,9 @@ const MiscReceiptDialog = ({
                             </span>
                           </TableCell>
 
-                          <TableCell>{item.uom || "—"}</TableCell>
+                          <TableCell className="max-w-12 text-center">
+                            {item.uom || "—"}
+                          </TableCell>
 
                           <TableCell>
                             <AccountTitlesDropdown
@@ -587,54 +624,39 @@ const MiscReceiptDialog = ({
                             />
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Input
-                              type="number"
-                              min="0"
-                              step="1"
+                              type="text"
                               inputMode="numeric"
-                              value={item.quantity}
-                              onChange={(event) =>
-                                handleQuantityChange(index, event.target.value)
+                              value={
+                                item.quantity === "" ||
+                                item.quantity == null
+                                  ? ""
+                                  : Number(
+                                    item.quantity,
+                                  ).toLocaleString("en-US", {
+                                    maximumFractionDigits: 20,
+                                  })
+                                
                               }
+                              onChange={(event) => {
+                                const rawValue = event.target.value.replace(
+                                  /,/g,
+                                  "",
+                                );
+                                if (/^\d*$/.test(rawValue)) {
+                                  handleQuantityChange(
+                                    index,
+                                    rawValue
+                                  );
+                                }
+                              }}
                               placeholder="0"
-                              required
+                              // required
                               disabled={isLoading || isEditMode}
-                              className="min-w-28 hide-arrow"
+                              className="max-w-18 hide-arrow text-center"
                             />
                           </TableCell>
-
-                          {/* <TableCell>
-                            <span
-                              className={
-                                remaining > 0
-                                  ? "font-medium"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              {remaining}
-                            </span>
-                          </TableCell>*/}
-
-                          {/* <TableCell>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="1"
-                              inputMode="numeric"
-                              value={item.actual_received}
-                              onChange={(event) =>
-                                handleQuantityChange(
-                                  index,
-                                  "actual_received",
-                                  event.target.value,
-                                )
-                              }
-                              placeholder="0"
-                              disabled={isLoading || isEditMode}
-                              className="min-w-28 hide-arrow"
-                            />
-                          </TableCell>*/}
 
                           {!isEditMode && (
                             <TableCell className="text-center">

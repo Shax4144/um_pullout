@@ -16,6 +16,13 @@ export const itemsApi = baseApi
         }),
         providesTags: ["Items"],
       }),
+      fetchItemById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method:"GET",
+        }),
+        providesTags:["Items"],
+      }),
       postItem: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
@@ -45,6 +52,7 @@ export const itemsApi = baseApi
 export const {
   useFetchItemsQuery,
   useLazyFetchItemsQuery,
+  useLazyFetchItemByIdQuery,
   usePostItemMutation,
   useUpdateItemMutation,
   useArchiveItemMutation,

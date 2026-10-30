@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import AddCategoryDialog from "./dialog/AddCategoryDialog";
-import Confirm from "../../../components/Confirm";
+import ActionConfirm from "../../../components/ActionConfirm";
 import DeleteConfirm from "../../../components/DeleteConfirm";
 import { toast } from "@/components/ui/toast";
 
@@ -22,6 +22,7 @@ import { useSelectedRow } from "../../../context/SelectedRowProvider";
 
 import {
   useFetchCategoriesQuery,
+  useLazyFetchCategoryByIdQuery,
   usePostCategoryMutation,
   useUpdateCategoryMutation,
   useArchiveCategoryMutation,
@@ -62,7 +63,7 @@ const Category = () => {
   }, [search]);
 
   // ================================================================
-  // FETCH ACTIVE / ARCHIVED USERS
+  // FETCH CATEGORIES
   // ================================================================
 
   const {
@@ -80,7 +81,16 @@ const Category = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
+    );
+
+  // ================================================================
+  // FETCH CATEGORY BY ID
+  // ================================================================
+  
+  const [
+    fetchCategoryById,
+    { isFetching: isFetchingCategoryDetails },
+  ] = useLazyFetchCategoryByIdQuery();
 
   // ================================================================
   // DERIVED TABLE DATA
@@ -121,9 +131,8 @@ const Category = () => {
   // ================================================================
 
   const [openCreate, setOpenCreate] = useState(false);
-  const [openArchive, setOpenArchive] = useState(false);
-  const [openRestore, setOpenRestore] = useState(false);
-
+  const [openAction, setOpenAction] = useState(false);
+  const [actionType, setActionType] = useState("archive");
   const [mode, setMode] = useState("create");
 
   const {
@@ -176,58 +185,59 @@ const Category = () => {
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (category) => {
-      if (isMutationLoading) {
+    async (category) => {
+      if (isMutationLoading || isFetchingCategoryDetails) {
         return;
       }
 
-      setSelectedRow(category);
-      setMode("edit");
-      setOpenCreate(true);
+      try {
+        const response = await fetchCategoryById(category.id).unwrap();
+        const categoryDetails = response?.data ?? response;
+
+        setSelectedRow(categoryDetails);
+        setMode("edit");
+        setOpenCreate(true);
+      } catch (error) {
+        const message = error?.data?.message
+          ?? "Unable to retrieve the role details."
+
+        toast.add({
+          type: "error",
+          title: "Unable to load category",
+          description: message,
+        });
+        console.error("Failed to fetch category:", error);
+      }
     },
     [
       setSelectedRow,
       isMutationLoading,
+      isFetchingCategoryDetails,
+      fetchCategoryById,
     ],
   );
 
   // ================================================================
-  // ARCHIVE
+  // OPEN CONFIRMATION
   // ================================================================
-
-  const handleOpenArchive = useCallback(
-    (category) => {
-      if (isMutationLoading) {
-        return;
-      }
-
+  
+  const handleOpenAction = useCallback(
+    (category, actionType) => {
+      if (isMutationLoading) return;
+  
       setSelectedRow(category);
-      setOpenArchive(true);
+      setActionType(actionType);
+      setOpenAction(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [isMutationLoading, setSelectedRow],
   );
 
-  // ================================================================
-  // RESTORE
-  // ================================================================
-
-  const handleOpenRestore = useCallback(
-    (category) => {
-      if (isMutationLoading) {
-        return;
-      }
-
-      setSelectedRow(category);
-      setOpenRestore(true);
-    },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
-  );
+  const handleCloseAction = useCallback(() => {
+    if (isArchiving) return;
+  
+    setOpenAction(false);
+    clearSelectedRow();
+  }, [isArchiving, clearSelectedRow]);
 
   // ================================================================
   // STATUS CHANGE
@@ -317,8 +327,7 @@ const Category = () => {
         } else {
           const response =
             await createCategory(categoryData).unwrap();
-
-          console.log("payload", categoryData);
+          
           toast.add({
             type: "success",
             title: "Category created",
@@ -360,145 +369,46 @@ const Category = () => {
     ],
   );
 
-  // ================================================================
-  // CLOSE ARCHIVE
-  // ================================================================
-
-  const handleCloseArchive = useCallback(() => {
-    if (isArchiving) {
-      return;
+  const handleConfirmAction = useCallback(async () => {
+    if (!selectedRow || isArchiving) return;
+  
+    const isRestore = actionType === "restore";
+    const actionLabel = isRestore ? "restored" : "archived";
+  
+    try {
+      const response = await archiveCategory(selectedRow.id).unwrap();
+  
+      toast.add({
+        type: "success",
+        title: `Category ${actionLabel}`,
+        description:
+          response?.message ??
+          `The category has been ${actionLabel} successfully.`,
+      });
+  
+      setOpenAction(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        `An error occurred while ${isRestore ? "restoring" : "archiving"} the category.`;
+  
+      toast.add({
+        type: "error",
+        title: `Unable to ${isRestore ? "restore" : "archive"} category`,
+        description: message,
+      });
+  
+      console.error(`Failed to ${isRestore ? "restore" : "archive"} category:`, error);
     }
-
-    setOpenArchive(false);
-    clearSelectedRow();
   }, [
+    selectedRow,
     isArchiving,
+    actionType,
+    archiveCategory,
     clearSelectedRow,
   ]);
-
-  // ================================================================
-  // ARCHIVE USER
-  // ================================================================
-
-  const handleConfirmArchive = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        const response =
-          await archiveCategory(
-            selectedRow.id,
-          ).unwrap();
-
-          toast.add({
-            type: "success",
-            title: "Category archived",
-            description: response?.message ??
-              "The category has been archived successfully.",
-          });
-
-        setOpenArchive(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the category.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to archive category",
-          description: message,
-        });
-
-        console.error(
-          "Failed to archive category:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveCategory,
-      clearSelectedRow,
-    ],
-  );
-
-  // ================================================================
-  // CLOSE RESTORE
-  // ================================================================
-
-  const handleCloseRestore = useCallback(() => {
-    if (isArchiving) {
-      return;
-    }
-
-    setOpenRestore(false);
-    clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
-
-  // ================================================================
-  // RESTORE USER
-  // ================================================================
-
-  const handleConfirmRestore = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
-
-      try {
-        /*
-         * Preserved your existing archive mutation here.
-         *
-         * If your backend has a dedicated restore mutation,
-         * replace this call with that mutation instead.
-         */
-        const response =
-          await archiveCategory(
-            selectedRow.id,
-          ).unwrap();
-
-        toast.add({
-          type: "success",
-          title: "Category restored",
-          description: response?.message ??
-            "The category has been restored successfully.",
-        });
-
-        setOpenRestore(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the category.";
-
-        toast.add({
-          type: "error",
-          title: "Unable to restore category",
-          description: message,
-        });
-
-        console.error(
-          "Failed to restore category:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveCategory,
-      clearSelectedRow,
-    ],
-  );
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -624,8 +534,7 @@ const Category = () => {
           status={status}
           onStatusChange={handleStatusChange}
           onEdit={handleOpenEdit}
-          onArchive={handleOpenArchive}
-          onRestore={handleOpenRestore}
+          onAction={handleOpenAction}
           page={page}
           onPageChange={setPage}
           pageSize={pageSize}
@@ -648,22 +557,13 @@ const Category = () => {
       />
 
       {/* ============================================================
-          ARCHIVE CONFIRMATION
-      ============================================================ */}
-      <DeleteConfirm
-        open={openArchive}
-        onClose={handleCloseArchive}
-        onConfirm={handleConfirmArchive}
-        isLoading={isArchiving}
-      />
-
-      {/* ============================================================
           RESTORE CONFIRMATION
       ============================================================ */}
-      <Confirm
-        open={openRestore}
-        onClose={handleCloseRestore}
-        onConfirm={handleConfirmRestore}
+      <ActionConfirm
+        actionType={actionType}
+        open={openAction}
+        onClose={handleCloseAction}
+        onConfirm={handleConfirmAction}
         isLoading={isArchiving}
       />
     </div>

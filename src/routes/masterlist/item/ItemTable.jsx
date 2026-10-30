@@ -23,8 +23,7 @@ const ItemTable = ({
   status,
   onStatusChange,
   onEdit,
-  onArchive,
-  onRestore,
+  onAction,
   page,
   onPageChange,
   pageSize,
@@ -108,7 +107,7 @@ const ItemTable = ({
                 >
                   {isArchived ? (
                     <DropdownMenuItem
-                      onClick={() => onRestore(item)}
+                      onClick={() => onAction(item, "restore")}
                       className="cursor-pointer gap-2 rounded-lg"
                     >
                       <ArchiveRestore className="h-4 w-4" />
@@ -128,7 +127,7 @@ const ItemTable = ({
 
                       <DropdownMenuItem
                         variant="destructive"
-                        onClick={() => onArchive(item)}
+                        onClick={() => onAction(item, "archive")}
                         className="cursor-pointer gap-2 rounded-lg"
                       >
                         <ArchiveX className="h-4 w-4" />
@@ -143,7 +142,7 @@ const ItemTable = ({
         },
       },
     ],
-    [onArchive, onEdit, onRestore, status],
+    [onAction, onEdit, status],
   );
 
   return (

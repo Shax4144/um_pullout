@@ -16,13 +16,23 @@ export const usersApi = baseApi
         }),
         providesTags: ["Users"],
       }),
+      fetchUserAccountById: builder.query({
+        query: (id) => ({
+          url: `${BASE_ENDPOINT}/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["Users"],
+      }),
       postUserAccount: builder.mutation({
         query: (body) => ({
           url: BASE_ENDPOINT,
           method: "POST",
           body,
         }),
-        invalidatesTags: ["Users", "PendingUsers"],
+        invalidatesTags: [
+          "Users",
+          {/* "PendingUsers"*/}
+        ],
       }),
       updateUserAccount: builder.mutation({
         query: ({ id, ...body }) => ({
@@ -45,6 +55,8 @@ export const usersApi = baseApi
 export const {
   useFetchUserAccountsQuery,
   useLazyFetchUserAccountsQuery,
+  useFetchUserAccountByIdQuery,
+  useLazyFetchUserAccountByIdQuery,
   usePostUserAccountMutation,
   useUpdateUserAccountMutation,
   useArchiveUserAccountMutation,

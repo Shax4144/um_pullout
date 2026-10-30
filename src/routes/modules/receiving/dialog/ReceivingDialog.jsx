@@ -58,7 +58,7 @@ const createEmptyItem = () => ({
   uom: "",
   uom_id: "",
   account_title_id: "",
-  quantity_to_receive: "",
+  quantity_received: "",
   actual_received: "",
 });
 
@@ -100,10 +100,13 @@ const ReceivingDialog = ({
   useEffect(() => {
     if (!open) return;
 
-    fetchItems({
-      status: 1,
-      page: 0,
-    });
+    fetchItems(
+      {
+        status: 1,
+        pagination: "none",
+      },
+      true, // prefer cached data if available
+    );
   }, [open, fetchItems]);
 
   const masterItems = itemsData?.data ?? [];
@@ -147,8 +150,8 @@ const ReceivingDialog = ({
             inventory.account_title?.id ?? inventory.account_title_id ?? "",
           ),
 
-          quantity_to_receive:
-            inventory.quantity_received ?? inventory.quantity_to_receive ?? "",
+          quantity_received:
+            inventory.quantity_received ?? "",
 
           actual_received: inventory.actual_received ?? "",
         })),
@@ -195,7 +198,7 @@ const ReceivingDialog = ({
         item_id: item.id ?? item._id ?? item.item_id ?? "",
         item_code: item.code ?? item.item_code ?? "",
         item_name: item.name ?? item.item_name ?? "",
-        uom: item.uom?.name ?? item.uom ?? "",
+        uom: item.uom?.symbol ?? item.uom?.name ?? "",
         uom_id: item.uom_id ?? item.uom?.id ?? item.uom?.uom_id ?? "",
       };
 
@@ -240,7 +243,7 @@ const ReceivingDialog = ({
     const inventory = formData.items.map((item) => ({
       item_id: Number(item.item_id),
       uom_id: Number(item.uom_id),
-      quantity_to_receive: Number(item.quantity_to_receive),
+      quantity_received: Number(item.quantity_received),
       actual_received: Number(item.actual_received),
       account_title_id: Number(item.account_title_id),
     }));
@@ -252,8 +255,8 @@ const ReceivingDialog = ({
         item.item_id <= 0 ||
         !Number.isInteger(item.uom_id) ||
         item.uom_id <= 0 ||
-        !Number.isFinite(item.quantity_to_receive) ||
-        item.quantity_to_receive < 0 ||
+        !Number.isFinite(item.quantity_received) ||
+        item.quantity_received < 0 ||
         !Number.isInteger(item.actual_received) ||
         item.actual_received < 0 ||
         !Number.isInteger(item.account_title_id) ||
@@ -419,13 +422,19 @@ const ReceivingDialog = ({
                   <TableRow>
                     <TableHead className="min-w-48">Item Code</TableHead>
                     <TableHead className="min-w-40 ">Item Name</TableHead>
-                    <TableHead className="min-w-24 ">UOM</TableHead>
-                    <TableHead className="min-w-24 ">Account Title</TableHead>
-                    <TableHead className="min-w-36 ">
+                    <TableHead className="min-w-12 text-center">UOM</TableHead>
+                    <TableHead className="min-w-24">
+                      Account Title
+                    </TableHead>
+                    <TableHead className="min-w-36 text-center">
                       Quantity to Receive
                     </TableHead>
-                    <TableHead className="min-w-28 ">Remaining</TableHead>
-                    <TableHead className="min-w-36">Actual Received</TableHead>
+                    <TableHead className="min-w-28 text-center">
+                      Remaining
+                    </TableHead>
+                    <TableHead className="min-w-36 text-center">
+                      Actual Received
+                    </TableHead>
                     {!isEditMode && (
                       <TableHead className="w-16 text-center">Action</TableHead>
                     )}
@@ -444,7 +453,7 @@ const ReceivingDialog = ({
                     </TableRow>
                   ) : (
                     formData.items.map((item, index) => {
-                      const quantity = Number(item.quantity_to_receive) || 0;
+                      const quantity = Number(item.quantity_received) || 0;
                       const actual = Number(item.actual_received) || 0;
                       const remaining = Math.max(quantity - actual, 0);
 
@@ -464,7 +473,7 @@ const ReceivingDialog = ({
                                     variant="outline"
                                     role="combobox"
                                     aria-expanded={activeItemIndex === index}
-                                    className="w-full min-w-44 h-9 justify-between font-normal"
+                                    className="w-full min-w-50 h-9 justify-between font-normal"
                                     disabled={isLoading || isEditMode}
                                   >
                                     <span className="truncate">
@@ -475,7 +484,7 @@ const ReceivingDialog = ({
                                 }
                               />
                               <PopoverContent
-                                className="w-75 p-0"
+                                className="w-50 p-0"
                                 align="start"
                               >
                                 <Command>
@@ -498,6 +507,13 @@ const ReceivingDialog = ({
 
                                     <CommandGroup>
                                       {masterItems.map((masterItem) => {
+                                        const id = String(
+                                          masterItem.id ??
+                                            masterItem._id ??
+                                            masterItem.item_id ??
+                                            "",
+                                        );
+
                                         const code =
                                           masterItem.code ??
                                           masterItem.item_code ??
@@ -507,21 +523,37 @@ const ReceivingDialog = ({
                                           masterItem.item_name ??
                                           "";
 
+                                        // Disable items selected in other rows, but keep the current row's item selectable.
+                                        const isAlreadySelected =
+                                          formData.items.some(
+                                            (selectedItem, selectedIndex) =>
+                                              selectedIndex !== index &&
+                                              String(selectedItem.item_id) ===
+                                                id,
+                                          );
+
+                                        const isSelected =
+                                          String(item.item_id) === id;
+
                                         return (
                                           <CommandItem
-                                            key={
-                                              masterItem.id ??
-                                              masterItem._id ??
-                                              code
-                                            }
+                                            key={id || code}
                                             value={`${code} ${name}`}
-                                            onSelect={() =>
-                                              selectItem(index, masterItem)
+                                            disabled={isAlreadySelected}
+                                            onSelect={() => {
+                                              if (!isAlreadySelected) {
+                                                selectItem(index, masterItem);
+                                              }
+                                            }}
+                                            className={
+                                              isAlreadySelected
+                                                ? "cursor-not-allowed opacity-40"
+                                                : "cursor-pointer"
                                             }
                                           >
                                             <Check
                                               className={`mr-2 size-4 ${
-                                                item.item_code === code
+                                                isSelected
                                                   ? "opacity-100"
                                                   : "opacity-0"
                                               }`}
@@ -535,6 +567,12 @@ const ReceivingDialog = ({
                                                 {name}
                                               </span>
                                             </div>
+
+                                            {isAlreadySelected && (
+                                              <span className="ml-auto text-xs text-muted-foreground">
+                                                Selected
+                                              </span>
+                                            )}
                                           </CommandItem>
                                         );
                                       })}
@@ -551,7 +589,9 @@ const ReceivingDialog = ({
                             </span>
                           </TableCell>
 
-                          <TableCell>{item.uom || "—"}</TableCell>
+                          <TableCell className="max-w-12 text-center">
+                            {item.uom || "—"}
+                          </TableCell>
 
                           <TableCell>
                             <AccountTitlesDropdown
@@ -565,26 +605,42 @@ const ReceivingDialog = ({
                             />
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Input
-                              type="number"
-                              min="0"
-                              step="any"
-                              value={item.quantity_to_receive}
-                              onChange={(event) =>
-                                handleQuantityChange(
-                                  index,
-                                  "quantity_to_receive",
-                                  event.target.value,
-                                )
+                              type="text"
+                              inputMode="numeric"
+                              value={
+                                item.quantity_received === "" ||
+                                item.quantity_received == null
+                                  ? ""
+                                  : Number(
+                                      item.quantity_received,
+                                    ).toLocaleString("en-US", {
+                                      maximumFractionDigits: 20,
+                                    })
                               }
+                              onChange={(event) => {
+                                const rawValue = event.target.value.replace(
+                                  /,/g,
+                                  "",
+                                );
+
+                                if (/^\d*$/.test(rawValue)) {
+                                  handleQuantityChange(
+                                    index,
+                                    "quantity_received",
+                                    rawValue,
+                                  );
+                                }
+                              }}
                               placeholder="0"
+                              // required
                               disabled={isLoading || isEditMode}
-                              className="min-w-28 hide-arrow"
+                              className="max-w-18 hide-arrow text-center"
                             />
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="text-center">
                             <span
                               className={
                                 remaining > 0
@@ -592,27 +648,40 @@ const ReceivingDialog = ({
                                   : "text-muted-foreground"
                               }
                             >
-                              {remaining}
+                              {Number(remaining || 0).toLocaleString("en-US")}
                             </span>
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Input
-                              type="number"
-                              min="0"
-                              step="1"
+                              type="text"
                               inputMode="numeric"
-                              value={item.actual_received}
-                              onChange={(event) =>
-                                handleQuantityChange(
-                                  index,
-                                  "actual_received",
-                                  event.target.value,
-                                )
+                              value={
+                                item.actual_received === "" ||
+                                item.actual_received == null
+                                  ? ""
+                                  : Number(item.actual_received).toLocaleString(
+                                      "en-US",
+                                    )
                               }
+                              onChange={(event) => {
+                                const rawValue = event.target.value.replace(
+                                  /,/g,
+                                  "",
+                                );
+
+                                if (/^\d*$/.test(rawValue)) {
+                                  handleQuantityChange(
+                                    index,
+                                    "actual_received",
+                                    rawValue,
+                                  );
+                                }
+                              }}
                               placeholder="0"
+                              required
                               disabled={isLoading || isEditMode}
-                              className="min-w-28 hide-arrow"
+                              className="max-w-18 hide-arrow text-center"
                             />
                           </TableCell>
 
@@ -666,9 +735,9 @@ const ReceivingDialog = ({
                     !item.item_id ||
                     !item.uom_id ||
                     !item.account_title_id ||
-                    item.quantity_to_receive === "" ||
-                    !Number.isFinite(Number(item.quantity_to_receive)) ||
-                    Number(item.quantity_to_receive) < 0 ||
+                    item.quantity_received === "" ||
+                    !Number.isFinite(Number(item.quantity_received)) ||
+                    Number(item.quantity_received) < 0 ||
                     item.actual_received === "" ||
                     !Number.isInteger(Number(item.actual_received)) ||
                     Number(item.actual_received) < 0,

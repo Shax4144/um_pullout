@@ -1,9 +1,12 @@
-
 import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -18,6 +21,7 @@ import { useFetchAccountTitlesQuery } from "@/api/masterlist/account-titles.api"
 const AccountTitlesDropdown = ({
   value,
   onChange,
+  allowedIds = [],
   open,
   isLoading = false,
   disabled = false,
@@ -36,6 +40,14 @@ const AccountTitlesDropdown = ({
   const accountTitles = Array.isArray(response)
     ? response
     : response?.data ?? [];
+
+  // Only show account titles associated with this item's stock records.
+  // const allowedIdSet = new Set(allowedIds.map(String));
+
+  // const filteredAccountTitles = accountTitles.filter((accountTitle) => {
+  //   const id = accountTitle.id ?? accountTitle._id;
+  //   return allowedIdSet.has(String(id));
+  // });
 
   const selectedAccountTitle = accountTitles.find(
     (accountTitle) =>
@@ -56,7 +68,7 @@ const AccountTitlesDropdown = ({
             role="combobox"
             aria-expanded={comboOpen}
             disabled={isLoading || disabled}
-            className="w-full min-w-40 h-9 justify-between font-normal"
+            className="h-9 w-full min-w-20 justify-between font-normal"
           >
             <span className="truncate">
               {isFetching
@@ -72,14 +84,14 @@ const AccountTitlesDropdown = ({
       />
 
       <PopoverContent
-        className="w-(--radix-popover-trigger-width) p-0"
+        className="w-(--anchor-width) p-0"
         sideOffset={4}
         align="start"
       >
         <Command>
           <CommandInput placeholder="Search account title..." />
 
-          <CommandList className="custom-scrollbar max-h-70 overflow-y-auto">
+          <CommandList className="custom-scrollbar max-h-45 overflow-y-auto">
             {isFetching && (
               <div className="py-6 text-center text-sm text-muted-foreground">
                 Loading account titles...
@@ -92,9 +104,13 @@ const AccountTitlesDropdown = ({
               </CommandEmpty>
             )}
 
-            {!isFetching && !isError && accountTitles.length === 0 && (
-              <CommandEmpty>No account titles found.</CommandEmpty>
-            )}
+            {!isFetching &&
+              !isError &&
+              accountTitles.length === 0 && (
+                <CommandEmpty>
+                  No account titles available for this item.
+                </CommandEmpty>
+              )}
 
             {!isFetching && !isError && accountTitles.length > 0 && (
               <CommandGroup>
@@ -104,9 +120,9 @@ const AccountTitlesDropdown = ({
                   return (
                     <CommandItem
                       key={id}
-                      value={String(accountTitle.name ?? "")}
+                      value={`${accountTitle.code ?? ""} ${accountTitle.name ?? ""}`}
                       onSelect={() => {
-                        onChange(id);
+                        onChange(String(id));
                         setComboOpen(false);
                       }}
                     >
