@@ -77,37 +77,15 @@ const MiscIssue = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-  );
-
+    );
+  
   // ================================================================
-  // FETCH MISC RECEIPTS
+  // FETCH ISSUE BY ID
   // ================================================================
-  //
-  // const [
-  //   fetchBatchNumber,
-  //   {
-  //     isFetching: isFetchingBatchNumber,
-  //   },
-  // ] = useLazyFetchReceivingQuery();
-
-  // const handleBatchLookup = useCallback(
-  //   async (batchNo) => {
-  //     const normalizedBatchNo = batchNo.trim();
-
-  //     if (!normalizedBatchNo) {
-  //       throw new Error("Please enter a batch number.");
-  //     }
-
-  //     // Fetch the receiving record using the entered batch number.
-  //     const response = await fetchBatchNumber({
-  //       search: normalizedBatchNo,
-  //       pagination: "none",
-  //     }).unwrap();
-
-  //     return response;
-  //   },
-  //   [fetchBatchNumber],
-  // );
+  const [
+    fetchIssueById,
+    { isFetching: isFetchingIssueDetails },
+  ] = useLazyFetchMiscIssueByIdQuery();
 
   // ================================================================
   // DERIVED TABLE DATA
@@ -186,16 +164,39 @@ const MiscIssue = () => {
   // ================================================================
 
   const handleOpenEdit = useCallback(
-    (role) => {
-      if (isMutationLoading) {
+    async (issue) => {
+      if (isMutationLoading || isFetchingIssueDetails) {
         return;
       }
+      try {
+        const response = await fetchIssueById(issue.id).unwrap();
+        const issueDetails = response?.data ?? response ?? [];
+        
+        setSelectedRow(issueDetails);
+        setMode("edit");
+        setOpenCreate(true);
+      } catch (error) {
+        const message = 
+          error?.data?.message ??
+          "Unable to retrieve the miscellaneous issue details."
 
-      setSelectedRow(role);
-      setMode("edit");
-      setOpenCreate(true);
+        toast.add({
+          type: "error",
+          title: "Unable to load miscellaneous issue",
+          description: message,
+        });
+
+        console.error("Failed to fetch issue: ", error);
+      }
+
+      
     },
-    [setSelectedRow, isMutationLoading],
+    [
+      isMutationLoading,
+      isFetchingIssueDetails,
+      fetchIssueById,
+      setSelectedRow,
+    ],
   );
 
   // ================================================================
@@ -549,7 +550,7 @@ const MiscIssue = () => {
             sm:min-w-32
           "
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-5" />
           Add Issue
         </Button>
       </div>

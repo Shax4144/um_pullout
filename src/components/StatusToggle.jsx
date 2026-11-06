@@ -44,12 +44,16 @@ const StatusToggle = ({
     active: "Active",
     pending: "Pending",
     archived: "Archived",
+    accepted: "Accepted",
+    rejected: "Rejected",
   };
 
   const colors = {
     active: "bg-primary",
     pending: "bg-yellow-500",
     archived: "bg-input",
+    accepted: "bg-emerald-500",
+    rejected: "bg-destructive",
   };
 
   const currentIndex = options.indexOf(value);

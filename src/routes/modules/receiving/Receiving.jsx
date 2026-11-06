@@ -513,7 +513,7 @@ const Receiving = () => {
             sm:min-w-32
           "
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-5" />
           Receive
         </Button>
       </div>

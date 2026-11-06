@@ -466,7 +466,7 @@ const MoveOrder = () => {
             sm:min-w-32
           "
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-5" />
           Add Move Order
         </Button>
       </div>

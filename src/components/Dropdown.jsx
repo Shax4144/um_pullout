@@ -14,7 +14,7 @@ const Dropdown = ({
   placeholder = "Select an option",
 }) => {
   const selectedItem = data.find(
-    (item) => String(item.id ?? item._id) === String(value ?? "")
+    (item) => String(item.id ?? item._id) === String(value ?? ""),
   );
 
   const getItemLabel = (item) => {
@@ -28,6 +28,10 @@ const Dropdown = ({
       return `${item.symbol} - ${item.name}`;
     }
 
+    if (item.first_name || item.last_name) {
+      return `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim();
+    }
+
     return item.name ?? "";
   };
 
@@ -38,9 +42,7 @@ const Dropdown = ({
       disabled={isLoading}
     >
       <SelectTrigger className="h-9 w-full">
-        <SelectValue
-          placeholder={isLoading ? "Loading..." : placeholder}
-        >
+        <SelectValue placeholder={isLoading ? "Loading..." : placeholder}>
           {selectedItem ? getItemLabel(selectedItem) : undefined}
         </SelectValue>
       </SelectTrigger>

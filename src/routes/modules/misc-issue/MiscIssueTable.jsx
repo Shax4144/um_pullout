@@ -27,44 +27,35 @@ const MiscIssueTable = ({
   const columns = useMemo(
     () => [
       {
-        id: "stock-id",
+        id: "id",
         accessorFn: (row) => row.stock?.id ?? null,
         header: () => <div className="text-center">ID</div>,
         cell: ({ row }) => (
-          <div className="text-center"> 
+          <div className="text-center">
             <span className="text-sm text-muted-foreground">
               {row.original.id || "—"}
             </span>
           </div>
-          
         ),
       },
-      // {
-      //   id: "batch_no",
-      //   accessorFn: (row) => row.stock?.batch_no ?? "",
-      //   header: "Received Batch No.",
-      //   cell: ({ row }) => (
-      //     <p className="truncate text-sm font-medium text-foreground">
-      //       {row.original.stock?.batch_no|| "—"}
-      //     </p>
-      //   ),
-      // },
       {
         id: "number_of_items",
-        accessorFn: (row) => row.stock?.inventories?.length ?? 0,
+        accessorFn: (row) => row.miscellaneous_issues?.length ?? 0,
         header: () => <div className="text-center">No. of Items</div>,
         cell: ({ row }) => (
           <div className="text-center">
-            <Badge variant="secondary" className="font-mono text-sm font-medium">
+            <Badge
+              variant="secondary"
+              className="font-mono text-sm font-medium"
+            >
               <Package className="[&>svg]:size-5.5" />
-              {row.original.miscellaneous_inventory?.length ?? 0}
+              {row.original.miscellaneous_issues?.length ?? 0}
             </Badge>
           </div>
-          
         ),
       },
       {
-        accessorKey: "transaction_date",
+        accessorKey: "date",
         header: () => <div className="text-center">Transaction Date</div>,
         cell: ({ row }) => (
           <div className="text-center">
@@ -72,18 +63,17 @@ const MiscIssueTable = ({
               {row.original.date || "—"}
             </span>
           </div>
-          
         ),
       },
       {
-        accessorKey: "description",
-        header:  () => <div className="text-center">Transaction Type</div>,
+        accessorKey: "transaction_type",
+        header: () => <div className="text-center">Transaction Type</div>,
         cell: ({ row }) => {
-          const description = row.original.transaction_type;
+          const type = row.original.transaction_type;
 
-          const formattedDescription = description
-            ? description
-                .split("-")
+          const formattedType = type
+            ? type
+                .split(/[-_ ]/)
                 .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(" ")
             : "—";
@@ -91,10 +81,9 @@ const MiscIssueTable = ({
           return (
             <div className="text-center">
               <span className="text-sm text-muted-foreground">
-                {formattedDescription}
+                {formattedType}
               </span>
             </div>
-           
           );
         },
       },
@@ -140,51 +129,8 @@ const MiscIssueTable = ({
       //       );
       //     },
       //   },
-      // {
-      //   id: "uom",
-      //   header: "UOM",
-      //   cell: ({ row }) => {
-      //     const inventories = row.original.inventories ?? [];
-
-      //     return (
-      //       <div className="flex flex-col gap-1">
-      //         {inventories.length ? (
-      //           inventories.map((inventory) => (
-      //             <Badge key={inventory.id} variant="secondary">
-      //               {inventory.uom?.symbol || "—"}
-      //             </Badge>
-      //           ))
-      //         ) : (
-      //           <Badge variant="secondary">—</Badge>
-      //         )}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   id: "actual_received",
-      //   header: "Actual Received",
-      //   cell: ({ row }) => {
-      //     const inventories = row.original.inventories ?? [];
-
-      //     return (
-      //       <div className="flex flex-col gap-1">
-      //         {inventories.length ? (
-      //           inventories.map((inventory) => (
-      //             <span key={inventory.id} className="text-sm tabular-nums">
-      //               {inventory.actual_received ?? 0}
-      //             </span>
-      //           ))
-      //         ) : (
-      //           <span className="text-sm text-muted-foreground">—</span>
-      //         )}
-      //       </div>
-      //     );
-      //   },
-      // },
       {
-        id: "remarks",
-        accessorFn: (row) => row.stock?.remarks ?? "",
+        accessorKey: "remarks",
         header: () => <div className="text-center">Remarks</div>,
         cell: ({ row }) => (
           <div className="text-center">
@@ -195,24 +141,23 @@ const MiscIssueTable = ({
               {row.original.remarks || "—"}
             </span>
           </div>
-          
         ),
       },
       {
         id: "actions",
         header: () => <div className="text-center">View</div>,
         cell: ({ row }) => {
-          const item = row.original;
+          const issue = row.original;
 
           return (
             <div className="flex justify-center">
               <Button
                 variant="action"
                 size="lg"
-                aria-label={`View receipt ${item.stock?.batch_no ?? ""}`}
+                aria-label={`View miscellaneous issue ${issue.id}`}
                 title="View"
                 className="h-8 w-8 cursor-pointer rounded-md"
-                onClick={() => onEdit(item)}
+                onClick={() => onEdit(issue)}
               >
                 <Eye className="h-4 w-4" />
               </Button>

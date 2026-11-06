@@ -114,7 +114,7 @@ const SidebarWrapper = () => {
               }}
               isActive={pathname === dashboardItem.to}
               tooltip={dashboardItem.label}
-              className="cursor-pointer"
+              className="cursor-pointer text-md"
             >
               <DashboardIcon />
               <span>{dashboardItem.label}</span>

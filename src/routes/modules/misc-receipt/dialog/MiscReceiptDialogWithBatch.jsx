@@ -541,7 +541,7 @@ const MiscReceiptDialogWithBatch = ({
 
           {!isEditMode && (
             <Button type="submit" form="receiving-form" disabled={!canSubmit}>
-              <Save className="mr-2 size-4" />
+              <Save className="mr-1 size-5" />
               {isLoading ? "Saving..." : "Receipt"}
             </Button>
           )}

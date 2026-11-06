@@ -12,6 +12,7 @@ import mis_logo from "@/assets/MIS_logo.png";
 import { toast } from "@/components/ui/toast";
 
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import logo from "@/assets/logo.svg";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -23,20 +24,20 @@ const Landing = () => {
   });
 
   const [login, { isLoading: isLoggingIn }] = useLoginMutation();
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(null);
 
   const getDestination = (user) => {
-    const permissions = user?.permissions ?? []
+    const permissions = user?.permissions ?? [];
 
     if (permissions.includes("Masterlist")) {
-      return "/user-accounts"
+      return "/user-accounts";
     }
 
-    return "/access-denied"
-  }
-  
+    return "/access-denied";
+  };
+
   const handleChange = (field) => (e) => {
     setCredential((prev) => ({
       ...prev,
@@ -52,23 +53,22 @@ const Landing = () => {
     e.preventDefault();
 
     try {
-      console.log("Login Submitted", credential);
       const response = await login(credential).unwrap();
-      const { access_token, user } = response
+      const { access_token, user } = response;
 
-      localStorage.setItem("access_token", access_token)
-      localStorage.setItem("user", JSON.stringify(user))
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      dispatch(setUserDetails(user))
-      dispatch(authenticate())
+      dispatch(setUserDetails(user));
+      dispatch(authenticate());
 
-      navigate(getDestination(user))
+      navigate(getDestination(user));
 
       toast.add({
         type: "success",
         title: "Login Successful",
         description: response?.data?.message || "",
-      })
+      });
     } catch (error) {
       console.error("Login failed:", error);
       setLoginError("Something went wrong while signing in.");
@@ -163,7 +163,12 @@ const Landing = () => {
           {/* =====================================================
               HEADER
           ===================================================== */}
-          <div className="mb-8 text-center">
+          <div className="mb-8 flex flex-col items-center text-center">
+            <img
+              src={logo}
+              alt="UM PULLOUT"
+              className="mb-5 h-16 w-auto object-contain"
+            />
             <h1 className="text-2xl font-semibold tracking-tight text-white">
               LOGIN
             </h1>

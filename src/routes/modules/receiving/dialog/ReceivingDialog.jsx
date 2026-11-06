@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Package,
   Save,
+  PackageCheck,
   Plus,
   Trash2,
   ChevronsUpDown,
@@ -396,7 +397,7 @@ const ReceivingDialog = ({
                   onClick={addItem}
                   disabled={isLoading}
                 >
-                  <Plus className="mr-2 size-4" />
+                  <Plus className="mr-1 size-5" />
                   Add
                 </Button>
               )}
@@ -416,14 +417,14 @@ const ReceivingDialog = ({
               </p>
             )}
 
-            <div className="w-full overflow-x-auto rounded-md shadow-lg">
+            <div className="w-full overflow-x-auto rounded-md border shadow-md">
               <Table>
                 <TableHeader className="bg-muted">
                   <TableRow>
-                    <TableHead className="min-w-48">Item Code</TableHead>
-                    <TableHead className="min-w-40 ">Item Name</TableHead>
+                    <TableHead className="min-w-48 text-center">Item Code</TableHead>
+                    <TableHead className="min-w-40 text-center">Item Name</TableHead>
                     <TableHead className="min-w-12 text-center">UOM</TableHead>
-                    <TableHead className="min-w-24">
+                    <TableHead className="min-w-24 text-center">
                       Account Title
                     </TableHead>
                     <TableHead className="min-w-36 text-center">
@@ -459,7 +460,7 @@ const ReceivingDialog = ({
 
                       return (
                         <TableRow key={index}>
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Popover
                               open={activeItemIndex === index}
                               onOpenChange={(nextOpen) =>
@@ -552,7 +553,7 @@ const ReceivingDialog = ({
                                             }
                                           >
                                             <Check
-                                              className={`mr-2 size-4 ${
+                                              className={`mr-1 size-5 ${
                                                 isSelected
                                                   ? "opacity-100"
                                                   : "opacity-0"
@@ -584,7 +585,7 @@ const ReceivingDialog = ({
                           </TableCell>
 
                           <TableCell>
-                            <span className="block max-w-48 truncate">
+                            <span className="block max-w-48 truncate text-center">
                               {item.item_name || "—"}
                             </span>
                           </TableCell>
@@ -593,7 +594,7 @@ const ReceivingDialog = ({
                             {item.uom || "—"}
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="text-center">
                             <AccountTitlesDropdown
                               value={item.account_title_id}
                               onChange={(accountTitleId) =>
@@ -744,7 +745,7 @@ const ReceivingDialog = ({
                 )
               }
             >
-              <Save className="mr-2 size-4" />
+              <PackageCheck className="mr-1 size-5" />
               {isLoading
                 ? "Saving..."
                 : isEditMode

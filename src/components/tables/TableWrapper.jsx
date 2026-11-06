@@ -1,10 +1,5 @@
-import {
-  tableFeatures,
-  useTable,
-} from "@tanstack/react-table";
-import {
-  useMemo,
-} from "react";
+import { tableFeatures, useTable } from "@tanstack/react-table";
+import { useMemo } from "react";
 
 import {
   Table,
@@ -83,27 +78,19 @@ const TableWrapper = ({
   // ----------------------------------------------------------------
 
   const currentPage =
-    paginationData?.current_page ??
-    paginationData?.currentPage ??
-    page ??
-    1;
+    paginationData?.current_page ?? paginationData?.currentPage ?? page ?? 1;
 
-  const lastPage =
-    paginationData?.last_page ??
-    paginationData?.lastPage ??
-    1;
+  const lastPage = paginationData?.last_page ?? paginationData?.lastPage ?? 1;
 
   const from = paginationData?.from ?? 0;
   const to = paginationData?.to ?? 0;
   const totalRows = paginationData?.total ?? 0;
 
   const hasPreviousPage =
-    currentPage > 1 &&
-    Boolean(paginationData?.prev_page_url);
+    currentPage > 1 && Boolean(paginationData?.prev_page_url);
 
   const hasNextPage =
-    currentPage < lastPage &&
-    Boolean(paginationData?.next_page_url);
+    currentPage < lastPage && Boolean(paginationData?.next_page_url);
 
   // ----------------------------------------------------------------
   // PAGE NUMBERS
@@ -118,14 +105,9 @@ const TableWrapper = ({
       const isLast = i === lastPage;
 
       const isNearCurrent =
-        i >= currentPage - delta &&
-        i <= currentPage + delta;
+        i >= currentPage - delta && i <= currentPage + delta;
 
-      if (
-        isFirst ||
-        isLast ||
-        isNearCurrent
-      ) {
+      if (isFirst || isLast || isNearCurrent) {
         pages.push(i);
       }
     }
@@ -136,10 +118,7 @@ const TableWrapper = ({
       const current = pages[i];
       const previous = pages[i - 1];
 
-      if (
-        previous &&
-        current - previous > 1
-      ) {
+      if (previous && current - previous > 1) {
         result.push("ellipsis");
       }
 
@@ -166,9 +145,7 @@ const TableWrapper = ({
   };
 
   const errorMessage =
-    apiError?.detail ||
-    errorMessages[status] ||
-    "Failed to load data.";
+    apiError?.detail || errorMessages[status] || "Failed to load data.";
 
   // ----------------------------------------------------------------
   // TABLE STATE
@@ -178,9 +155,7 @@ const TableWrapper = ({
 
   const hasRows = rows.length > 0;
 
-  const hasExistingData =
-    Array.isArray(data) &&
-    data.length > 0;
+  const hasExistingData = Array.isArray(data) && data.length > 0;
 
   const visibleColumnCount =
     // table.getVisibleLeafColumns().length ||
@@ -203,7 +178,7 @@ const TableWrapper = ({
       className="
         flex
         max-h-[calc(100vh-250px)]
-        min-h-[calc(100vh-160px)]
+        min-h-[calc(100vh-135px)]
         flex-col
         overflow-hidden
         rounded-xl
@@ -232,9 +207,7 @@ const TableWrapper = ({
       >
         {/* Filter */}
         {filterSlot && (
-          <div className="flex min-w-0 shrink-0 items-center">
-            {filterSlot}
-          </div>
+          <div className="flex min-w-0 shrink-0 items-center">{filterSlot}</div>
         )}
 
         {/* Search */}
@@ -263,11 +236,7 @@ const TableWrapper = ({
             <Input
               placeholder={`Search ${searchKey}...`}
               value={searchValue ?? ""}
-              onChange={(event) =>
-                onSearchChange?.(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => onSearchChange?.(event.target.value)}
               aria-label={`Search ${searchKey}`}
               className="
                 h-9
@@ -312,19 +281,17 @@ const TableWrapper = ({
       <div className="relative min-h-0 flex-1 overflow-auto">
         <Table containerClassName="overflow-visible">
           <TableHeader>
-            {table.getHeaderGroups().map(
-              (headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow
+                key={headerGroup.id}
+                className="
                     border-b
                   "
-                >
-                  {headerGroup.headers.map(
-                    (header) => (
-                      <TableHead
-                        key={header.id}
-                        className="
+              >
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="
                           sticky
                           top-0
                           z-10
@@ -339,18 +306,14 @@ const TableWrapper = ({
                           tracking-wide
                           backdrop-blur
                         "
-                      >
-                        {header.isPlaceholder ? null : (
-                          <table.FlexRender
-                            header={header}
-                          />
-                        )}
-                      </TableHead>
-                    ),
-                  )}
-                </TableRow>
-              ),
-            )}
+                  >
+                    {header.isPlaceholder ? null : (
+                      <table.FlexRender header={header} />
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
           </TableHeader>
 
           <TableBody>
@@ -368,12 +331,12 @@ const TableWrapper = ({
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                       <AlertCircle className="h-5 w-5" />
                     </div>
-              
+
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         Unable to load records
                       </p>
-              
+
                       <p className="mt-1 text-sm text-muted-foreground">
                         {errorMessage}
                       </p>
@@ -386,30 +349,24 @@ const TableWrapper = ({
                  INITIAL LOADING
               ==================================================== */
 
-              Array.from({ length: 5 }).map(
-                (_, rowIndex) => (
-                  <TableRow
-                    key={`skeleton-${rowIndex}`}
-                  >
-                    {columns.map(
-                      (_, columnIndex) => (
-                        <TableCell
-                          key={`skeleton-${rowIndex}-${columnIndex}`}
-                          className="px-4 py-3"
-                        >
-                          <Skeleton
-                            className="
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <TableRow key={`skeleton-${rowIndex}`}>
+                  {columns.map((_, columnIndex) => (
+                    <TableCell
+                      key={`skeleton-${rowIndex}-${columnIndex}`}
+                      className="px-4 py-3"
+                    >
+                      <Skeleton
+                        className="
                               h-4
                               w-full
                               max-w-45
                             "
-                          />
-                        </TableCell>
-                      ),
-                    )}
-                  </TableRow>
-                ),
-              )
+                      />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : hasRows ? (
               /* ====================================================
                  DATA
@@ -426,23 +383,19 @@ const TableWrapper = ({
                     data-[state=selected]:bg-muted/10
                   "
                 >
-                  {row.getAllCells().map(
-                    (cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className="
+                  {row.getAllCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className="
                           whitespace-nowrap
                           px-4
                           py-3
                           align-middle
                         "
-                      >
-                        <table.FlexRender
-                          cell={cell}
-                        />
-                      </TableCell>
-                    ),
-                  )}
+                    >
+                      <table.FlexRender cell={cell} />
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))
             ) : (
@@ -450,7 +403,7 @@ const TableWrapper = ({
                  EMPTY
               ==================================================== */
 
-              <TableRow>
+              <TableRow className="border-none">
                 <TableCell
                   colSpan={visibleColumnCount}
                   className="h-[400px] p-0"
@@ -463,14 +416,14 @@ const TableWrapper = ({
                         <Search className="h-5 w-5" />
                       )}
                     </div>
-              
+
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {searchValue
                           ? "No matching records"
                           : "No records found"}
                       </p>
-              
+
                       <p className="mt-1 text-sm text-muted-foreground">
                         {searchValue
                           ? "Try adjusting your search or filters."
@@ -491,11 +444,9 @@ const TableWrapper = ({
             is loading.
         ========================================================== */}
 
-        {isFetching &&
-          hasExistingData &&
-          !isError && (
-            <div
-              className="
+        {isFetching && hasExistingData && !isError && (
+          <div
+            className="
                 pointer-events-none
                 sticky
                 bottom-0
@@ -511,19 +462,18 @@ const TableWrapper = ({
                 text-muted-foreground
                 backdrop-blur
               "
-              aria-live="polite"
-            >
-              <Loader2
-                className="
+            aria-live="polite"
+          >
+            <Loader2
+              className="
                   h-3.5
                   w-3.5
                   animate-spin
                 "
-              />
-
-              Updating results...
-            </div>
-          )}
+            />
+            Updating results...
+          </div>
+        )}
       </div>
 
       {/* ============================================================
@@ -559,9 +509,7 @@ const TableWrapper = ({
           "
         >
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">
-              Show
-            </span>
+            <span className="text-muted-foreground">Show</span>
 
             <Select
               value={String(pageSize)}
@@ -572,26 +520,16 @@ const TableWrapper = ({
                 onPageChange(1);
               }}
             >
-              <SelectTrigger
-                className="h-8 w-17"
-                aria-label="Rows per page"
-              >
+              <SelectTrigger className="h-8 w-17" aria-label="Rows per page">
                 <SelectValue />
               </SelectTrigger>
 
-              <SelectContent
-                className="w-17 min-w-0"
-              >
-                {[10, 20, 50].map(
-                  (size) => (
-                    <SelectItem
-                      key={size}
-                      value={String(size)}
-                    >
-                      {size}
-                    </SelectItem>
-                  ),
-                )}
+              <SelectContent className="w-17 min-w-0">
+                {[10, 20, 50].map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -610,10 +548,7 @@ const TableWrapper = ({
             <span className="font-medium text-foreground">
               {from}–{to}
             </span>{" "}
-            of{" "}
-            <span className="font-medium text-foreground">
-              {totalRows}
-            </span>
+            of <span className="font-medium text-foreground">{totalRows}</span>
           </span>
         </div>
 
@@ -633,15 +568,8 @@ const TableWrapper = ({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() =>
-              onPageChange(
-                currentPage - 1,
-              )
-            }
-            disabled={
-              !hasPreviousPage ||
-              isFetching
-            }
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={!hasPreviousPage || isFetching}
             aria-label="Previous page"
             className="
               cursor-pointer
@@ -655,16 +583,12 @@ const TableWrapper = ({
           </Button>
 
           <div className="flex items-center gap-1">
-            {pageNumbers.map(
-              (item, index) => {
-                if (
-                  item ===
-                  "ellipsis"
-                ) {
-                  return (
-                    <span
-                      key={`ellipsis-${index}`}
-                      className="
+            {pageNumbers.map((item, index) => {
+              if (item === "ellipsis") {
+                return (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="
                         flex
                         h-8
                         w-8
@@ -672,66 +596,44 @@ const TableWrapper = ({
                         justify-center
                         text-muted-foreground
                       "
-                    >
-                      …
-                    </span>
-                  );
-                }
+                  >
+                    …
+                  </span>
+                );
+              }
 
-                const isActive =
-                  currentPage === item;
+              const isActive = currentPage === item;
 
-                return (
-                  <Button
-                    key={item}
-                    type="button"
-                    variant={
-                      isActive
-                        ? "outline"
-                        : "ghost"
-                    }
-                    size="sm"
-                    onClick={() =>
-                      onPageChange(item)
-                    }
-                    disabled={
-                      isFetching ||
-                      isActive
-                    }
-                    aria-label={`Go to page ${item}`}
-                    aria-current={
-                      isActive
-                        ? "page"
-                        : undefined
-                    }
-                    className="
+              return (
+                <Button
+                  key={item}
+                  type="button"
+                  variant={isActive ? "outline" : "ghost"}
+                  size="sm"
+                  onClick={() => onPageChange(item)}
+                  disabled={isFetching || isActive}
+                  aria-label={`Go to page ${item}`}
+                  aria-current={isActive ? "page" : undefined}
+                  className="
                       h-8
                       w-8
                       cursor-pointer
                       p-0
                       tabular-nums
                     "
-                  >
-                    {item}
-                  </Button>
-                );
-              },
-            )}
+                >
+                  {item}
+                </Button>
+              );
+            })}
           </div>
 
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() =>
-              onPageChange(
-                currentPage + 1,
-              )
-            }
-            disabled={
-              !hasNextPage ||
-              isFetching
-            }
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasNextPage || isFetching}
             aria-label="Next page"
             className="
               cursor-pointer
@@ -762,15 +664,8 @@ const TableWrapper = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() =>
-              onPageChange(
-                currentPage - 1,
-              )
-            }
-            disabled={
-              !hasPreviousPage ||
-              isFetching
-            }
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={!hasPreviousPage || isFetching}
             aria-label="Previous page"
             className="
               cursor-pointer
@@ -788,28 +683,16 @@ const TableWrapper = ({
             "
           >
             Page{" "}
-            <span className="font-medium text-foreground">
-              {currentPage}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-foreground">
-              {lastPage}
-            </span>
+            <span className="font-medium text-foreground">{currentPage}</span>{" "}
+            of <span className="font-medium text-foreground">{lastPage}</span>
           </span>
 
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() =>
-              onPageChange(
-                currentPage + 1,
-              )
-            }
-            disabled={
-              !hasNextPage ||
-              isFetching
-            }
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasNextPage || isFetching}
             aria-label="Next page"
             className="
               cursor-pointer

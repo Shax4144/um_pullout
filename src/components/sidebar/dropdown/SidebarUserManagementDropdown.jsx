@@ -52,15 +52,15 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
         <CollapsibleContent
           className="
             sidebar-collapsible-panel
-            h-[var(--collapsible-panel-height)]
+            h-var(--collapsible-panel-height)
             overflow-hidden
             transition-[height,opacity]
             duration-200
             ease-out
-            data-[starting-style]:h-0
-            data-[starting-style]:opacity-0
-            data-[ending-style]:h-0
-            data-[ending-style]:opacity-0
+            data-starting-style:h-0
+            data-starting-style:opacity-0
+            data-ending-style:h-0
+            data-ending-style:opacity-0
             mt-0.5
           "
         >

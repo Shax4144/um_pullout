@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   FileInput,
   Save,
+  ReceiptText,
   Plus,
   Trash2,
   ChevronsUpDown,
@@ -111,11 +112,12 @@ const MiscReceiptDialog = ({
   useEffect(() => {
     if (!open) return;
 
-    fetchItems({
-      status: 1,
-      page: 0,
-    },
-      true
+    fetchItems(
+      {
+        status: 1,
+        pagination: "none",
+      },
+      true,
     );
   }, [open, fetchItems]);
 
@@ -429,7 +431,7 @@ const MiscReceiptDialog = ({
                   onClick={addItem}
                   disabled={isLoading}
                 >
-                  <Plus className="mr-2 size-4" />
+                  <Plus className="mr-1 size-5" />
                   Add
                 </Button>
               )}
@@ -442,14 +444,14 @@ const MiscReceiptDialog = ({
                   type="button"
                   variant="link"
                   size="sm"
-                  onClick={() => fetchItems({ status: 1, page: 0 })}
+                  onClick={() => fetchItems({ status: 1, pagination: "none" })}
                 >
                   Retry
                 </Button>
               </p>
             )}
 
-            <div className="w-full overflow-x-auto rounded-md shadow-lg">
+            <div className="w-full overflow-x-auto rounded-md border shadow-md">
               <Table>
                 <TableHeader className="bg-muted">
                   <TableRow>
@@ -457,7 +459,9 @@ const MiscReceiptDialog = ({
                     <TableHead className="min-w-40 ">Item Name</TableHead>
                     <TableHead className="min-w-24 text-center">UOM</TableHead>
                     <TableHead className="min-w-24 ">Account Title</TableHead>
-                    <TableHead className="min-w-36 text-center">Quantity</TableHead>
+                    <TableHead className="min-w-36 text-center">
+                      Quantity
+                    </TableHead>
                     {!isEditMode && (
                       <TableHead className="w-16 text-center">Action</TableHead>
                     )}
@@ -571,7 +575,7 @@ const MiscReceiptDialog = ({
                                             }
                                           >
                                             <Check
-                                              className={`mr-2 size-4 ${
+                                              className={`mr-1 size-5 ${
                                                 isSelected
                                                   ? "opacity-100"
                                                   : "opacity-0"
@@ -629,15 +633,14 @@ const MiscReceiptDialog = ({
                               type="text"
                               inputMode="numeric"
                               value={
-                                item.quantity === "" ||
-                                item.quantity == null
+                                item.quantity === "" || item.quantity == null
                                   ? ""
-                                  : Number(
-                                    item.quantity,
-                                  ).toLocaleString("en-US", {
-                                    maximumFractionDigits: 20,
-                                  })
-                                
+                                  : Number(item.quantity).toLocaleString(
+                                      "en-US",
+                                      {
+                                        maximumFractionDigits: 20,
+                                      },
+                                    )
                               }
                               onChange={(event) => {
                                 const rawValue = event.target.value.replace(
@@ -645,10 +648,7 @@ const MiscReceiptDialog = ({
                                   "",
                                 );
                                 if (/^\d*$/.test(rawValue)) {
-                                  handleQuantityChange(
-                                    index,
-                                    rawValue
-                                  );
+                                  handleQuantityChange(index, rawValue);
                                 }
                               }}
                               placeholder="0"
@@ -715,7 +715,7 @@ const MiscReceiptDialog = ({
                 )
               }
             >
-              <Save className="mr-2 size-4" />
+              <ReceiptText className="mr-1 size-5" />
               {isLoading
                 ? "Saving..."
                 : isEditMode

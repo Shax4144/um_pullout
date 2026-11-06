@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import {ArrowLeftRight, Save, Loader2 } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { ArrowLeftRight, Save, Truck, Loader2 } from "lucide-react";
 import { format, parseISO, isValid } from "date-fns";
 
 import {
@@ -52,7 +52,7 @@ const createEmptyItem = (stock = {}) => {
     inventory_id: String(stock.inventory_id ?? ""),
     item_code: stock.item_code ?? "",
     item_name: stock.item_name ?? "",
-    uom: stock.uom ?? "",
+    uom: stock.uom_symbol ?? stock.uom ?? "",
     uom_id: String(stock.uom_id ?? ""),
     account_title_id: accountTitleOptions[0]?.id ?? "",
     account_title_options: accountTitleOptions,
@@ -86,15 +86,47 @@ const MoveOrderDialog = ({
   const isEditMode = Boolean(selectedRow?.id);
 
   const [formData, setFormData] = useState(createEmptyForm);
-  
+
   // =======================================
   // LAZY FETCH STOCK ON HAND
   // =======================================
-  
+
   const [
     fetchStockOnHand,
-    { data: sohData, isFetching: isFetchingSoh, isError: isSohError },
+    {
+      data: sohData,
+      isFetching: isFetchingSoh,
+      isError: isSohError,
+      error: sohError,
+    },
   ] = useLazyFetchStockOnHandQuery();
+
+  const loadStockOnHand = useCallback(async () => {
+    setFormData((current) => ({
+      ...current,
+      items: [],
+    }));
+
+    try {
+      const response = await fetchStockOnHand({
+        pagination: "none",
+      }).unwrap();
+
+      const stockOnHand = response?.data ?? [];
+
+      setFormData((current) => ({
+        ...current,
+        items: stockOnHand.map((stock) => createEmptyItem(stock)),
+      }));
+    } catch (error) {
+      setFormData((current) => ({
+        ...current,
+        items: [],
+      }));
+    }
+  }, [fetchStockOnHand]);
+
+  const isNotFound = sohError?.status === 404;
 
   // Prefill an existing move order for view mode.
   useEffect(() => {
@@ -143,46 +175,10 @@ const MoveOrderDialog = ({
   // Do not use the nested records property.
   // Fetch stock-on-hand items when opening a new Move Order dialog
   useEffect(() => {
-    if (open && !isEditMode) {
-      fetchStockOnHand({ pagination: "none" }, true);
-    }
-  }, [open, isEditMode, fetchStockOnHand]);
+    if (!open || isEditMode) return;
 
-  const stockOnHand = sohData?.data ?? [];
-
-  useEffect(() => {
-    if (!open || isEditMode || !sohData?.data) return;
-
-    setFormData((current) => {
-      const existingItems = new Map(
-        current.items.map((item) => [String(item.item_id), item]),
-      );
-
-      return {
-        ...current,
-        items: stockOnHand.map((stock) => {
-          const id = String(stock.item_id);
-          const existing = existingItems.get(id);
-          const stockItem = createEmptyItem(stock);
-
-          const existingAccountTitleIsValid =
-            stockItem.account_title_options.some(
-              (option) =>
-                option.id === String(existing?.account_title_id ?? ""),
-            );
-
-          return {
-            ...stockItem,
-            selected: existing?.selected ?? false,
-            account_title_id: existingAccountTitleIsValid
-              ? String(existing.account_title_id)
-              : stockItem.account_title_id,
-            quantity: existing?.quantity ?? "",
-          };
-        }),
-      };
-    });
-  }, [open, isEditMode, stockOnHand]);
+    loadStockOnHand();
+  }, [open, isEditMode, loadStockOnHand]);
 
   const handleDetailChange = (event) => {
     const { name, value } = event.target;
@@ -395,14 +391,15 @@ const MoveOrderDialog = ({
               </p>
             </div>
 
-            {isSohError && !isEditMode && (
+            {isSohError && !isEditMode && !isNotFound && (
               <div className="flex items-center gap-2 text-sm text-destructive">
                 Unable to load stock on hand.
                 <Button
                   type="button"
                   variant="link"
                   size="sm"
-                  onClick={() => fetchStockOnHand({ pagination: "none" })}
+                  onClick={loadStockOnHand}
+                  disabled={isFetchingSoh}
                 >
                   Retry
                 </Button>
@@ -417,7 +414,7 @@ const MoveOrderDialog = ({
             )}
 
             {(!isFetchingSoh || isEditMode) && (
-              <div className="w-full overflow-x-auto rounded-md shadow-lg">
+              <div className="w-full overflow-x-auto rounded-md border shadow-md">
                 <Table>
                   <TableHeader className="bg-muted">
                     <TableRow>
@@ -455,13 +452,16 @@ const MoveOrderDialog = ({
                         UOM
                       </TableHead>
 
+                      <TableHead className="min-w-56 text-center">
+                        Account Title
+                      </TableHead>
+
                       {!isEditMode && (
                         <TableHead className="min-w-20 text-center">
                           SOH
                         </TableHead>
                       )}
 
-                      <TableHead className="min-w-56">Account Title</TableHead>
                       <TableHead className="min-w-36 text-center">
                         Quantity
                       </TableHead>
@@ -509,13 +509,7 @@ const MoveOrderDialog = ({
                             {item.uom || "—"}
                           </TableCell>
 
-                          {!isEditMode && (
-                            <TableCell className="text-center tabular-nums">
-                              {item.soh}
-                            </TableCell>
-                          )}
-
-                          <TableCell>
+                          <TableCell className="text-center">
                             <AccountTitlesDropdown
                               value={item.account_title_id}
                               onChange={(accountTitleId) =>
@@ -531,6 +525,12 @@ const MoveOrderDialog = ({
                               }
                             />
                           </TableCell>
+
+                          {!isEditMode && (
+                            <TableCell className="text-center tabular-nums">
+                              {item.soh}
+                            </TableCell>
+                          )}
 
                           <TableCell className="text-center">
                             <Input
@@ -555,6 +555,13 @@ const MoveOrderDialog = ({
                     )}
                   </TableBody>
                 </Table>
+              </div>
+            )}
+
+            {!isEditMode && (
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{selectedItems.length} item(s) selected</span>
+                <span>Quantity cannot exceed available stock.</span>
               </div>
             )}
           </section>
@@ -587,7 +594,7 @@ const MoveOrderDialog = ({
                 form="move-order-form"
                 disabled={!canSubmit}
               >
-                <Save className="mr-2 size-4" />
+                <Truck className="mr-1 size-5" />
                 {isLoading ? "Saving..." : "Move"}
               </Button>
             </>

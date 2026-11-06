@@ -194,7 +194,7 @@ const Item = () => {
       try {
         const response = await fetchItemById(item.id).unwrap();
 
-        const itemDetails = response?.data ?? response;
+        const itemDetails = response?.data ?? response ?? [];
         
         setSelectedRow(itemDetails);
         setMode("edit");
