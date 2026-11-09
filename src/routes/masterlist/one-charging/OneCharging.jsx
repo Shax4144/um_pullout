@@ -1,15 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  CloudSync,
-  CloudCheck,
-  CloudAlert,
-} from "lucide-react";
+import { CloudSync, CloudCheck, CloudAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +14,7 @@ import {
   useFetchOneChargingQuery,
   useLazyFetchOneChargingQuery,
   useSyncOneChargingMutation,
-} from "../../../api/masterlist/one-charging-api"
+} from "../../../api/masterlist/one-charging-api";
 
 import OneChargingTable from "./OneChargingTable";
 
@@ -81,25 +72,20 @@ const OneCharging = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  
-  const tableData = useMemo(() => {
-    return oneChargingData ?? {};
-  });
-  const tableIsFetching = isFetchingOneCharging
+
+  const tableData = oneChargingData;
+  const tableIsFetching = isFetchingOneCharging;
   const tableIsError = isOneChargingError;
   const tableError = oneChargingsError;
- 
+
   // ================================================================
   // MUTATIONS
   // ================================================================
 
-  const [
-    syncOneCharging,
-    { isLoading: isSyncing },
-  ] = useSyncOneChargingMutation();
+  const [syncOneCharging, { isLoading: isSyncing }] =
+    useSyncOneChargingMutation();
 
-  const isMutationLoading =
-    isSyncing
+  const isMutationLoading = isSyncing;
 
   // ================================================================
   // DIALOG STATE
@@ -115,14 +101,12 @@ const OneCharging = () => {
     const meta = {
       active: {
         label: "Active",
-        description:
-          "Manage the syncing of One RDF Charging.",
+        description: "Manage the syncing of One RDF Charging.",
       },
 
       archived: {
         label: "Archived",
-        description:
-          "View and restore archived One RDF Charging.",
+        description: "View and restore archived One RDF Charging.",
       },
     };
 
@@ -144,7 +128,7 @@ const OneCharging = () => {
   // Close confirmation Dialog
   const handleCloseSync = useCallback(() => {
     if (isMutationLoading) {
-      return
+      return;
     }
 
     setOpenConfirmSync(false);
@@ -163,15 +147,15 @@ const OneCharging = () => {
         title: "One charging synced",
         description:
           response?.message ??
-          "One charging have been synchronized successfully."
-      })
+          "One charging have been synchronized successfully.",
+      });
 
       setOpenConfirmSync(false);
     } catch (error) {
       const message =
         error?.data?.message ??
         error?.data?.errors?.[0]?.detail ??
-        "An error occured while synchronizing one charging. Please try again later."
+        "An error occured while synchronizing one charging. Please try again later.";
 
       toast.add({
         type: "error",
@@ -219,12 +203,9 @@ const OneCharging = () => {
   // SEARCH CHANGE
   // ================================================================
 
-  const handleSearchChange = useCallback(
-    (value) => {
-      setSearch(value);
-    },
-    [],
-  );
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value);
+  }, []);
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -236,33 +217,22 @@ const OneCharging = () => {
   // ================================================================
 
   useEffect(() => {
-    const lastPage =
-      tableData?.last_page;
+    const lastPage = tableData?.last_page;
 
-    if (
-      !lastPage ||
-      tableIsFetching ||
-      page <= 1
-    ) {
+    if (!lastPage || tableIsFetching || page <= 1) {
       return;
     }
 
     if (page > lastPage) {
       setPage(lastPage);
     }
-  }, [
-    tableData?.last_page,
-    tableIsFetching,
-    page,
-  ]);
+  }, [tableData?.last_page, tableIsFetching, page]);
 
   // ================================================================
   // DISPLAY COUNT
   // ================================================================
 
-  const totalRows =
-    tableData?.total ??
-    0;
+  const totalRows = tableData?.total ?? 0;
 
   return (
     <div

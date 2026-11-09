@@ -458,7 +458,7 @@ const MiscReceiptDialog = ({
                     <TableHead className="min-w-48">Item Code</TableHead>
                     <TableHead className="min-w-40 ">Item Name</TableHead>
                     <TableHead className="min-w-24 text-center">UOM</TableHead>
-                    <TableHead className="min-w-24 ">Account Title</TableHead>
+                    <TableHead className="min-w-24 text-center">Account Title</TableHead>
                     <TableHead className="min-w-36 text-center">
                       Quantity
                     </TableHead>

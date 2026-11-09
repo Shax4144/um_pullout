@@ -1,15 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  ArchiveRestore,
-  Plus,
-  Users,
-} from "lucide-react";
+import { ArchiveRestore, Plus, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -26,7 +17,7 @@ import {
   useLazyFetchWarehouseByIdQuery,
   useUpdateWarehouseMutation,
   useArchiveWarehouseMutation,
-} from "../../../api/masterlist/warehouses.api"
+} from "../../../api/masterlist/warehouses.api";
 
 import WarehouseTable from "./WarehouseTable";
 
@@ -43,7 +34,7 @@ const Warehouse = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [actionType, setActionType] = useState("archive");
   const [openAction, setOpenAction] = useState(false);
-  
+
   const isPending = status === "pending";
   const isArchived = status === "archived";
 
@@ -83,50 +74,38 @@ const Warehouse = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-    );
+  );
 
   // ================================================================
   // FETCH WAREHOUSES
   // ================================================================
 
-  const [fetchWarehouseById,
-    { isFetching: isFetchingWarehouseDetails}
-  ] = useLazyFetchWarehouseByIdQuery();
-  
+  const [fetchWarehouseById, { isFetching: isFetchingWarehouseDetails }] =
+    useLazyFetchWarehouseByIdQuery();
+
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  
-  const tableData = useMemo(() => {
-    return warehousesData;
-  });
-  const tableIsFetching = isFetchingWarehouses
+
+  const tableData = warehousesData;
+  const tableIsFetching = isFetchingWarehouses;
   const tableIsError = isWarehousesError;
   const tableError = warehousesError;
- 
+
   // ================================================================
   // MUTATIONS
   // ================================================================
 
-  const [
-    createWarehouse,
-    { isLoading: isCreating },
-  ] = usePostWarehouseMutation();
+  const [createWarehouse, { isLoading: isCreating }] =
+    usePostWarehouseMutation();
 
-  const [
-    updateWarehouse,
-    { isLoading: isUpdating },
-  ] = useUpdateWarehouseMutation();
+  const [updateWarehouse, { isLoading: isUpdating }] =
+    useUpdateWarehouseMutation();
 
-  const [
-    archiveWarehouse,
-    { isLoading: isArchiving },
-  ] = useArchiveWarehouseMutation();
+  const [archiveWarehouse, { isLoading: isArchiving }] =
+    useArchiveWarehouseMutation();
 
-  const isMutationLoading =
-    isCreating ||
-    isUpdating ||
-    isArchiving;
+  const isMutationLoading = isCreating || isUpdating || isArchiving;
 
   // ================================================================
   // DIALOG STATE
@@ -138,11 +117,7 @@ const Warehouse = () => {
 
   const [mode, setMode] = useState("create");
 
-  const {
-    selectedRow,
-    setSelectedRow,
-    clearSelectedRow,
-  } = useSelectedRow();
+  const { selectedRow, setSelectedRow, clearSelectedRow } = useSelectedRow();
 
   // ================================================================
   // STATUS
@@ -152,14 +127,12 @@ const Warehouse = () => {
     const meta = {
       active: {
         label: "Active",
-        description:
-          "Manage available warehouses.",
+        description: "Manage available warehouses.",
       },
 
       archived: {
         label: "Archived",
-        description:
-          "View and restore archived warehouses.",
+        description: "View and restore archived warehouses.",
       },
     };
 
@@ -178,10 +151,7 @@ const Warehouse = () => {
     clearSelectedRow();
     setMode("create");
     setOpenCreate(true);
-  }, [
-    clearSelectedRow,
-    isMutationLoading,
-  ]);
+  }, [clearSelectedRow, isMutationLoading]);
 
   // ================================================================
   // EDIT USER
@@ -199,11 +169,9 @@ const Warehouse = () => {
         setSelectedRow(warehouseDetails);
         setMode("edit");
         setOpenCreate(true);
-        
       } catch (error) {
-        const message = 
-          error?.data?.message
-          ?? "Unable to retrieve warehouse details."
+        const message =
+          error?.data?.message ?? "Unable to retrieve warehouse details.";
 
         toast.add({
           type: "error",
@@ -213,7 +181,6 @@ const Warehouse = () => {
 
         console.error("Failed to fetch warehouse:", error);
       }
-      
     },
     [
       isMutationLoading,
@@ -226,11 +193,11 @@ const Warehouse = () => {
   // ================================================================
   // CONFIRM ACTION
   // ================================================================
-  
+
   const handleOpenAction = useCallback(
     (warehouse, actionType) => {
       if (isMutationLoading) return;
-  
+
       setSelectedRow(warehouse);
       setActionType(actionType);
       setOpenAction(true);
@@ -240,7 +207,7 @@ const Warehouse = () => {
 
   const handleCloseAction = useCallback(() => {
     if (isArchiving) return;
-  
+
     setOpenAction(false);
     clearSelectedRow();
   }, [isArchiving, clearSelectedRow]);
@@ -281,12 +248,9 @@ const Warehouse = () => {
   // SEARCH CHANGE
   // ================================================================
 
-  const handleSearchChange = useCallback(
-    (value) => {
-      setSearch(value);
-    },
-    [],
-  );
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value);
+  }, []);
 
   // ================================================================
   // CLOSE CREATE / EDIT DIALOG
@@ -300,11 +264,7 @@ const Warehouse = () => {
     setOpenCreate(false);
     setMode("create");
     clearSelectedRow();
-  }, [
-    isCreating,
-    isUpdating,
-    clearSelectedRow,
-  ]);
+  }, [isCreating, isUpdating, clearSelectedRow]);
 
   // ================================================================
   // CREATE / UPDATE
@@ -318,27 +278,27 @@ const Warehouse = () => {
 
       try {
         if (selectedRow && mode === "edit") {
-          const response =
-            await updateWarehouse({
-              id: selectedRow.id,
-              ...categoryData,
-            }).unwrap();
+          const response = await updateWarehouse({
+            id: selectedRow.id,
+            ...categoryData,
+          }).unwrap();
 
           toast.add({
             type: "success",
             title: "Warehouse updated",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The warehouse has been updated successfully.",
           });
         } else {
-          const response =
-            await createWarehouse(categoryData).unwrap();
+          const response = await createWarehouse(categoryData).unwrap();
 
           // console.log("payload", categoryData);
           toast.add({
             type: "success",
             title: "Warehouse created",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The warehouse has been created successfully.",
           });
         }
@@ -359,10 +319,7 @@ const Warehouse = () => {
           description: message,
         });
 
-        console.error(
-          "Failed to create/update warehouse:",
-          error,
-        );
+        console.error("Failed to create/update warehouse:", error);
       }
     },
     [
@@ -379,16 +336,16 @@ const Warehouse = () => {
   // ================================================================
   // ACTION MUTATION
   // ================================================================
-  
+
   const handleConfirmAction = useCallback(async () => {
     if (!selectedRow || isArchiving) return;
-  
+
     const isRestore = actionType === "restore";
     const actionLabel = isRestore ? "restored" : "archived";
-  
+
     try {
       const response = await archiveWarehouse(selectedRow.id).unwrap();
-  
+
       toast.add({
         type: "success",
         title: `Warehouse ${actionLabel}`,
@@ -396,7 +353,7 @@ const Warehouse = () => {
           response?.message ??
           `The warehouse has been ${actionLabel} successfully.`,
       });
-  
+
       setOpenAction(false);
       clearSelectedRow();
     } catch (error) {
@@ -404,14 +361,17 @@ const Warehouse = () => {
         error?.data?.message ??
         error?.data?.errors?.[0]?.detail ??
         `An error occurred while ${isRestore ? "restoring" : "archiving"} the warehouse.`;
-  
+
       toast.add({
         type: "error",
         title: `Unable to ${isRestore ? "restore" : "archive"} warehouse`,
         description: message,
       });
-  
-      console.error(`Failed to ${isRestore ? "restore" : "archive"} warehouse:`, error);
+
+      console.error(
+        `Failed to ${isRestore ? "restore" : "archive"} warehouse:`,
+        error,
+      );
     }
   }, [
     selectedRow,
@@ -431,33 +391,22 @@ const Warehouse = () => {
   // ================================================================
 
   useEffect(() => {
-    const lastPage =
-      tableData?.last_page;
+    const lastPage = tableData?.last_page;
 
-    if (
-      !lastPage ||
-      tableIsFetching ||
-      page <= 1
-    ) {
+    if (!lastPage || tableIsFetching || page <= 1) {
       return;
     }
 
     if (page > lastPage) {
       setPage(lastPage);
     }
-  }, [
-    tableData?.last_page,
-    tableIsFetching,
-    page,
-  ]);
+  }, [tableData?.last_page, tableIsFetching, page]);
 
   // ================================================================
   // DISPLAY COUNT
   // ================================================================
 
-  const totalRows =
-    tableData?.total ??
-    0;
+  const totalRows = tableData?.total ?? 0;
 
   return (
     <div

@@ -1,11 +1,41 @@
 import { useMemo } from "react";
-import { Package, Eye } from "lucide-react";
+import { Package, MoveDownLeft, MoveUpRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import StatusToggle from "../../../components/StatusToggle";
 import TableWrapper from "../../../components/tables/TableWrapper";
+
+const formatQuantity = (value) =>
+  Number(value ?? 0).toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  });
+
+const QuantityBadge = ({ value, variant = "secondary" }) => {
+  const iconMap = {
+    success: MoveDownLeft,
+    destructive: MoveUpRight,
+    secondary: Package,
+  };
+
+  const Icon = iconMap[variant] ?? Package;
+
+  return value !== "0.000" ? (
+    <Badge
+      variant={variant}
+      className="min-w-16 justify-center gap-2 tabular-nums text-sm"
+    >
+      <Icon className="size-4 shrink-0" />
+      {formatQuantity(value)}
+    </Badge>
+  ) : (
+      <p className="text-muted-foreground/80">
+        0
+      </p>
+    
+  );
+};
 
 const InventoryMrpTable = ({
   data,
@@ -58,143 +88,80 @@ const InventoryMrpTable = ({
       {
         accessorKey: "received",
         header: () => <div className="text-center">Received</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.received ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge value={row.original.received} variant="success" />
+          </div>
+        ),
       },
       {
-        accessorKey: "receipt",
+        accessorKey: "misc_receipt",
         header: () => <div className="text-center">Misc Receipt</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.receipt ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge
+              value={row.original.misc_receipt}
+              variant="success"
+            />
+          </div>
+        ),
       },
       {
-        accessorKey: "issue",
+        accessorKey: "misc_issue",
         header: () => <div className="text-center">Misc Issue</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.issue ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge
+              value={row.original.misc_issue}
+              variant="destructive"
+            />
+          </div>
+        ),
       },
-
       {
         accessorKey: "move_order",
         header: () => <div className="text-center">Move Order</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.move_order ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge
+              value={row.original.move_order}
+              variant="destructive"
+            />
+          </div>
+        ),
       },
       {
         accessorKey: "transfer_in",
         header: () => <div className="text-center">Transfer In</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.receipt ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge value={row.original.transfer_in} variant="success" />
+          </div>
+        ),
       },
       {
         accessorKey: "transfer_out",
         header: () => <div className="text-center">Transfer Out</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.transfer_out ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge
+              value={row.original.transfer_out}
+              variant="destructive"
+            />
+          </div>
+        ),
       },
       {
-        accessorKey: "soh",
+        accessorKey: "stock_on_hand",
         header: () => <div className="text-center">Stock On Hand</div>,
-        cell: ({ row }) => {
-          const totalQuantity = (row.original.soh ?? []).reduce(
-            (total, inventory) => total + Number(inventory.quantity || 0),
-            0,
-          );
-
-          return (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {totalQuantity.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <QuantityBadge
+              value={row.original.stock_on_hand}
+              variant="secondary"
+            />
+          </div>
+        ),
       },
     ],
     [],

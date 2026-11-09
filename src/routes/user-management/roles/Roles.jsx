@@ -1,16 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  ArchiveRestore,
-  Plus,
-  Users,
-  ArchiveX,
-} from "lucide-react";
+import { ArchiveRestore, Plus, Users, ArchiveX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +17,7 @@ import {
   useLazyFetchRoleByIdQuery,
   usePostRoleMutation,
   useUpdateRoleMutation,
-  useArchiveRoleMutation
+  useArchiveRoleMutation,
 } from "../../../api/user-management/roles.api";
 
 // import { useFetchPendingRequestsQuery } from "../../../features/user-accounts/pending-requests.api";
@@ -45,13 +35,12 @@ const Roles = () => {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  // sample 
+  // sample
   // const [isMutationLoading, setIsMutationLoading] = useState(false);
   // const [isCreating, setIsCreating] = useState(false);
   // const [isUpdating, setIsUpdating] = useState(false);
   // const [isArchiving, setIsArchiving] = useState(false);
   // const [isRestoring, setIsRestoring] = useState(false);
-  
 
   const isPending = status === "pending";
   const isArchived = status === "archived";
@@ -92,16 +81,14 @@ const Roles = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-    );
+  );
 
   // ================================================================
   // FETCH ROLE BY ID
   // ================================================================
 
-  const [
-    fetchRoleById,
-    { isFetching: isFetchingRoleDetails },
-  ] = useLazyFetchRoleByIdQuery();
+  const [fetchRoleById, { isFetching: isFetchingRoleDetails }] =
+    useLazyFetchRoleByIdQuery();
 
   // ================================================================
   // FETCH PENDING REQUESTS
@@ -127,10 +114,8 @@ const Roles = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return rolesData;
-  });
-  const tableIsFetching = isFetchingRoles
+  const tableData = rolesData;
+  const tableIsFetching = isFetchingRoles;
   const tableIsError = isRolesError;
   const tableError = rolesError;
   // const tableData = useMemo(() => {
@@ -159,25 +144,13 @@ const Roles = () => {
   // MUTATIONS
   // ================================================================
 
-  const [
-    createRole,
-    { isLoading: isCreating },
-  ] = usePostRoleMutation();
+  const [createRole, { isLoading: isCreating }] = usePostRoleMutation();
 
-  const [
-    updateRole,
-    { isLoading: isUpdating },
-  ] = useUpdateRoleMutation();
+  const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
 
-  const [
-    archiveRole,
-    { isLoading: isArchiving },
-  ] = useArchiveRoleMutation();
+  const [archiveRole, { isLoading: isArchiving }] = useArchiveRoleMutation();
 
-  const isMutationLoading =
-    isCreating ||
-    isUpdating ||
-    isArchiving;
+  const isMutationLoading = isCreating || isUpdating || isArchiving;
 
   // ================================================================
   // DIALOG STATE
@@ -189,11 +162,7 @@ const Roles = () => {
 
   const [mode, setMode] = useState("create");
 
-  const {
-    selectedRow,
-    setSelectedRow,
-    clearSelectedRow,
-  } = useSelectedRow();
+  const { selectedRow, setSelectedRow, clearSelectedRow } = useSelectedRow();
 
   // ================================================================
   // STATUS
@@ -203,14 +172,12 @@ const Roles = () => {
     const meta = {
       active: {
         label: "Active",
-        description:
-          "Manage active system roles.",
+        description: "Manage active system roles.",
       },
 
       archived: {
         label: "Archived",
-        description:
-          "View and restore archived roles.",
+        description: "View and restore archived roles.",
       },
     };
 
@@ -229,17 +196,14 @@ const Roles = () => {
     clearSelectedRow();
     setMode("create");
     setOpenCreate(true);
-  }, [
-    clearSelectedRow,
-    isMutationLoading,
-  ]);
+  }, [clearSelectedRow, isMutationLoading]);
 
   // ================================================================
   // EDIT ROLE
   // ================================================================
 
   const handleOpenEdit = useCallback(
-  async (role) => {
+    async (role) => {
       if (isMutationLoading || isFetchingRoleDetails) {
         return;
       }
@@ -252,10 +216,9 @@ const Roles = () => {
         setSelectedRow(roleDetails);
         setMode("edit");
         setOpenCreate(true);
-        
       } catch (error) {
-        const message = error?.data?.message
-          ?? "Unable to retrieve the role details."
+        const message =
+          error?.data?.message ?? "Unable to retrieve the role details.";
 
         toast.add({
           type: "error",
@@ -264,14 +227,8 @@ const Roles = () => {
         });
         console.error("Failed to fetch role:", error);
       }
-      
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-      isFetchingRoleDetails,
-      fetchRoleById
-    ],
+    [setSelectedRow, isMutationLoading, isFetchingRoleDetails, fetchRoleById],
   );
 
   // ================================================================
@@ -287,10 +244,7 @@ const Roles = () => {
       setSelectedRow(role);
       setOpenArchive(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [setSelectedRow, isMutationLoading],
   );
 
   // ================================================================
@@ -306,10 +260,7 @@ const Roles = () => {
       setSelectedRow(user);
       setOpenRestore(true);
     },
-    [
-      setSelectedRow,
-      isMutationLoading,
-    ],
+    [setSelectedRow, isMutationLoading],
   );
 
   // ================================================================
@@ -348,12 +299,9 @@ const Roles = () => {
   // SEARCH CHANGE
   // ================================================================
 
-  const handleSearchChange = useCallback(
-    (value) => {
-      setSearch(value);
-    },
-    [],
-  );
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value);
+  }, []);
 
   // ================================================================
   // CLOSE CREATE / EDIT DIALOG
@@ -367,11 +315,7 @@ const Roles = () => {
     setOpenCreate(false);
     setMode("create");
     clearSelectedRow();
-  }, [
-    isCreating,
-    isUpdating,
-    clearSelectedRow,
-  ]);
+  }, [isCreating, isUpdating, clearSelectedRow]);
 
   // ================================================================
   // CREATE / UPDATE
@@ -385,26 +329,26 @@ const Roles = () => {
 
       try {
         if (selectedRow && mode === "edit") {
-          const response =
-            await updateRole({
-              id: selectedRow.id,
-              ...userData,
-            }).unwrap();
+          const response = await updateRole({
+            id: selectedRow.id,
+            ...userData,
+          }).unwrap();
 
           toast.add({
             type: "success",
             title: "User updated",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The user account has been updated successfully.",
           });
         } else {
-          const response =
-            await createRole(userData).unwrap();
+          const response = await createRole(userData).unwrap();
 
           toast.add({
             type: "success",
             title: "User created",
-            description: response?.message ??
+            description:
+              response?.message ??
               "The user account has been created successfully.",
           });
         }
@@ -425,10 +369,7 @@ const Roles = () => {
           description: message,
         });
 
-        console.error(
-          "Failed to create/update user:",
-          error,
-        );
+        console.error("Failed to create/update user:", error);
       }
     },
     [
@@ -453,61 +394,45 @@ const Roles = () => {
 
     setOpenArchive(false);
     clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
+  }, [isArchiving, clearSelectedRow]);
 
   // ================================================================
   // ARCHIVE USER
   // ================================================================
 
-  const handleConfirmArchive = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
+  const handleConfirmArchive = useCallback(async () => {
+    if (!selectedRow || isArchiving) {
+      return;
+    }
 
-      try {
-        const response =
-          await archiveRole(
-            selectedRow.id,
-          ).unwrap();
+    try {
+      const response = await archiveRole(selectedRow.id).unwrap();
 
-          toast.add({
-            type: "success",
-            title: "User archived",
-            description: response?.message ??
-              "The user account has been archived successfully.",
-          });
+      toast.add({
+        type: "success",
+        title: "User archived",
+        description:
+          response?.message ??
+          "The user account has been archived successfully.",
+      });
 
-        setOpenArchive(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while archiving the user account.";
+      setOpenArchive(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        "An error occurred while archiving the user account.";
 
-        toast.add({
-          type: "error",
-          title: "Unable to archive user",
-          description: message,
-        });
+      toast.add({
+        type: "error",
+        title: "Unable to archive user",
+        description: message,
+      });
 
-        console.error(
-          "Failed to archive user:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveRole,
-      clearSelectedRow,
-    ],
-  );
+      console.error("Failed to archive user:", error);
+    }
+  }, [selectedRow, isArchiving, archiveRole, clearSelectedRow]);
 
   // ================================================================
   // CLOSE RESTORE
@@ -520,67 +445,51 @@ const Roles = () => {
 
     setOpenRestore(false);
     clearSelectedRow();
-  }, [
-    isArchiving,
-    clearSelectedRow,
-  ]);
+  }, [isArchiving, clearSelectedRow]);
 
   // ================================================================
   // RESTORE USER
   // ================================================================
 
-  const handleConfirmRestore = useCallback(
-    async () => {
-      if (!selectedRow || isArchiving) {
-        return;
-      }
+  const handleConfirmRestore = useCallback(async () => {
+    if (!selectedRow || isArchiving) {
+      return;
+    }
 
-      try {
-        /*
-         * Preserved your existing archive mutation here.
-         *
-         * If your backend has a dedicated restore mutation,
-         * replace this call with that mutation instead.
-         */
-        const response =
-          await archiveRole(
-            selectedRow.id,
-          ).unwrap();
+    try {
+      /*
+       * Preserved your existing archive mutation here.
+       *
+       * If your backend has a dedicated restore mutation,
+       * replace this call with that mutation instead.
+       */
+      const response = await archiveRole(selectedRow.id).unwrap();
 
-        toast.add({
-          type: "success",
-          title: "User restored",
-          description: response?.message ??
-            "The user account has been restored successfully.",
-        });
+      toast.add({
+        type: "success",
+        title: "User restored",
+        description:
+          response?.message ??
+          "The user account has been restored successfully.",
+      });
 
-        setOpenRestore(false);
-        clearSelectedRow();
-      } catch (error) {
-        const message =
-          error?.data?.message ??
-          error?.data?.errors?.[0]?.detail ??
-          "An error occurred while restoring the user account.";
+      setOpenRestore(false);
+      clearSelectedRow();
+    } catch (error) {
+      const message =
+        error?.data?.message ??
+        error?.data?.errors?.[0]?.detail ??
+        "An error occurred while restoring the user account.";
 
-        toast.add({
-          type: "error",
-          title: "Unable to restore user",
-          description: message,
-        });
+      toast.add({
+        type: "error",
+        title: "Unable to restore user",
+        description: message,
+      });
 
-        console.error(
-          "Failed to restore user:",
-          error,
-        );
-      }
-    },
-    [
-      selectedRow,
-      isArchiving,
-      archiveRole,
-      clearSelectedRow,
-    ],
-  );
+      console.error("Failed to restore user:", error);
+    }
+  }, [selectedRow, isArchiving, archiveRole, clearSelectedRow]);
 
   // ================================================================
   // KEEP PAGINATION VALID
@@ -592,33 +501,22 @@ const Roles = () => {
   // ================================================================
 
   useEffect(() => {
-    const lastPage =
-      tableData?.last_page;
+    const lastPage = tableData?.last_page;
 
-    if (
-      !lastPage ||
-      tableIsFetching ||
-      page <= 1
-    ) {
+    if (!lastPage || tableIsFetching || page <= 1) {
       return;
     }
 
     if (page > lastPage) {
       setPage(lastPage);
     }
-  }, [
-    tableData?.last_page,
-    tableIsFetching,
-    page,
-  ]);
+  }, [tableData?.last_page, tableIsFetching, page]);
 
   // ================================================================
   // DISPLAY COUNT
   // ================================================================
 
-  const totalRows =
-    tableData?.total ??
-    0;
+  const totalRows = tableData?.total ?? 0;
 
   return (
     <div

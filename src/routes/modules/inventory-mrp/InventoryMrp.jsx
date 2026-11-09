@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FileBarChart2 } from "lucide-react";
+import { FileBarChart2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 
 import {
   useFetchInventoryMrpQuery,
-  useLazyFetchInventoryMrpByIdQuery,
+  useExtractInventoryMrpMutation,
 } from "../../../api/modules/inventory-mrp.api";
 
 import InventoryMrpTable from "./InventoryMrpTable";
@@ -51,14 +51,20 @@ const InventoryMrp = () => {
     {
       refetchOnMountOrArgChange: true,
     },
-    );
+  );
+
+  // ================================================================
+  // EXTRACT FETCH INVENTORY MRP
+  // ================================================================
+
+  const [extractInventoryMrp, { isLoading: isExtracting }] =
+    useExtractInventoryMrpMutation();
 
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return inventoryMrpData;
-  });
+  const tableData = inventoryMrpData;
+  // console.log("tableData:", tableData);
   const tableIsFetching = isFetchingInventoryMrp;
   const tableIsError = isInventoryMrpError;
   const tableError = inventoryMrpError;
@@ -108,6 +114,38 @@ const InventoryMrp = () => {
     }
   }, [tableData?.last_page, tableIsFetching, page]);
 
+  const handleExtract = async () => {
+    try {
+      const blob = await extractInventoryMrp().unwrap();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "inventory-mrp.xlsx";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.add({
+        type: "success",
+        title: "Export successful",
+        description: "Inventory MRP has been exported.",
+      });
+    } catch (error) {
+      console.error("Inventory MRP extraction error:", error);
+
+      toast.add({
+        type: "error",
+        title: "Export failed",
+        description: "Unable to export Inventory MRP.",
+      });
+    }
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -118,22 +156,13 @@ const InventoryMrp = () => {
           </p>
         </div>
 
-        <Button
-          type="button"
-          // onClick={}
-          // disabled={}
-          className="
-            h-10
-            w-full
-            cursor-pointer
-            gap-2
-            font-semibold
-            sm:w-auto
-            sm:min-w-32
-          "
-        >
-          <FileBarChart2 className="size-5"/>
-          Extract Inventory
+        <Button onClick={handleExtract} disabled={isExtracting}>
+          {isExtracting ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <FileBarChart2 className="mr-2 size-4" />
+          )}
+          {isExtracting ? "Exporting..." : "Export"}
         </Button>
       </div>
 

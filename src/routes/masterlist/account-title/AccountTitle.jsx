@@ -73,9 +73,7 @@ const AccountTitle = () => {
   // DERIVED TABLE DATA
   // ================================================================
 
-  const tableData = useMemo(() => {
-    return accountTitlesData ??  {};
-  });
+  const tableData = accountTitlesData;
   const tableIsFetching = isFetchingAccountTitles;
   const tableIsError = isAccountTitlesError;
   const tableError = accountTitlesError;

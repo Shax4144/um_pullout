@@ -85,9 +85,7 @@ const Uom = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return uomsData;
-  });
+  const tableData = uomsData;
   const tableIsFetching = isFetchingUoms;
   const tableIsError = isUomsError;
   const tableError = uomsError;

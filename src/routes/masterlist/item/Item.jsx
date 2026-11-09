@@ -97,10 +97,8 @@ const Item = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return rolesData;
-  });
-  const tableIsFetching = isFetchingRoles
+  const tableData = rolesData;
+  const tableIsFetching = isFetchingRoles;
   const tableIsError = isRolesError;
   const tableError = rolesError;
 

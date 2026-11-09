@@ -95,9 +95,7 @@ const Category = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return categoriesData;
-  });
+  const tableData = categoriesData;
   const tableIsFetching = isFetchingCategories
   const tableIsError = isCategoriesError;
   const tableError = categoriesError;

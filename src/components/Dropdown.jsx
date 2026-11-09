@@ -29,7 +29,16 @@ const Dropdown = ({
     }
 
     if (item.first_name || item.last_name) {
-      return `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim();
+      const fullName =
+        `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim();
+
+      const warehouse = item.warehouse;
+
+      if (warehouse) {
+        return `${fullName} (${warehouse.code} - ${warehouse.name})`;
+      }
+
+      return fullName;
     }
 
     return item.name ?? "";
@@ -53,7 +62,21 @@ const Dropdown = ({
 
           return (
             <SelectItem key={id} value={String(id)}>
-              {getItemLabel(item)}
+              {item.first_name || item.last_name ? (
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">
+                    {`${item.first_name ?? ""} ${item.last_name ?? ""}`.trim()}
+                  </span>
+
+                  {item.warehouse && (
+                    <span className="text-xs text-muted-foreground">
+                      {item.warehouse.code} - {item.warehouse.name}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                getItemLabel(item)
+              )}
             </SelectItem>
           );
         })}
