@@ -177,8 +177,8 @@ const TableWrapper = ({
     <div
       className="
         flex
-        max-h-[calc(100vh-250px)]
-        min-h-[calc(100vh-135px)]
+        max-h-[calc(100dvh-155px)]
+        min-h-[calc(100dvh-155px)]
         flex-col
         overflow-hidden
         rounded-xl
@@ -325,7 +325,7 @@ const TableWrapper = ({
               <TableRow className="border-none">
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="h-[400px] p-0"
+                  className="h-100 p-0"
                 >
                   <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
@@ -406,7 +406,7 @@ const TableWrapper = ({
               <TableRow className="border-none">
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="h-[400px] p-0"
+                  className="h-100 p-0"
                 >
                   <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">

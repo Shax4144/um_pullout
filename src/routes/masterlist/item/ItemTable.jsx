@@ -65,7 +65,7 @@ const ItemTable = ({
         header: "UOM",
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {row.original.uom?.name || "—"}
+            {` ${row.original.uom?.name} (${row.original.uom?.symbol})` || "—"}
           </span>
         ),
       },

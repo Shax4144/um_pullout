@@ -165,11 +165,11 @@ const TransferInDialog = ({
             <div className="grid gap-1">
               <span className="text-xs text-muted-foreground">Decided By</span>
               <span className="text-sm font-medium">
-                {formatName(transfer?.decided_by_user)}
+                {formatName(transfer?.recipient)}
               </span>
             </div>
 
-            <div className="grid gap-1 sm:col-span-2 lg:col-span-3">
+            <div className="grid gap-1 sm:col-span-1 lg:col-span-1">
               <span className="text-xs text-muted-foreground">
                 Decision Date
               </span>

@@ -32,7 +32,7 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
       <SidebarGroup className="py-1">
         <CollapsibleTrigger
           className={cn(
-            "flex w-full h-12 items-center gap-2 rounded-md px-2 py-2 text-left text-md duration-200 ease-out motion-safe:transition-transform motion-safe:hover:translate-x-1 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            "flex w-full h-12 items-center gap-2 rounded-md px-2 py-2 text-left text-sm duration-200 ease-out motion-safe:transition-transform motion-safe:hover:translate-x-1 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             isGroupActive &&
               "bg-primary text-sidebar-foreground",
           )}

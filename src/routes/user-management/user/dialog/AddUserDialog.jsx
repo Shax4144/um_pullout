@@ -32,6 +32,11 @@ import { useLazyFetchWarehousesQuery } from "../../../../api/masterlist/warehous
 import { useSelectedRow } from "../../../../context/SelectedRowProvider";
 import { toast } from "../../../../components/ui/toast";
 
+// const WAREHOUSE_TYPE = [
+//   { label: "Pull out", value: "pull-out" },
+//   { label: "Preparation", value: "preparation" },
+// ];
+
 const initialForm = {
   idPrefix: "RDFFLFI",
   idNumber: "",
@@ -46,6 +51,7 @@ const initialForm = {
 const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  // const [selectedWarehouseType, setSelectedWarehouseType] = useState("");
   const [selectedCharging, setSelectedCharging] = useState(null);
   const [formData, setFormData] = useState(initialForm);
 
@@ -130,7 +136,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
 
     fetchWarehouses({
       status: 1,
-      pagination: 'none',
+      pagination: "none",
     });
   }, [open, fetchWarehouses]);
   // --------------------------------------------------------------
@@ -165,6 +171,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
       setSelectedWarehouse(
         String(selectedRow.warehouse_id ?? selectedRow.warehouse?.id ?? ""),
       );
+      // setSelectedWarehouseType(selectedRow.warehouse_type ?? "");
       setSelectedCharging({
         code: selectedRow.charging_code,
         name: selectedRow.charging_name,
@@ -188,6 +195,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
     setFormData(initialForm);
     setSelectedRole("");
     setSelectedWarehouse("");
+    // setSelectedWarehouseType("");
     setSelectedCharging(null);
   }, [open, selectedRow]);
 
@@ -245,9 +253,19 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
         title: "Warehouse required",
         description: "Please select a warehouse before continuing.",
       });
-    
+
       return;
     }
+
+    // if (!selectedWarehouseType) {
+    //   toast.add({
+    //     type: "warning",
+    //     title: "Warehouse type required",
+    //     description: "Please select a warehouse type before continuing.",
+    //   });
+
+    //   return;
+    // }
 
     if (!selectedCharging) {
       toast.add({
@@ -335,6 +353,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
 
       role_id: matchedRole?.id,
       warehouse_id: Number(selectedWarehouse),
+      // warehouse_type: selectedWarehouseType,
     };
 
     onConfirm(payload);
@@ -654,13 +673,30 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
                         type="button"
                         variant="link"
                         size="sm"
-                        onClick={() => fetchWarehouses({ status: 1, pagination: 'none' })}
+                        onClick={() =>
+                          fetchWarehouses({ status: 1, pagination: "none" })
+                        }
                       >
                         Retry
                       </Button>
                     </div>
                   )}
                 </div>
+
+                {/* Warehouse Type */}
+                {/* <div className="space-y-1.5">
+                  <Label>
+                    Warehouse Type <RequiredMark />
+                  </Label>
+
+                  <Dropdown
+                    data={WAREHOUSE_TYPE}
+                    value={selectedWarehouseType}
+                    onChange={setSelectedWarehouseType}
+                    placeholder="Select warehouse type"
+                    isLoading={isLoading || isAccountLocked}
+                  />
+                </div>*/}
               </div>
             </section>
 

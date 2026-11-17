@@ -13,12 +13,20 @@ const Dropdown = ({
   isLoading = false,
   placeholder = "Select an option",
 }) => {
+  const getItemValue = (item) =>
+    item.value ?? item.id ?? item._id;
+
   const selectedItem = data.find(
-    (item) => String(item.id ?? item._id) === String(value ?? ""),
+    (item) => String(getItemValue(item)) === String(value ?? ""),
   );
 
   const getItemLabel = (item) => {
     if (!item) return "";
+
+    // Support { label, value }
+    if (item.label != null) {
+      return item.label;
+    }
 
     if (item.code) {
       return `${item.code} - ${item.name}`;
@@ -58,10 +66,10 @@ const Dropdown = ({
 
       <SelectContent alignItemWithTrigger={false}>
         {data.map((item) => {
-          const id = item.id ?? item._id;
+          const itemValue = getItemValue(item);
 
           return (
-            <SelectItem key={id} value={String(id)}>
+            <SelectItem key={itemValue} value={String(itemValue)}>
               {item.first_name || item.last_name ? (
                 <div className="flex flex-col gap-1">
                   <span className="font-medium">
@@ -86,3 +94,4 @@ const Dropdown = ({
 };
 
 export default Dropdown;
+
