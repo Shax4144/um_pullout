@@ -20,36 +20,41 @@ const Dropdown = ({
     (item) => String(getItemValue(item)) === String(value ?? ""),
   );
 
+  const capitalizeWords = (value = "") =>
+    String(value)
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
   const getItemLabel = (item) => {
     if (!item) return "";
-
-    // Support { label, value }
+  
     if (item.label != null) {
-      return item.label;
+      return capitalizeWords(item.label);
     }
-
+  
     if (item.code) {
-      return `${item.code} - ${item.name}`;
+      return `${item.code} - ${capitalizeWords(item.name)}`;
     }
-
+  
     if (item.symbol) {
-      return `${item.symbol} - ${item.name}`;
+      return `${item.symbol} - ${capitalizeWords(item.name)}`;
     }
-
+  
     if (item.first_name || item.last_name) {
-      const fullName =
-        `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim();
-
+      const fullName = capitalizeWords(
+        `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim()
+      );
+  
       const warehouse = item.warehouse;
-
+  
       if (warehouse) {
-        return `${fullName} (${warehouse.code} - ${warehouse.name})`;
+        return `${fullName} (${warehouse.code} - ${capitalizeWords(warehouse.name)})`;
       }
-
+  
       return fullName;
     }
-
-    return item.name ?? "";
+  
+    return capitalizeWords(item.name ?? "");
   };
 
   return (

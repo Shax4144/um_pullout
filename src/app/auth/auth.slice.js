@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const defaultValue = !!localStorage.getItem('token');
+const defaultValue = !!localStorage.getItem('access_token');
 
 export const authSlice = createSlice({
   name: 'auth',

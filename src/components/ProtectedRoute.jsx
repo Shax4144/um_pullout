@@ -1,41 +1,44 @@
-import { useSelector } from "react-redux"
-import Layout from "./Layout"
-import { Navigate } from "react-router-dom"
 
-export const ProtectedRoute = ({ role }) => {
-	// const authenticated = window.localStorage.getItem("token")
-	// const user = useSelector((state) => state.user)
+import { useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-	// if (!authenticated) return <Navigate to="/" />
+import Layout from "./Layout";
+import { saveLastAuthorizedPath } from "../utils/route-access";
 
-	if (role === undefined) return <Layout />
+const AuthorizedRouteTracker = ({ children }) => {
+  const location = useLocation();
 
-	// const hasPermission = Array.isArray(permission)
-	// 	? permission.some((p) => user?.permissions?.includes(p))
-	// 	: user?.permissions?.includes(permission)
+  useEffect(() => {
+    saveLastAuthorizedPath(location.pathname);
+  }, [location.pathname]);
 
-	// const hasRole = Array.isArray(role)
-	// 	? role.includes(user?.role)
-	// 	: user?.role === role
+  return children;
+};
 
-	// return hasPermission ? <Layouts /> : <AccessDenied />
-	// return hasPermission ? <Layouts /> : <Navigate to="/" />
-	// return hasRole ? <Layout /> : <Navigate to="/" />
-	return <Layout /> 
-}
+export const ProtectedRoute = () => {
+  const isAuthenticated = useSelector((state) => state.auth);
 
-// export const RequirePermission = ({ permissions, children }) => {
-// 	const user = useSelector((state) => state.user)
-//   const userPermissions = user?.permissions ?? []
-	
-//   if (!permissions || permissions.length === 0) {
-//     return children
-//   }
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
-//   const hasAccess = permissions.some((p) => userPermissions.includes(p))
+  return <Layout />;
+};
 
-//   if (!hasAccess)
-//     return <Navigate to="/unauthorized" replace />
+export const RequirePermission = ({ permissions = [], children }) => {
+  const user = useSelector((state) => state.user);
+  const userPermissions = user?.permissions ?? [];
 
-//   return children
-// }
+  const hasAccess =
+    permissions.length === 0 ||
+    permissions.some((permission) =>
+      userPermissions.includes(permission)
+    );
+
+  if (!hasAccess) {
+    return <Navigate to="/403" replace />;
+  }
+
+  return <AuthorizedRouteTracker>{children}</AuthorizedRouteTracker>;
+};

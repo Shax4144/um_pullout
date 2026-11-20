@@ -1,7 +1,7 @@
 const Dashboard = () => {
   return (
     <div>
-      HELLO WORLD - DASHBOARD
+      {/* HELLO WORLD - DASHBOARD*/}
     </div>
   );
 };

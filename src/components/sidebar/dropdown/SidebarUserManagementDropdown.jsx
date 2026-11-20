@@ -1,8 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight, UserCog } from "lucide-react";
 
-import { userManagementItems } from "../navigation";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,11 +17,11 @@ import {
 
 import { cn } from "@/lib/utils";
 
-const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
+const SidebarUserManagementDropdown = ({ items, open, onOpenChange }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const isGroupActive = userManagementItems.some(
+  const isGroupActive = items.some(
     (item) => item.to === pathname,
   );
 
@@ -66,7 +64,7 @@ const SidebarUserManagementDropdown = ({ open, onOpenChange }) => {
         >
           <SidebarGroupContent>
             <SidebarMenu className="mt-1 pl-5 pr-1 gap-2">
-              {userManagementItems.map(({ label, to, icon: Icon }) => (
+              {items.map(({ label, to, icon: Icon }) => (
                 <SidebarMenuItem
                   key={to}
                   className="sidebar-collapsible-item"

@@ -34,6 +34,7 @@ import { Separator } from "@/components/ui/separator";
 
 import Datepicker from "../../../../components/Datepicker";
 import AccountTitlesDropdown from "@/components/dropdowns/AccountTitlesDropdown";
+import Dropdown from "@/components/Dropdown";
 import { useLazyFetchStockOnHandQuery } from "../../../../api/modules/stock-on-hand.api";
 
 const DESCRIPTION_TYPE = [
@@ -78,6 +79,7 @@ const createEmptyItem = (stock = {}) => {
 const createEmptyForm = () => ({
   date: new Date(),
   description: "",
+  warehouse_id: "",
   remarks: "",
   items: [],
 });
@@ -95,12 +97,31 @@ const MiscIssueDialog = ({
   onConfirm,
   isLoading,
   selectedRow,
-  tagWarehouseName,
-  tagWarehouseId,
+  assignedWarehouseName,
+  assignedWarehouseId,
+  hasAssignedWarehouse,
+  warehouses = [],
+  isFetchingWarehouses,
 }) => {
   const isEditMode = Boolean(selectedRow?.id);
 
   const [formData, setFormData] = useState(createEmptyForm);
+
+  const effectiveWarehouseId = isEditMode
+    ? (selectedRow?.warehouse?.id ??
+      selectedRow?.warehouse_id ??
+      assignedWarehouseId)
+    : hasAssignedWarehouse
+      ? assignedWarehouseId
+      : formData.warehouse_id;
+
+  const effectiveWarehouseName = isEditMode
+    ? (selectedRow?.warehouse?.name ?? assignedWarehouseName)
+    : hasAssignedWarehouse
+      ? assignedWarehouseName
+      : (warehouses.find(
+          (warehouse) => String(warehouse.id) === String(formData.warehouse_id),
+        )?.name ?? "");
 
   // =======================================
   // LAZY FETCH STOCK ON HAND
@@ -117,6 +138,14 @@ const MiscIssueDialog = ({
   ] = useLazyFetchStockOnHandQuery();
 
   const loadStockOnHand = useCallback(async () => {
+    if (!effectiveWarehouseId) {
+      setFormData((current) => ({
+        ...current,
+        items: [],
+      }));
+      return;
+    }
+
     setFormData((current) => ({
       ...current,
       items: [],
@@ -125,6 +154,7 @@ const MiscIssueDialog = ({
     try {
       const response = await fetchStockOnHand({
         pagination: "none",
+        warehouse_id: Number(effectiveWarehouseId),
       }).unwrap();
 
       const stockOnHand = response?.data ?? [];
@@ -139,7 +169,7 @@ const MiscIssueDialog = ({
         items: [],
       }));
     }
-  }, [fetchStockOnHand]);
+  }, [fetchStockOnHand, effectiveWarehouseId]);
 
   const isNotFound = sohError?.status === 404;
 
@@ -163,6 +193,9 @@ const MiscIssueDialog = ({
             type.label.toLowerCase() ===
               selectedRow.transaction_type?.toLowerCase(),
         )?.value ?? "",
+      warehouse_id: String(
+        selectedRow.warehouse?.id ?? selectedRow.warehouse_id ?? "",
+      ),
       remarks: selectedRow.remarks ?? "",
       items: inventories.map((inventory) => ({
         id: inventory.id,
@@ -187,10 +220,10 @@ const MiscIssueDialog = ({
   // Do not use the nested records property.
   // Fetch stock-on-hand items when opening a new Move Order dialog
   useEffect(() => {
-    if (!open || isEditMode) return;
+    if (!open || isEditMode || !effectiveWarehouseId) return;
 
     loadStockOnHand();
-  }, [open, isEditMode, loadStockOnHand]);
+  }, [open, isEditMode, effectiveWarehouseId, loadStockOnHand]);
 
   const handleDetailChange = (event) => {
     const { name, value } = event.target;
@@ -278,7 +311,13 @@ const MiscIssueDialog = ({
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (selectedItems.length === 0 || hasInvalidInventory) return;
+    if (
+      !effectiveWarehouseId ||
+      selectedItems.length === 0 ||
+      hasInvalidInventory
+    ) {
+      return;
+    }
 
     const issue_inventory = selectedItems.map((item) => ({
       item_id: Number(item.item_id),
@@ -289,7 +328,7 @@ const MiscIssueDialog = ({
     }));
 
     onConfirm({
-      warehouse_id: tagWarehouseId,
+      warehouse_id: Number(effectiveWarehouseId),
       date: format(formData.date, "yyyy-MM-dd"),
       transaction_type: formData.description.trim(),
       remarks: formData.remarks.trim(),
@@ -299,6 +338,7 @@ const MiscIssueDialog = ({
 
   const canSubmit =
     !isLoading &&
+    Boolean(effectiveWarehouseId) &&
     selectedItems.length > 0 &&
     !hasInvalidInventory &&
     formData.description.trim() !== "";
@@ -358,47 +398,46 @@ const MiscIssueDialog = ({
 
               <div className="grid gap-2">
                 <Label htmlFor="warehouse">Warehouse</Label>
-                <Input
-                  id="warehouse"
-                  name="warehouse"
-                  value={tagWarehouseName}
-                  onChange={handleDetailChange}
-                  placeholder="Enter warehouse"
-                  disabled
-                />
+
+                {hasAssignedWarehouse || isEditMode ? (
+                  <Input
+                    id="warehouse"
+                    value={effectiveWarehouseName}
+                    placeholder="Warehouse"
+                    disabled
+                  />
+                ) : (
+                  <Dropdown
+                    data={warehouses}
+                    value={formData.warehouse_id}
+                    onChange={(value) =>
+                      setFormData((current) => ({
+                        ...current,
+                        warehouse_id: value,
+                      }))
+                    }
+                    isLoading={isFetchingWarehouses || isLoading}
+                    placeholder="Select warehouse"
+                  />
+                )}
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="description">Transaction Type</Label>
 
-                <Select
+                <Dropdown
+                  data={DESCRIPTION_TYPE}
                   value={formData.description}
-                  onValueChange={(value) =>
+                  onChange={(value) =>
                     setFormData((current) => ({
                       ...current,
                       description: value,
                     }))
                   }
-                  disabled={isLoading || isEditMode}
-                >
-                  <SelectTrigger id="description" className="w-full">
-                    <SelectValue placeholder="Select type">
-                      {
-                        DESCRIPTION_TYPE.find(
-                          (type) => type.value === formData.description,
-                        )?.label
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {DESCRIPTION_TYPE.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  isLoading={isLoading}
+                  disabled={isEditMode}
+                  placeholder="Select transaction type"
+                />
               </div>
             </div>
 

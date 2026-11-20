@@ -1,8 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight, Settings } from "lucide-react";
 
-import { masterlistItems } from "../navigation";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,11 +17,11 @@ import {
 
 import { cn } from "@/lib/utils";
 
-const SidebarModulesDropdown = ({ open, onOpenChange }) => {
+const SidebarModulesDropdown = ({ items, open, onOpenChange }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const isGroupActive = masterlistItems.some(
+  const isGroupActive = items.some(
     (item) => item.to === pathname,
   );
 
@@ -65,7 +63,7 @@ const SidebarModulesDropdown = ({ open, onOpenChange }) => {
         >
           <SidebarGroupContent>
             <SidebarMenu className="mt-1 pl-5 pr-1 gap-1">
-              {masterlistItems.map(({ label, to, icon: Icon }) => (
+              {items.map(({ label, to, icon: Icon }) => (
                 <SidebarMenuItem
                   key={to}
                   className="sidebar-collapsible-item"

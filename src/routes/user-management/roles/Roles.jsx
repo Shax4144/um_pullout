@@ -42,7 +42,6 @@ const Roles = () => {
   // const [isArchiving, setIsArchiving] = useState(false);
   // const [isRestoring, setIsRestoring] = useState(false);
 
-  const isPending = status === "pending";
   const isArchived = status === "archived";
 
   // ================================================================

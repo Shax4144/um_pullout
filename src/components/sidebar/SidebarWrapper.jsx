@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { useSelector, useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { unauthenticate } from "../../app/auth/auth.slice";
+import { useLogoutMutation } from "../../api/login/authApi";
+import { toast } from "../../components/ui/toast";
 import {
   dashboardItem,
   masterlistItems,
   moduleItems,
-  userManagementItems
+  userManagementItems,
 } from "./navigation";
 
 import SidebarMasterlistDropdown from "../sidebar/dropdown/SidebarMasterlistDropdown";
@@ -29,7 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/separator";
 
 import {
   Popover,
@@ -37,24 +39,45 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import {
-  LogOut,
-  MoreVertical,
-  Settings,
-} from "lucide-react";
-
-const sidebarSections = [
-  { id: "modules", items: moduleItems },
-  { id: "masterlist", items: masterlistItems },
-  { id: "user-management", items: userManagementItems },
-]
+import { LogOut, MoreVertical, Settings } from "lucide-react";
 
 const SidebarWrapper = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const user = useSelector((state) => state.user);
+  const userPermissions = user?.permissions ?? [];
+
+  const [logout] = useLogoutMutation();
+
+  const filterItemsByPermission = (items) => {
+    return items.filter((item) => {
+      // Items without permission requirements remain visible
+      if (!item.permissions || item.permissions.length === 0) {
+        return true;
+      }
+
+      // User must have at least one of the required permissions
+      return item.permissions.some((permission) =>
+        userPermissions.includes(permission),
+      );
+    });
+  };
+
+  const canAccessDashboard = dashboardItem.permissions.some((permission) =>
+    userPermissions.includes(permission),
+  );
+  const filteredModuleItems = filterItemsByPermission(moduleItems);
+  const filteredMasterlistItems = filterItemsByPermission(masterlistItems);
+  const filteredUserManagementItems =
+    filterItemsByPermission(userManagementItems);
+
+  const sidebarSections = [
+    { id: "modules", items: filteredModuleItems },
+    { id: "masterlist", items: filteredMasterlistItems },
+    { id: "user-management", items: filteredUserManagementItems },
+  ];
 
   const full_name = [user.first_name, user.last_name].filter(Boolean).join(" ");
   const [openSection, setOpenSection] = useState(null);
@@ -73,24 +96,33 @@ const SidebarWrapper = () => {
     const matchingSection = sidebarSections.find((section) =>
       section.items.some((item) => item.to === pathname),
     );
-  
+
     setOpenSection(matchingSection?.id ?? null);
   }, [pathname]);
 
-  const hasRole = (role) => {
-    return user?.role === role;
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+  
+      toast.add({
+        type: "success",
+        title: "Logged out successfully",
+        description: "You have been securely logged out.",
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("lastAuthorizedPath");
+  
+      navigate("/", { replace: true });
+  
+      dispatch(unauthenticate());
+    }
   };
 
-  const handleLogout = () => {
-    console.log("Logout");
-
-    // Add your actual logout logic here
-    // dispatch(logout());
-
-    navigate("/");
-  };
-
-  const DashboardIcon = dashboardItem.icon
+  const DashboardIcon = dashboardItem.icon;
 
   return (
     <Sidebar>
@@ -105,43 +137,69 @@ const SidebarWrapper = () => {
           CONTENT
       ========================================================= */}
       <SidebarContent>
-        <SidebarMenu className="pl-2 pr-1">
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => {
-                setOpenSection(null);
-                navigate(dashboardItem.to);
-              }}
-              isActive={pathname === dashboardItem.to}
-              tooltip={dashboardItem.label}
-              className="cursor-pointer text-sm"
-            >
-              <DashboardIcon/>
-              <span>{dashboardItem.label}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      
-        <SidebarModulesDropdown
+        {canAccessDashboard && (
+          <SidebarMenu className="pl-2 pr-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => {
+                  setOpenSection(null);
+                  navigate(dashboardItem.to);
+                }}
+                isActive={pathname === dashboardItem.to}
+                tooltip={dashboardItem.label}
+                className="cursor-pointer text-sm"
+              >
+                <DashboardIcon />
+                <span>{dashboardItem.label}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+        {/* <SidebarModulesDropdown
           open={openSection === "modules"}
           onOpenChange={(isOpen) =>
             setOpenSection(isOpen ? "modules" : null)
           }
-        />
-      
-        <SidebarMasterlistDropdown
+        />*/}
+        {filteredModuleItems.length > 0 && (
+          <SidebarModulesDropdown
+            items={filteredModuleItems}
+            open={openSection === "modules"}
+            onOpenChange={(isOpen) => setOpenSection(isOpen ? "modules" : null)}
+          />
+        )}
+
+        {/* <SidebarMasterlistDropdown
           open={openSection === "masterlist"}
           onOpenChange={(isOpen) =>
             setOpenSection(isOpen ? "masterlist" : null)
           }
-        />
-      
-        <SidebarUserManagementDropdown
+        />*/}
+        {filteredMasterlistItems.length > 0 && (
+          <SidebarMasterlistDropdown
+            items={filteredMasterlistItems}
+            open={openSection === "masterlist"}
+            onOpenChange={(isOpen) =>
+              setOpenSection(isOpen ? "masterlist" : null)
+            }
+          />
+        )}
+
+        {/* <SidebarUserManagementDropdown
           open={openSection === "user-management"}
           onOpenChange={(isOpen) =>
             setOpenSection(isOpen ? "user-management" : null)
           }
-        />
+        />*/}
+        {filteredUserManagementItems.length > 0 && (
+          <SidebarUserManagementDropdown
+            items={filteredUserManagementItems}
+            open={openSection === "user-management"}
+            onOpenChange={(isOpen) =>
+              setOpenSection(isOpen ? "user-management" : null)
+            }
+          />
+        )}
       </SidebarContent>
 
       {/* =========================================================
@@ -180,18 +238,18 @@ const SidebarWrapper = () => {
                   {getInitials(full_name)}
                 </AvatarFallback>
               </Avatar>
-            
+
               <div className="min-w-0 flex-1 text-left">
                 <p className="truncate text-[13px] font-semibold">
                   {getInitials(user.first_name)}. {user.last_name}
                 </p>
-            
+
                 <p className="truncate text-[11px]">
                   {user.role.toUpperCase()}
                 </p>
               </div>
             </div>
-            
+
             <MoreVertical
               className="
                 h-4 w-4 shrink-0

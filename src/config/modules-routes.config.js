@@ -4,37 +4,37 @@ const modulesRoutes = [
   {
     path: "inventory-mrp",
     component: lazy(() => import("../routes/modules/inventory-mrp/InventoryMrp")),
-    // permissions: []
+    permissions: ["inventory"]
   },
   {
     path: "misc-issue",
     component: lazy(() => import("../routes/modules/misc-issue/MiscIssue")),
-    // permissions: []
+    permissions: ["issue"]
   },
   {
     path: "misc-receipt",
     component: lazy(() => import("../routes/modules/misc-receipt/MiscReceipt")),
-    // permissions: []
+    permissions: ["receipt"]
   },
   {
     path: "move-order",
     component: lazy(() => import("../routes/modules/move-order/MoveOrder")),
-    // permissions: []
+    permissions: ["move-order"]
   },
   {
     path: "receiving",
     component: lazy(() => import("../routes/modules/receiving/Receiving")),
-    // permissions: []
+    permissions: ["receiving"]
   },
   {
     path: "transfer-in",
     component: lazy(() => import("../routes/modules/transfer-in/TransferIn")),
-    // permissions: []
+    permissions: ["transfer-in"],
   },
   {
     path: "transfer-out",
     component: lazy(() => import("../routes/modules/transfer-out/TransferOut")),
-    // permissions: []
+    permissions: ["transfer-out"],
   },
   
 ];

@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 
 import OneChargingDropdown from "../../../../components/dropdowns/OneChargingDropdown";
-import RolesDropdown from "../../../../components/dropdowns/RolesDropdown";
 import Dropdown from "../../../../components/Dropdown";
 
 import { useFetchRolesQuery } from "../../../../api/user-management/roles.api";
@@ -131,6 +130,11 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
 
   const warehousesData = warehousesResponse?.data ?? [];
 
+  const warehouseOptions = [
+    { id: 0, code: "", name: "None" },
+    ...warehousesData,
+  ]
+
   useEffect(() => {
     if (!open) return;
 
@@ -150,7 +154,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
 
     if (selectedRow) {
       const [employeePrefix = "RDFFLFI", employeeNumber = ""] =
-        selectedRow.employee_id?.split(" - ") ?? [];
+        selectedRow.employee_id?.split("-") ?? [];
 
       setFormData({
         idPrefix: employeePrefix,
@@ -166,7 +170,9 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
             : (selectedRow.username ?? ""),
       });
 
-      setSelectedRole(selectedRow.role?.name ?? "");
+      setSelectedRole(
+        selectedRow.role?.id != null ? String(selectedRow.role.id) : "",
+      );
 
       setSelectedWarehouse(
         String(selectedRow.warehouse_id ?? selectedRow.warehouse?.id ?? ""),
@@ -234,11 +240,15 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    const matchedRole = rolesData.find(
+      (role) => String(role.id) === String(selectedRole)
+    );
+
     if (isLoading) {
       return;
     }
 
-    if (!selectedRole) {
+    if (!matchedRole) {
       toast.add({
         type: "warning",
         title: "Role required",
@@ -247,15 +257,15 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
       return;
     }
 
-    if (!selectedWarehouse) {
-      toast.add({
-        type: "warning",
-        title: "Warehouse required",
-        description: "Please select a warehouse before continuing.",
-      });
+    // if (!selectedWarehouse) {
+    //   toast.add({
+    //     type: "warning",
+    //     title: "Warehouse required",
+    //     description: "Please select a warehouse before continuing.",
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
 
     // if (!selectedWarehouseType) {
     //   toast.add({
@@ -313,8 +323,6 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
       return;
     }
 
-    const matchedRole = rolesData.find((role) => role.name === selectedRole);
-
     const username = generatedUsername;
 
     const payload = {
@@ -352,7 +360,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
       password: selectedRow?.username ?? "",
 
       role_id: matchedRole?.id,
-      warehouse_id: Number(selectedWarehouse),
+      warehouse_id: Number(selectedWarehouse) ?? null,
       // warehouse_type: selectedWarehouseType,
     };
 
@@ -638,23 +646,23 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
                     Role <RequiredMark />
                   </Label>
 
-                  <RolesDropdown
-                    rolesData={rolesData ?? []}
+                  <Dropdown
+                    data={rolesData ?? []}
                     value={selectedRole}
                     onChange={setSelectedRole}
-                    open={open}
                     isLoading={isLoading || isRolesFetching}
+                    placeholder="Select role"
                   />
                 </div>
 
                 {/* Warehouse */}
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 md:col-span-2">
                   <Label>
-                    Warehouse <RequiredMark />
+                    Warehouse
                   </Label>
 
                   <Dropdown
-                    data={warehousesData}
+                    data={warehouseOptions}
                     value={selectedWarehouse}
                     onChange={setSelectedWarehouse}
                     placeholder="Select warehouse"
@@ -756,16 +764,8 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
             <Button
               type="button"
               variant="outline"
-              size="lg"
               onClick={onClose}
               disabled={isLoading}
-              className="
-                flex-1
-                cursor-pointer
-                font-semibold
-                sm:flex-none
-                sm:min-w-32
-              "
             >
               Cancel
             </Button>
@@ -773,16 +773,7 @@ const AddUserDialog = ({ open, onClose, onConfirm, isLoading, mode }) => {
             <Button
               form="add-user-form"
               type="submit"
-              size="lg"
               disabled={isLoading}
-              className="
-                flex-1
-                cursor-pointer
-                gap-2
-                font-semibold
-                sm:min-w-32
-                sm:flex-none
-              "
             >
               {isLoading ? (
                 <>

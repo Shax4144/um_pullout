@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
   ArchiveRestore,
   ArchiveX,
   MoreHorizontal,
@@ -20,6 +27,7 @@ import { useMemo } from "react";
 
 import StatusToggle from "../../../components/StatusToggle";
 import TableWrapper from "../../../components/tables/TableWrapper";
+import { PERMISSION_OPTIONS } from "./dialog/AddRoleDialog";
 
 const RolesTable = ({
   data,
@@ -48,11 +56,9 @@ const RolesTable = ({
         accessorKey: "name",
         header: "Role Name",
         cell: ({ row }) => {
-          const {
-            name
-          } = row.original;
+          const { name } = row.original;
 
-          const roleName = name
+          const roleName = name;
 
           return (
             <div className="min-w-0">
@@ -65,40 +71,87 @@ const RolesTable = ({
       },
 
       // ============================================================
-      // USERNAME
+      // PERMISSIONS
       // ============================================================
       {
         accessorKey: "permissions",
         header: "Permissions",
         cell: ({ row }) => {
           const permissions = row.getValue("permissions");
-      
+
           if (!Array.isArray(permissions) || permissions.length === 0) {
-            return (
-              <span className="text-sm text-muted-foreground">
-                —
-              </span>
-            );
+            return <span className="text-sm text-muted-foreground">—</span>;
           }
-      
+
+          const visiblePermissions = permissions.slice(0, 3);
+          const remainingCount = permissions.length - 3;
+
           return (
             <div className="flex flex-wrap items-center gap-1.5">
-              {permissions.map((value) => (
-                <Badge
-                  key={value}
-                  variant="outline"
-                  className="
-                    rounded-md
-                    px-2
-                    py-0.5
-                    text-xs
-                    font-medium
-                    capitalize
-                  "
-                >
-                  {value}
-                </Badge>
-              ))}
+              {visiblePermissions.map((value) => {
+                const option = PERMISSION_OPTIONS.find(
+                  (item) => item.value === value,
+                );
+
+                return (
+                  <Badge
+                    key={value}
+                    variant="outline"
+                    className={`
+                      rounded-md
+                      px-2 py-2.5
+                      text-xs font-medium
+                      ${
+                        option?.badgeClass ||
+                        "border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                      }
+                    `}
+                  >
+                    {option?.label || value}
+                  </Badge>
+                );
+              })}
+
+              {remainingCount > 0 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <span className="inline-flex">
+                        <Badge
+                          variant="default"
+                          className="cursor-pointer rounded-full px-2 py-2.5 text-xs font-medium"
+                        >
+                          +{remainingCount}
+                        </Badge>
+                      </span>
+                    </TooltipTrigger>
+
+                    <TooltipContent
+                      side="top"
+                      align="center"
+                      className="max-w-xs"
+                    >
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold">
+                          Additional Permissions
+                        </span>
+
+                        {permissions.slice(3).map((value) => {
+                          const option = PERMISSION_OPTIONS.find(
+                            (item) => item.value === value,
+                          );
+
+                          return (
+                            <span key={value} className="text-xs">
+                              {option?.label || value}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
           );
         },
@@ -112,7 +165,6 @@ const RolesTable = ({
         header: "Status",
         cell: () => {
           const showArchived = status === "archived";
-          const showPending = status === "pending";
 
           const statusConfig = showArchived
             ? {
@@ -121,31 +173,23 @@ const RolesTable = ({
                 className:
                   "bg-secondary text-secondary-foreground border-border",
               }
-            : showPending
-              ? {
-                  label: "Pending",
-                  dot: "bg-amber-500",
-                  className:
-                    "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
-                }
-              : {
-                  label: "Active",
-                  dot: "bg-emerald-500",
-                  className:
-                    "bg-active-status-bg text-success-foreground border-success/40",
-                };
+            : {
+                label: "Active",
+                dot: "bg-emerald-500",
+                className:
+                  "bg-active-status-bg text-success-foreground border-success/40",
+              };
 
           return (
             <Badge
-              variant="outline"
+              variant={showArchived ? "archived" : "success"}
               className={`
                 gap-1.5
-                rounded-md
+                rounded-full
                 px-2
-                py-0.5
+                py-2.5
                 text-xs
                 font-medium
-                ${statusConfig.className}
               `}
             >
               <span
@@ -169,11 +213,7 @@ const RolesTable = ({
       // ============================================================
       {
         id: "actions",
-        header: () => (
-          <div className="text-right">
-            Actions
-          </div>
-        ),
+        header: () => <div className="text-right">Actions</div>,
 
         cell: ({ row }) => (
           <div className="flex justify-end">
@@ -311,13 +351,7 @@ const RolesTable = ({
         ),
       },
     ],
-    [
-      onCreate,
-      onEdit,
-      onArchive,
-      onRestore,
-      status,
-    ],
+    [onCreate, onEdit, onArchive, onRestore, status],
   );
 
   return (
@@ -339,10 +373,7 @@ const RolesTable = ({
         <StatusToggle
           value={status}
           onChange={handleStatusChange}
-          options={[
-            "active",
-            "archived",
-          ]}
+          options={["active", "archived"]}
         />
       }
     />

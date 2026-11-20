@@ -48,6 +48,7 @@ const InventoryMrpTable = ({
   onPageSizeChange,
   search,
   onSearchChange,
+  filterSlot,
 }) => {
   const columns = useMemo(
     () => [
@@ -182,6 +183,7 @@ const InventoryMrpTable = ({
       onPageChange={onPageChange}
       pageSize={pageSize}
       onPageSizeChange={onPageSizeChange}
+      filterSlot={filterSlot}
     />
   );
 };

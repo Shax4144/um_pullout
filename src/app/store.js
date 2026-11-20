@@ -8,7 +8,6 @@ import { baseApi } from "../api/baseApi"
 import { authApi } from "../api/login/authApi"
 import { oneChargingApi } from "../api/masterlist/one-charging-api"
 
-
 export const store = configureStore({
   reducer: {
     auth: authReducer,

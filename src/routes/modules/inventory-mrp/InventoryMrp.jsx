@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { FileBarChart2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
@@ -7,14 +8,56 @@ import {
   useFetchInventoryMrpQuery,
   useExtractInventoryMrpMutation,
 } from "../../../api/modules/inventory-mrp.api";
-
+import { useFetchWarehousesQuery } from "../../../api/masterlist/warehouses.api";
+import Dropdown from "@/components/Dropdown";
 import InventoryMrpTable from "./InventoryMrpTable";
 
 const InventoryMrp = () => {
+  const user = useSelector((state) => state.user);
+  const assignedWarehouseId = user?.warehouse_id ?? null;
+  const hasAssignedWarehouse = assignedWarehouseId !== null;
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+
+  const effectiveWarehouseId = hasAssignedWarehouse
+    ? assignedWarehouseId
+    : selectedWarehouse || null;
+
+  // ================================================================
+  // FETCH WAREHOUSES
+  // ================================================================
+
+  const { data: warehousesResponse, isFetching: isFetchingWarehouses } =
+    useFetchWarehousesQuery({}, { skip: hasAssignedWarehouse });
+
+  const warehousesData = warehousesResponse?.data ?? [];
+
+  // ================================================================
+  // FETCH INVENTORY MRP
+  // ================================================================
+
+  const {
+    data: inventoryMrpData,
+    isFetching: isFetchingInventoryMrp,
+    isError: isInventoryMrpError,
+    error: inventoryMrpError,
+  } = useFetchInventoryMrpQuery(
+    {
+      status: 1,
+      page,
+      per_page: pageSize,
+      search: debouncedSearch || undefined,
+      warehouse_id: effectiveWarehouseId,
+    },
+    {
+      skip: !effectiveWarehouseId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   // ================================================================
   // SEARCH DEBOUNCE
@@ -32,26 +75,9 @@ const InventoryMrp = () => {
     };
   }, [search]);
 
-  // ================================================================
-  // FETCH INVENTORY MRP
-  // ================================================================
-
-  const {
-    data: inventoryMrpData,
-    isFetching: isFetchingInventoryMrp,
-    isError: isInventoryMrpError,
-    error: inventoryMrpError,
-  } = useFetchInventoryMrpQuery(
-    {
-      status: 1,
-      page,
-      per_page: pageSize,
-      search: debouncedSearch || undefined,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [effectiveWarehouseId]);
 
   // ================================================================
   // EXTRACT FETCH INVENTORY MRP
@@ -115,8 +141,21 @@ const InventoryMrp = () => {
   }, [tableData?.last_page, tableIsFetching, page]);
 
   const handleExtract = async () => {
+    if (!effectiveWarehouseId) {
+      toast.add({
+        type: "warning",
+        title: "Select a warehouse",
+        description:
+          "Please select a warehouse before exporting Inventory MRP.",
+      });
+      return;
+    }
+
     try {
-      const blob = await extractInventoryMrp().unwrap();
+      // Pass warehouse_id if your export endpoint supports it.
+      const blob = await extractInventoryMrp({
+        warehouse_id: effectiveWarehouseId,
+      }).unwrap();
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -181,6 +220,22 @@ const InventoryMrp = () => {
           onPageSizeChange={handlePageSizeChange}
           search={search}
           onSearchChange={handleSearchChange}
+          filterSlot={
+            !hasAssignedWarehouse ? (
+              <div className="w-full sm:w-64">
+                <Dropdown
+                  data={warehousesData}
+                  value={selectedWarehouse}
+                  onChange={(value) => {
+                    setSelectedWarehouse(value);
+                    setPage(1);
+                  }}
+                  isLoading={isFetchingWarehouses}
+                  placeholder="Select warehouse"
+                />
+              </div>
+            ) : null
+          }
         />
       </div>
     </div>

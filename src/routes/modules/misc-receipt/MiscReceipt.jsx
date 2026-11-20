@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ArchiveRestore, Plus, Users } from "lucide-react";
@@ -19,14 +20,23 @@ import {
   useArchiveMiscReceiptMutation,
 } from "../../../api/modules/misc-receipt.api";
 
+import { useFetchWarehousesQuery } from "@/api/masterlist/warehouses.api";
+
 // import { useLazyFetchReceivingQuery } from "../../../api/modules/receiving.api"
 
 import MiscReceiptTable from "./MiscReceiptTable";
 
 const MiscReceipt = () => {
-  // ================================================================
-  // TABLE STATE
-  // ================================================================
+// ================================================================
+// TABLE STATE
+// ================================================================
+  
+  const user = useSelector((state) => state.user);
+  
+  const assignedWarehouseId = user?.warehouse_id ?? null;
+  const hasAssignedWarehouse = assignedWarehouseId !== null;
+  
+  const assignedWarehouseName = user?.warehouse?.name ?? "";
 
   const [status, setStatus] = useState("active");
   const [page, setPage] = useState(1);
@@ -39,6 +49,40 @@ const MiscReceipt = () => {
 
   const isPending = status === "pending";
   const isArchived = status === "archived";
+
+  // =======================================
+  // FETCH WAREHOUSES
+  // =======================================
+  const { data: warehousesData, isFetching: isFetchingWarehouses } =
+    useFetchWarehousesQuery(
+      { status: 1, pagination: "none" },
+      {
+        skip: hasAssignedWarehouse,
+      },
+    );
+
+  const warehouses = warehousesData?.data ?? [];
+
+  // ================================================================
+  // FETCH MISC RECEIPTS
+  // ================================================================
+
+  const {
+    data: miscReceiptsData,
+    isFetching: isFetchingMiscReceipts,
+    isError: isMiscReceiptsError,
+    error: miscReceiptsError,
+  } = useFetchMiscReceiptsQuery(
+    {
+      status: isArchived ? 0 : 1,
+      page,
+      per_page: pageSize,
+      search: debouncedSearch || undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   // ================================================================
   // SEARCH DEBOUNCE
@@ -61,31 +105,8 @@ const MiscReceipt = () => {
   // FETCH MISC RECEIPTS
   // ================================================================
 
-  const {
-    data: miscReceiptsData,
-    isFetching: isFetchingMiscReceipts,
-    isError: isMiscReceiptsError,
-    error: miscReceiptsError,
-  } = useFetchMiscReceiptsQuery(
-    {
-      status: isArchived ? 0 : 1,
-      page,
-      per_page: pageSize,
-      search: debouncedSearch || undefined,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    },
-    );
-
-  // ================================================================
-  // FETCH MISC RECEIPTS
-  // ================================================================
-
-  const [
-    fetchMiscReceiptById,
-    { isFetching: isFetchingMiscReceiptDetails }
-  ] = useLazyFetchMiscReceiptByIdQuery();
+  const [fetchMiscReceiptById, { isFetching: isFetchingMiscReceiptDetails }] =
+    useLazyFetchMiscReceiptByIdQuery();
 
   // ================================================================
   // FETCH MISC RECEIPTS WITH BATCH NUMBER LOOK UP
@@ -120,9 +141,8 @@ const MiscReceipt = () => {
   // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return miscReceiptsData;
-  });
+  const tableData = miscReceiptsData;
+ 
   const tableIsFetching = isFetchingMiscReceipts;
   const tableIsError = isMiscReceiptsError;
   const tableError = miscReceiptsError;
@@ -203,10 +223,10 @@ const MiscReceipt = () => {
         setSelectedRow(miscReceiptDetails);
         setMode("edit");
         setOpenCreate(true);
-      } catch(error) {
+      } catch (error) {
         const message =
-          error?.data?.message
-          ?? "Unable to retreive miscellaneous receipt details."
+          error?.data?.message ??
+          "Unable to retreive miscellaneous receipt details.";
 
         toast.add({
           type: "error",
@@ -232,7 +252,7 @@ const MiscReceipt = () => {
   const handleOpenAction = useCallback(
     (item, actionType) => {
       if (isMutationLoading) return;
-  
+
       setSelectedRow(item);
       setActionType(actionType);
       setOpenAction(true);
@@ -242,11 +262,11 @@ const MiscReceipt = () => {
 
   const handleCloseAction = useCallback(() => {
     if (isArchiving) return;
-  
+
     setOpenAction(false);
     clearSelectedRow();
   }, [isArchiving, clearSelectedRow]);
-  
+
   // ================================================================
   // STATUS CHANGE
   // ================================================================
@@ -370,16 +390,16 @@ const MiscReceipt = () => {
   // ================================================================
   // ACTION MUTATION
   // ================================================================
-  
+
   const handleConfirmAction = useCallback(async () => {
     if (!selectedRow || isArchiving) return;
-  
+
     const isRestore = actionType === "restore";
     const actionLabel = isRestore ? "restored" : "archived";
-  
+
     try {
       const response = await archiveMiscReceipt(selectedRow.id).unwrap();
-  
+
       toast.add({
         type: "success",
         title: `Miscellaneous Receipt ${actionLabel}`,
@@ -387,7 +407,7 @@ const MiscReceipt = () => {
           response?.message ??
           `The receipt has been ${actionLabel} successfully.`,
       });
-  
+
       setOpenAction(false);
       clearSelectedRow();
     } catch (error) {
@@ -395,14 +415,17 @@ const MiscReceipt = () => {
         error?.data?.message ??
         error?.data?.errors?.[0]?.detail ??
         `An error occurred while ${isRestore ? "restoring" : "archiving"} the receipt.`;
-  
+
       toast.add({
         type: "error",
         title: `Unable to ${isRestore ? "restore" : "archive"} receipt`,
         description: message,
       });
-  
-      console.error(`Failed to ${isRestore ? "restore" : "archive"} receipt:`, error);
+
+      console.error(
+        `Failed to ${isRestore ? "restore" : "archive"} receipt:`,
+        error,
+      );
     }
   }, [
     selectedRow,
@@ -545,6 +568,11 @@ const MiscReceipt = () => {
         isLoading={isCreating || isUpdating}
         mode={mode}
         selectedRow={selectedRow}
+        assignedWarehouseId={assignedWarehouseId}
+        assignedWarehouseName={assignedWarehouseName}
+        hasAssignedWarehouse={hasAssignedWarehouse}
+        warehouses={warehouses}
+        isFetchingWarehouses={isFetchingWarehouses}
         // onBatchLookup={handleBatchLookup}
       />
 

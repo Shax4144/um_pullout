@@ -121,11 +121,13 @@ const UserTable = ({
 
           return roleName ? (
             <Badge
-              variant="outline"
+              variant="default"
               className="
-                rounded-md
+                rounded-full
+                border
+                border-primary/40
                 px-2
-                py-0.5
+                py-2.5
                 text-xs
                 font-medium
                 capitalize
@@ -135,12 +137,12 @@ const UserTable = ({
             </Badge>
           ) : (
             <Badge
-              variant="outline"
+              variant="default"
               className="
-                rounded-md
+                rounded-full
                 border-dashed
                 px-2
-                py-0.5
+                py-2.5
                 text-xs
                 font-normal
                 text-foreground
@@ -187,10 +189,10 @@ const UserTable = ({
             <Badge
               variant={showArchived ? "archived" : showPending ? "warning" : "success"}
               className={`
-                gap-1.5
-                rounded-md
+                gap-2
+                rounded-full
                 px-2
-                py-0.5
+                py-2.5
                 text-xs
                 font-medium
               `}

@@ -71,11 +71,12 @@ const ROLE_OPTIONS = [
    are easier to distinguish visually.
 ==================================================================== */
 
-const PERMISSION_OPTIONS = [
+export const PERMISSION_OPTIONS = [
   {
     value: "dashboard",
     label: "Dashboard",
-    description: "View system dashboard and summaries.",
+    description:
+      "Access the dashboard and view system summaries and statistics.",
     badgeClass:
       "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-300",
     dotClass: "bg-sky-500",
@@ -83,7 +84,7 @@ const PERMISSION_OPTIONS = [
   {
     value: "masterlist",
     label: "Masterlist",
-    description: "Manage masterlist records.",
+    description: "View and manage master records and reference data.",
     badgeClass:
       "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
     dotClass: "bg-emerald-500",
@@ -91,7 +92,7 @@ const PERMISSION_OPTIONS = [
   {
     value: "user-management",
     label: "User Management",
-    description: "Manage users and their accounts.",
+    description: "Manage user accounts, roles, and access permissions.",
     badgeClass:
       "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300",
     dotClass: "bg-rose-500",
@@ -99,10 +100,60 @@ const PERMISSION_OPTIONS = [
   {
     value: "inventory",
     label: "Inventory",
-    description: "Monitor inventory",
+    description: "Access inventory monitoring and management features.",
     badgeClass:
       "border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300",
     dotClass: "bg-cyan-500",
+  },
+  {
+    value: "issue",
+    label: "Misc Issue",
+    description: "Create and manage miscellaneous item issuance transactions.",
+    badgeClass:
+      "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-300",
+    dotClass: "bg-orange-500",
+  },
+  {
+    value: "receipt",
+    label: "Misc Receipt",
+    description: "Create and manage miscellaneous item receipt transactions.",
+    badgeClass:
+      "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+    dotClass: "bg-purple-500",
+  },
+  {
+    value: "move-order",
+    label: "Move Order",
+    description:
+      "Create and manage inventory movement orders between locations.",
+    badgeClass:
+      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+    dotClass: "bg-amber-500",
+  },
+  {
+    value: "receiving",
+    label: "Receiving",
+    description: "Process and manage incoming inventory deliveries.",
+    badgeClass:
+      "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300",
+    dotClass: "bg-teal-500",
+  },
+  {
+    value: "transfer-in",
+    label: "Transfer In",
+    description:
+      "Receive and process inventory transfers from other warehouses.",
+    badgeClass:
+      "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300",
+    dotClass: "bg-indigo-500",
+  },
+  {
+    value: "transfer-out",
+    label: "Transfer Out",
+    description: "Prepare and process inventory transfers to other warehouses.",
+    badgeClass:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300",
+    dotClass: "bg-red-500",
   },
 ];
 
@@ -426,7 +477,9 @@ const AddRoleDialog = ({
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold">Role Name <RequiredMark /> </h3>
+                  <h3 className="text-sm font-semibold">
+                    Role Name <RequiredMark />{" "}
+                  </h3>
 
                   <p className="text-xs text-muted-foreground">
                     Select the role that best describes this access level.
@@ -491,7 +544,9 @@ const AddRoleDialog = ({
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold">Permissions <RequiredMark /> </h3>
+                  <h3 className="text-sm font-semibold">
+                    Permissions <RequiredMark />{" "}
+                  </h3>
 
                   <p className="text-xs text-muted-foreground">
                     Select one or more permissions for this role.
@@ -511,12 +566,13 @@ const AddRoleDialog = ({
                         variant="outline"
                         disabled={isLoading}
                         className="
+                          min-h-11
                           h-auto
-                          min-h-10
                           w-full
                           justify-between
                           gap-2
                           px-3
+                          py-2
                           text-left
                         "
                       />
@@ -528,9 +584,7 @@ const AddRoleDialog = ({
                           {selectedPermissions.map((value) => {
                             const permission = getPermission(value);
 
-                            if (!permission) {
-                              return null;
-                            }
+                            if (!permission) return null;
 
                             return (
                               <Badge
@@ -547,7 +601,6 @@ const AddRoleDialog = ({
                                 `}
                               >
                                 <span
-                                  aria-hidden="true"
                                   className={`
                                     mr-1.5
                                     h-1.5
@@ -563,7 +616,7 @@ const AddRoleDialog = ({
                           })}
                         </div>
                       ) : (
-                        <span className="truncate text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground">
                           Select permissions...
                         </span>
                       )}
@@ -576,7 +629,7 @@ const AddRoleDialog = ({
                         shrink-0
                         text-muted-foreground
                         transition-transform
-                        group-data-[popup-open]:rotate-180
+                        group-data-popup-open:rotate-180
                       "
                     />
                   </PopoverTrigger>
@@ -584,22 +637,28 @@ const AddRoleDialog = ({
                   <PopoverContent
                     align="start"
                     sideOffset={6}
+                    collisionPadding={16}
                     className="
-                      w-[var(--anchor-width)]
+                      w-(--radix-popover-trigger-width)
                       min-w-[320px]
                       max-w-[calc(100vw-2rem)]
+                      max-h-[35vh]
+                      overflow-hidden
                       rounded-xl
-                      p-2
+                      p-0
+                      shadow-lg
                     "
                   >
-                    <div className="mb-2 flex items-center justify-between px-2 py-1">
+                    {/* Header */}
+                    <div className="flex shrink-0 items-center justify-between border-b px-4 py-3">
                       <div>
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-semibold">
                           Select permissions
                         </p>
 
                         <p className="text-xs text-muted-foreground">
-                          {selectedPermissions.length} selected
+                          {selectedPermissions.length} of{" "}
+                          {PERMISSION_OPTIONS.length} selected
                         </p>
                       </div>
 
@@ -611,49 +670,62 @@ const AddRoleDialog = ({
                           onClick={handleClearPermissions}
                           className="
                             h-7
-                            cursor-pointer
                             px-2
                             text-xs
                             text-muted-foreground
                             hover:text-foreground
                           "
                         >
-                          Clear
+                          Clear all
                         </Button>
                       )}
                     </div>
 
-                    <div className="space-y-1">
-                      {PERMISSION_OPTIONS.map((permission) => {
-                        const isSelected = selectedPermissions.includes(
-                          permission.value,
-                        );
+                    {/* Scrollable Permission List */}
+                    <div
+                      className="
+                        max-h-[calc(60vh-65px)]
+                        overflow-y-auto
+                        overscroll-contain
+                        p-2
+                      "
+                    >
+                      <div className="space-y-1">
+                        {PERMISSION_OPTIONS.map((permission) => {
+                          const isSelected = selectedPermissions.includes(
+                            permission.value,
+                          );
 
-                        return (
-                          <button
-                            key={permission.value}
-                            type="button"
-                            onClick={() => handlePermissionToggle(permission)}
-                            className="
+                          return (
+                            <button
+                              key={permission.value}
+                              type="button"
+                              onClick={() => handlePermissionToggle(permission)}
+                              className={`
                                 flex
                                 w-full
-                                cursor-pointer
-                                items-center
+                                items-start
                                 gap-3
                                 rounded-lg
+                                border
                                 px-3
-                                py-2.5
+                                py-3
                                 text-left
                                 transition-colors
-                                hover:bg-muted
+                                ${
+                                  isSelected
+                                    ? "border-primary/20 bg-primary/5"
+                                    : "border-transparent hover:bg-muted"
+                                }
                                 focus-visible:outline-none
                                 focus-visible:ring-2
                                 focus-visible:ring-ring
-                              "
-                          >
-                            {/* Checkbox */}
-                            <span
-                              className={`
+                              `}
+                            >
+                              {/* Checkbox */}
+                              <span
+                                className={`
+                                  mt-0.5
                                   flex
                                   h-4
                                   w-4
@@ -669,34 +741,48 @@ const AddRoleDialog = ({
                                       : "border-input bg-background"
                                   }
                                 `}
-                            >
-                              {isSelected && <Check className="h-3 w-3" />}
-                            </span>
+                              >
+                                {isSelected && <Check className="h-3 w-3" />}
+                              </span>
 
-                            {/* Permission dot */}
-                            <span
-                              className={`
+                              {/* Permission Color Indicator */}
+                              <span
+                                className={`
+                                  mt-1.5
                                   h-2
                                   w-2
                                   shrink-0
                                   rounded-full
                                   ${permission.dotClass}
                                 `}
-                            />
+                              />
 
-                            {/* Text */}
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-medium">
-                                {permission.label}
+                              {/* Permission Details */}
+                              <span className="min-w-0 flex-1 space-y-1">
+                                <span className="block text-sm font-medium leading-none">
+                                  {permission.label}
+                                </span>
+
+                                <span className="block whitespace-normal text-xs leading-relaxed text-muted-foreground">
+                                  {permission.description}
+                                </span>
                               </span>
 
-                              <span className="mt-0.5 block text-xs text-muted-foreground">
-                                {permission.description}
-                              </span>
-                            </span>
-                          </button>
-                        );
-                      })}
+                              {/* Selected Indicator */}
+                              {isSelected && (
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="shrink-0 border-t bg-muted/30 px-4 py-2">
+                      <p className="text-xs text-muted-foreground">
+                        Select multiple permissions for this role.
+                      </p>
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -779,33 +865,13 @@ const AddRoleDialog = ({
             <Button
               type="button"
               variant="outline"
-              size="lg"
               onClick={onClose}
               disabled={isLoading}
-              className="
-                flex-1
-                cursor-pointer
-                font-medium
-                sm:flex-none
-              "
             >
               Cancel
             </Button>
 
-            <Button
-              form="role-form"
-              type="submit"
-              size="lg"
-              disabled={isLoading}
-              className="
-                flex-1
-                cursor-pointer
-                gap-2
-                font-semibold
-                sm:min-w-32
-                sm:flex-none
-              "
-            >
+            <Button form="role-form" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <span

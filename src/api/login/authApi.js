@@ -1,10 +1,24 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const authApi = createApi({
   reducerPath: "authApi",
+
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT
+    baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT,
+
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("access_token");
+
+      headers.set("Accept", "application/json");
+
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
+      return headers;
+    },
   }),
+
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -12,9 +26,15 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
-      transformResponse: (response) => response,
-    })
-  })
-})
+    }),
 
-export const { useLoginMutation } = authApi
+    logout: builder.mutation({
+      query: () => ({
+        url: "api/logout",
+        method: "POST",
+      }),
+    }),
+  }),
+});
+
+export const { useLoginMutation, useLogoutMutation } = authApi;

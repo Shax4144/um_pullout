@@ -6,12 +6,12 @@ const userManagementConfig = [
 		component: lazy(
 			() => import("../routes/user-management/user/UserAccount"),
 		),
-		// permissions: ["Masterlist"]
+		permissions: ["user-management"]
 	},
 	{
 		path: "roles",
     component: lazy(() => import("../routes/user-management/roles/Roles")),
-		// permissions: ["Masterlist"]
+		permissions: ["user-management"]
 	},
 ]
 

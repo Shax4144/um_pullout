@@ -3,11 +3,21 @@ import queryString from "query-string";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_REACT_APP_LOCAL_PORT,
+
   prepareHeaders: (headers) => {
     headers.set("Accept", "application/json");
-    headers.set("Authorization", `Bearer ${localStorage.getItem("access_token")}`);
+
+    const token = localStorage.getItem("access_token");
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      headers.delete("Authorization");
+    }
+
     return headers;
   },
+
   paramsSerializer: (params) => {
     return queryString.stringify(params, {
       skipNull: true,
@@ -19,9 +29,16 @@ const rawBaseQuery = fetchBaseQuery({
 const baseQueryWithAuthCheck = async (args, api, extraOptions) => {
   const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result?.error?.status === 401) {
-    localStorage.removeItem("token");
+  const requestUrl = typeof args === "string" ? args : args?.url;
+
+  const isLogoutRequest = requestUrl?.includes("api/logout");
+
+  if (result?.error?.status === 401 && !isLogoutRequest) {
+    localStorage.removeItem("access_token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("lastAuthorizedPath");
+
+    api.dispatch({ type: "auth/unauthenticate" });
 
     if (window.location.pathname !== "/") {
       window.location.href = "/";

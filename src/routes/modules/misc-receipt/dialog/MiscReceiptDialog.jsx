@@ -45,16 +45,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
 import Datepicker from "../../../../components/Datepicker";
+import Dropdown from "@/components/Dropdown";
 import AccountTitlesDropdown from "@/components/dropdowns/AccountTitlesDropdown";
 
 import { useLazyFetchItemsQuery } from "../../../../api/masterlist/items.api";
@@ -72,6 +66,7 @@ const createEmptyItem = () => ({
 const createEmptyForm = () => ({
   transaction_date: new Date(),
   description: "",
+  warehouse_id: "",
   remarks: "",
   items: [createEmptyItem()],
 });
@@ -95,11 +90,21 @@ const MiscReceiptDialog = ({
   onConfirm,
   isLoading,
   selectedRow,
+  assignedWarehouseId,
+  assignedWarehouseName,
+  hasAssignedWarehouse,
+  warehouses,
+  isFetchingWarehouses,
 }) => {
   const isEditMode = Boolean(selectedRow?.id);
 
   const [formData, setFormData] = useState(createEmptyForm);
   const [activeItemIndex, setActiveItemIndex] = useState(null);
+
+  // Determine which warehouse to use
+  const effectiveWarehouseId = hasAssignedWarehouse
+    ? assignedWarehouseId
+    : formData.warehouse_id;
 
   // =======================================
   // ITEM MASTERLIST - LAZY FETCH
@@ -139,6 +144,9 @@ const MiscReceiptDialog = ({
               type.label.toLowerCase() ===
                 selectedRow.description?.toLowerCase(),
           )?.value ?? "",
+        warehouse_id: String(
+          selectedRow.warehouse?.id ?? selectedRow.warehouse_id ?? "",
+        ),
         remarks: selectedRow.remarks ?? "",
 
         items: (
@@ -252,6 +260,9 @@ const MiscReceiptDialog = ({
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // Stop submission if no warehouse is selected
+    if (!effectiveWarehouseId) return;
+
     const miscellaneous_inventory = formData.items.map((item) => ({
       item_id: Number(item.item_id),
       uom_id: Number(item.uom_id),
@@ -286,6 +297,7 @@ const MiscReceiptDialog = ({
     const payload = {
       transaction_date: format(formData.transaction_date, "yyyy-MM-dd"),
       description: formData.description,
+      warehouse_id: Number(effectiveWarehouseId),
       remarks: formData.remarks.trim(),
       miscellaneous_inventory,
     };
@@ -335,10 +347,10 @@ const MiscReceiptDialog = ({
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
+              {/* Transaction Date */}
               <div className="grid gap-2">
                 <Label>Transaction Date</Label>
-
                 <Datepicker
                   variant="outline"
                   value={formData.transaction_date}
@@ -355,37 +367,44 @@ const MiscReceiptDialog = ({
                 />
               </div>
 
+              {/* Description Type */}
               <div className="grid gap-2">
                 <Label htmlFor="description">Description Type</Label>
 
-                <Select
+                <Dropdown
+                  data={DESCRIPTION_TYPE}
                   value={formData.description}
-                  onValueChange={(value) =>
+                  onChange={(value) =>
                     setFormData((current) => ({
                       ...current,
                       description: value,
                     }))
                   }
-                  disabled={isLoading || isEditMode}
-                >
-                  <SelectTrigger id="description" className="w-full">
-                    <SelectValue placeholder="Select description type">
-                      {
-                        DESCRIPTION_TYPE.find(
-                          (type) => type.value === formData.description,
-                        )?.label
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
+                  isLoading={isLoading || isEditMode}
+                  placeholder="Select description type"
+                />
+              </div>
 
-                  <SelectContent>
-                    {DESCRIPTION_TYPE.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Warehouse */}
+              <div className="grid gap-2">
+                <Label>Warehouse</Label>
+
+                {hasAssignedWarehouse ? (
+                  <Input value={assignedWarehouseName} disabled />
+                ) : (
+                  <Dropdown
+                    data={warehouses}
+                    value={formData.warehouse_id}
+                    onChange={(value) =>
+                      setFormData((current) => ({
+                        ...current,
+                        warehouse_id: value,
+                      }))
+                    }
+                    isLoading={isFetchingWarehouses || isLoading}
+                    placeholder="Select warehouse"
+                  />
+                )}
               </div>
             </div>
 
@@ -457,8 +476,10 @@ const MiscReceiptDialog = ({
                   <TableRow>
                     <TableHead className="min-w-48">Item Code</TableHead>
                     <TableHead className="min-w-40 ">Item Name</TableHead>
-                    <TableHead className="min-w-24 text-center">UOM</TableHead>
-                    <TableHead className="min-w-24 text-center">Account Title</TableHead>
+                    <TableHead className="min-w-15 text-center">UOM</TableHead>
+                    <TableHead className="min-w-90 text-center">
+                      Account Title
+                    </TableHead>
                     <TableHead className="min-w-36 text-center">
                       Quantity
                     </TableHead>
@@ -616,7 +637,7 @@ const MiscReceiptDialog = ({
                             {item.uom || "—"}
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="min-w-50">
                             <AccountTitlesDropdown
                               value={item.account_title_id}
                               onChange={(accountTitleId) =>
@@ -654,7 +675,7 @@ const MiscReceiptDialog = ({
                               placeholder="0"
                               // required
                               disabled={isLoading || isEditMode}
-                              className="max-w-18 hide-arrow text-center"
+                              className="max-w-25 hide-arrow text-center"
                             />
                           </TableCell>
 
@@ -701,6 +722,7 @@ const MiscReceiptDialog = ({
               form="receiving-form"
               disabled={
                 isLoading ||
+                !effectiveWarehouseId ||
                 !DESCRIPTION_TYPE.some(
                   (type) => type.value === formData.description,
                 ) ||

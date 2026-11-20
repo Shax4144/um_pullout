@@ -20,17 +20,23 @@ import {
   useUpdateMiscIssueMutation,
   useArchiveMiscIssueMutation,
 } from "../../../api/modules/misc-issue.api";
-
+import { useFetchWarehousesQuery } from "@/api/masterlist/warehouses.api";
 import MiscIssueTable from "./MiscIssueTable";
 
 const MiscIssue = () => {
   // ================================================================
   // TABLE STATE
   // ================================================================
-  const userDetails = useSelector((state) => state.user);
-  const tagWarehouseName = userDetails?.warehouse?.name;
-  const tagWarehouseId = userDetails?.warehouse_id ?? userDetails?.warehouse?.id;
+  const user = useSelector((state) => state.user);
   
+  const assignedWarehouseId =
+    user?.warehouse_id ?? user?.warehouse?.id ?? null;
+  
+  const assignedWarehouseName = user?.warehouse?.name ?? "";
+  
+  const hasAssignedWarehouse =
+    assignedWarehouseId !== null && assignedWarehouseId !== "";
+
   const [status, setStatus] = useState("active");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -40,6 +46,49 @@ const MiscIssue = () => {
 
   const isPending = status === "pending";
   const isArchived = status === "archived";
+
+  // =======================================
+  // FETCH WAREHOUSES
+  // =======================================
+  const { data: warehousesData, isFetching: isFetchingWarehouses } =
+    useFetchWarehousesQuery(
+      {
+        status: 1,
+        pagination: "none",
+      },
+      {
+        skip: hasAssignedWarehouse,
+      },
+    );
+
+  const warehouses = warehousesData?.data ?? [];
+
+  // ================================================================
+  // FETCH MISC ISSUES
+  // ================================================================
+
+  const {
+    data: miscIssuesData,
+    isFetching: isFetchingIssues,
+    isError: isIssuesError,
+    error: issuesError,
+  } = useFetchMiscIssuesQuery(
+    {
+      status: isArchived ? 0 : 1,
+      page,
+      per_page: pageSize,
+      search: debouncedSearch || undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  // ================================================================
+  // FETCH ISSUE BY ID
+  // ================================================================
+  const [fetchIssueById, { isFetching: isFetchingIssueDetails }] =
+    useLazyFetchMiscIssueByIdQuery();
 
   // ================================================================
   // SEARCH DEBOUNCE
@@ -59,40 +108,9 @@ const MiscIssue = () => {
   }, [search]);
 
   // ================================================================
-  // FETCH MISC RECEIPTS
-  // ================================================================
-
-  const {
-    data: miscIssuesData,
-    isFetching: isFetchingIssues,
-    isError: isIssuesError,
-    error: issuesError,
-  } = useFetchMiscIssuesQuery(
-    {
-      status: isArchived ? 0 : 1,
-      page,
-      per_page: pageSize,
-      search: debouncedSearch || undefined,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    },
-    );
-  
-  // ================================================================
-  // FETCH ISSUE BY ID
-  // ================================================================
-  const [
-    fetchIssueById,
-    { isFetching: isFetchingIssueDetails },
-  ] = useLazyFetchMiscIssueByIdQuery();
-
-  // ================================================================
   // DERIVED TABLE DATA
   // ================================================================
-  const tableData = useMemo(() => {
-    return miscIssuesData;
-  });
+  const tableData =  miscIssuesData;
   const tableIsFetching = isFetchingIssues;
   const tableIsError = isIssuesError;
   const tableError = issuesError;
@@ -171,14 +189,14 @@ const MiscIssue = () => {
       try {
         const response = await fetchIssueById(issue.id).unwrap();
         const issueDetails = response?.data ?? response ?? [];
-        
+
         setSelectedRow(issueDetails);
         setMode("edit");
         setOpenCreate(true);
       } catch (error) {
-        const message = 
+        const message =
           error?.data?.message ??
-          "Unable to retrieve the miscellaneous issue details."
+          "Unable to retrieve the miscellaneous issue details.";
 
         toast.add({
           type: "error",
@@ -188,15 +206,8 @@ const MiscIssue = () => {
 
         console.error("Failed to fetch issue: ", error);
       }
-
-      
     },
-    [
-      isMutationLoading,
-      isFetchingIssueDetails,
-      fetchIssueById,
-      setSelectedRow,
-    ],
+    [isMutationLoading, isFetchingIssueDetails, fetchIssueById, setSelectedRow],
   );
 
   // ================================================================
@@ -593,8 +604,11 @@ const MiscIssue = () => {
         isLoading={isCreating || isUpdating}
         mode={mode}
         selectedRow={selectedRow}
-        tagWarehouseName={tagWarehouseName}
-        tagWarehouseId={tagWarehouseId}
+        assignedWarehouseId={assignedWarehouseId}
+        assignedWarehouseName={assignedWarehouseName}
+        hasAssignedWarehouse={hasAssignedWarehouse}
+        warehouses={warehouses}
+        isFetchingWarehouses={isFetchingWarehouses}
       />
 
       {/* ============================================================

@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { authenticate } from "./app/auth/auth.slice";
 import { setUserDetails } from "./app/users/users.slice";
 import { useLoginMutation } from "./api/login/authApi";
-
+import { getLoginDestination } from "./utils/route-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,16 +28,6 @@ const Landing = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(null);
 
-  const getDestination = (user) => {
-    const permissions = user?.permissions ?? [];
-
-    if (permissions.includes("Masterlist")) {
-      return "/user-accounts";
-    }
-
-    return "/access-denied";
-  };
-
   const handleChange = (field) => (e) => {
     setCredential((prev) => ({
       ...prev,
@@ -56,26 +46,40 @@ const Landing = () => {
       const response = await login(credential).unwrap();
       const { access_token, user } = response;
 
+      // Store authentication information
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("user", JSON.stringify(user));
 
+      // Clear previous user's navigation history
+      sessionStorage.removeItem("lastAuthorizedPath");
+
+      // Update Redux state
       dispatch(setUserDetails(user));
       dispatch(authenticate());
 
-      navigate(getDestination(user));
+      // Determine an accessible destination
+      const destination = getLoginDestination(user?.permissions ?? []);
+
+      // Navigate into the application
+      navigate(destination, { replace: true });
 
       toast.add({
         type: "success",
         title: "Login Successful",
-        description: response?.data?.message || "",
+        description: response?.message || "Welcome back!",
       });
     } catch (error) {
       console.error("Login failed:", error);
+
       setLoginError("Something went wrong while signing in.");
+
       toast.add({
         type: "error",
         title: "Login failed",
-        description: error?.message || "There was an error logging in.",
+        description:
+          error?.data?.message ||
+          error?.message ||
+          "There was an error logging in.",
       });
     }
   };
@@ -333,7 +337,9 @@ const Landing = () => {
       </div>
       <div className="absolute bottom-0 right-2 z-10">
         <p className="text-center text-xs text-muted-foreground">
-          Version 1.0.0 · Patched on: October 05, 2026
+          Version 1.0.0 · Patched on: 
+          {/* October 05, 2026 */}
+          November 19, 2026
         </p>
       </div>
     </div>
